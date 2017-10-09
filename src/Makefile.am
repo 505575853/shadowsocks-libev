@@ -1,6 +1,6 @@
 VERSION_INFO = 2:0:0
 
-AM_CFLAGS = -g -O2 -Wall -Werror -Wno-deprecated-declarations -fno-strict-aliasing -std=gnu99 -D_GNU_SOURCE
+AM_CFLAGS = -O2 -Wall -Werror -Wno-deprecated-declarations -fno-strict-aliasing -std=gnu99 -D_GNU_SOURCE
 AM_CFLAGS += $(PTHREAD_CFLAGS)
 if !USE_SYSTEM_SHARED_LIB
 AM_CFLAGS += -I$(top_srcdir)/libev
@@ -111,9 +111,9 @@ ss_redir_LDADD += $(top_builddir)/libudns/libudns.la
 endif
 endif
 
-lib_LTLIBRARIES = libshadowsocks-libev.la
-libshadowsocks_libev_la_SOURCES = $(ss_local_SOURCES)
-libshadowsocks_libev_la_CFLAGS = $(ss_local_CFLAGS) -DLIB_ONLY
-libshadowsocks_libev_la_LDFLAGS = -version-info $(VERSION_INFO)
-libshadowsocks_libev_la_LIBADD = $(ss_local_LDADD)
+# lib_LTLIBRARIES = libshadowsocks-libev.la
+# libshadowsocks_libev_la_SOURCES = $(ss_local_SOURCES)
+# libshadowsocks_libev_la_CFLAGS = $(ss_local_CFLAGS) -DLIB_ONLY
+# libshadowsocks_libev_la_LDFLAGS = -version-info $(VERSION_INFO)
+# libshadowsocks_libev_la_LIBADD = $(ss_local_LDADD)
 include_HEADERS = shadowsocks.h
