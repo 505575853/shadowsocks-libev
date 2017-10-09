@@ -202,6 +202,7 @@ int ss_encrypt_all(cipher_env_t* env, buffer_t *plaintext, size_t capacity);
 int ss_decrypt_all(cipher_env_t* env, buffer_t *ciphertext, size_t capacity);
 int ss_encrypt(cipher_env_t* env, buffer_t *plaintext, enc_ctx_t *ctx, size_t capacity);
 int ss_decrypt(cipher_env_t* env, buffer_t *ciphertext, enc_ctx_t *ctx, size_t capacity);
+int ss_support_armv8();
 
 int enc_init(cipher_env_t *env, const char *pass, const char *method);
 void enc_release(cipher_env_t *env);

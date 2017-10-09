@@ -59,9 +59,11 @@
 
 #include <mbedtls/md5.h>
 #include <mbedtls/entropy.h>
+#include <mbedtls/entropy_poll.h>
 #include <mbedtls/ctr_drbg.h>
 #include <mbedtls/version.h>
 #include <mbedtls/aes.h>
+#include <mbedtls/aesarm.h>
 #define CIPHER_UNSUPPORTED "unsupported"
 
 #include <time.h>
@@ -74,7 +76,7 @@
 
 #endif
 
-#include <sodium.h>
+// #include <sodium.h>
 
 #ifndef __MINGW32__
 #include <arpa/inet.h>
@@ -245,6 +247,11 @@ static const int supported_ciphers_key_size[CIPHER_NUM] = {
     16, 16, 16, 16, 16, 16, 24, 32, 16, 24, 32, 16, 16, 24, 32, 16,  8, 16, 16, 16, 32, 32, 32
 };
 
+/* Implementation that should never be optimized out by the compiler */
+static void sodium_memzero( void *v, size_t n ) {
+    volatile unsigned char *p = v; while( n-- ) *p++ = 0;
+}
+
 int
 balloc(buffer_t *ptr, size_t capacity)
 {
@@ -280,22 +287,22 @@ bfree(buffer_t *ptr)
     }
 }
 
-static int
-crypto_stream_xor_ic(uint8_t *c, const uint8_t *m, uint64_t mlen,
-                     const uint8_t *n, uint64_t ic, const uint8_t *k,
-                     int method)
-{
-    switch (method) {
-    case SALSA20:
-        return crypto_stream_salsa20_xor_ic(c, m, mlen, n, ic, k);
-    case CHACHA20:
-        return crypto_stream_chacha20_xor_ic(c, m, mlen, n, ic, k);
-    case CHACHA20IETF:
-        return crypto_stream_chacha20_ietf_xor_ic(c, m, mlen, n, (uint32_t)ic, k);
-    }
-    // always return 0
-    return 0;
-}
+// static int
+// crypto_stream_xor_ic(uint8_t *c, const uint8_t *m, uint64_t mlen,
+//                      const uint8_t *n, uint64_t ic, const uint8_t *k,
+//                      int method)
+// {
+//     switch (method) {
+//     case SALSA20:
+//         return crypto_stream_salsa20_xor_ic(c, m, mlen, n, ic, k);
+//     case CHACHA20:
+//         return crypto_stream_chacha20_xor_ic(c, m, mlen, n, ic, k);
+//     case CHACHA20IETF:
+//         return crypto_stream_chacha20_ietf_xor_ic(c, m, mlen, n, (uint32_t)ic, k);
+//     }
+//     // always return 0
+//     return 0;
+// }
 
 static int
 random_compare(const void *_x, const void *_y, uint32_t i,
@@ -601,9 +608,35 @@ bytes_to_key(const cipher_t *cipher, const digest_type_t *md,
 int
 rand_bytes(uint8_t *output, int len)
 {
-    randombytes_buf(output, len);
-    // always return success
-    return 0;
+#if defined(USE_CRYPTO_OPENSSL)
+    return RAND_bytes(output, len);
+#elif defined(USE_CRYPTO_MBEDTLS)
+    static mbedtls_entropy_context ec = {};
+    static mbedtls_ctr_drbg_context cd_ctx = {};
+    static unsigned char rand_initialised = 0;
+    if (!rand_initialised) {
+        size_t olen;
+        uint8_t rand_buffer[8];
+        mbedtls_platform_entropy_poll(&olen, rand_buffer, 8, &olen);
+        mbedtls_entropy_init(&ec);
+        mbedtls_ctr_drbg_init(&cd_ctx);
+        if (mbedtls_ctr_drbg_seed(&cd_ctx, mbedtls_entropy_func, &ec,
+                                  (const unsigned char *)rand_buffer, 8) != 0) {
+            mbedtls_entropy_free(&ec);
+            FATAL("mbed TLS: Failed to initialize random generator");
+        }
+        rand_initialised = 1;
+    }
+    while (len > 0) {
+        const size_t blen = min(len, MBEDTLS_CTR_DRBG_MAX_REQUEST);
+        if (mbedtls_ctr_drbg_random(&cd_ctx, output, blen) != 0) {
+            return 0;
+        }
+        output += blen;
+        len    -= blen;
+    }
+    return 1;
+#endif
 }
 
 const cipher_kt_t *
@@ -1046,10 +1079,10 @@ ss_encrypt_all(cipher_env_t* env, buffer_t *plain, size_t capacity)
         memcpy(cipher->array, iv, iv_len);
 
         if (method >= SALSA20) {
-            crypto_stream_xor_ic((uint8_t *)(cipher->array + iv_len),
-                                 (const uint8_t *)plain->array, (uint64_t)(plain->len),
-                                 (const uint8_t *)iv,
-                                 0, env->enc_key, method);
+            // crypto_stream_xor_ic((uint8_t *)(cipher->array + iv_len),
+            //                      (const uint8_t *)plain->array, (uint64_t)(plain->len),
+            //                      (const uint8_t *)iv,
+            //                      0, env->enc_key, method);
         } else {
             err = cipher_context_update(&evp, (uint8_t *)(cipher->array + iv_len),
                                         &cipher->len, (const uint8_t *)plain->array,
@@ -1112,24 +1145,24 @@ ss_encrypt(cipher_env_t *env, buffer_t *plain, enc_ctx_t *ctx, size_t capacity)
         }
 
         if (env->enc_method >= SALSA20) {
-            int padding = ctx->counter % SODIUM_BLOCK_SIZE;
-            brealloc(cipher, iv_len + (padding + cipher->len) * 2, capacity);
-            if (padding) {
-                brealloc(plain, plain->len + padding, capacity);
-                memmove(plain->array + padding, plain->array, plain->len);
-                sodium_memzero(plain->array, padding);
-            }
-            crypto_stream_xor_ic((uint8_t *)(cipher->array + iv_len),
-                                 (const uint8_t *)plain->array,
-                                 (uint64_t)(plain->len + padding),
-                                 (const uint8_t *)ctx->evp.iv,
-                                 ctx->counter / SODIUM_BLOCK_SIZE, env->enc_key,
-                                 env->enc_method);
-            ctx->counter += plain->len;
-            if (padding) {
-                memmove(cipher->array + iv_len,
-                        cipher->array + iv_len + padding, cipher->len);
-            }
+            // int padding = ctx->counter % SODIUM_BLOCK_SIZE;
+            // brealloc(cipher, iv_len + (padding + cipher->len) * 2, capacity);
+            // if (padding) {
+            //     brealloc(plain, plain->len + padding, capacity);
+            //     memmove(plain->array + padding, plain->array, plain->len);
+            //     sodium_memzero(plain->array, padding);
+            // }
+            // crypto_stream_xor_ic((uint8_t *)(cipher->array + iv_len),
+            //                      (const uint8_t *)plain->array,
+            //                      (uint64_t)(plain->len + padding),
+            //                      (const uint8_t *)ctx->evp.iv,
+            //                      ctx->counter / SODIUM_BLOCK_SIZE, env->enc_key,
+            //                      env->enc_method);
+            // ctx->counter += plain->len;
+            // if (padding) {
+            //     memmove(cipher->array + iv_len,
+            //             cipher->array + iv_len + padding, cipher->len);
+            // }
         } else {
             err =
                 cipher_context_update(&ctx->evp,
@@ -1189,10 +1222,10 @@ ss_decrypt_all(cipher_env_t* env, buffer_t *cipher, size_t capacity)
         cipher_context_set_iv(env, &evp, iv, iv_len, 0);
 
         if (method >= SALSA20) {
-            crypto_stream_xor_ic((uint8_t *)plain->array,
-                                 (const uint8_t *)(cipher->array + iv_len),
-                                 (uint64_t)(cipher->len - iv_len),
-                                 (const uint8_t *)iv, 0, env->enc_key, method);
+            // crypto_stream_xor_ic((uint8_t *)plain->array,
+            //                      (const uint8_t *)(cipher->array + iv_len),
+            //                      (uint64_t)(cipher->len - iv_len),
+            //                      (const uint8_t *)iv, 0, env->enc_key, method);
         } else {
             ret = cipher_context_update(&evp, (uint8_t *)plain->array, &plain->len,
                                         (const uint8_t *)(cipher->array + iv_len),
@@ -1265,25 +1298,25 @@ ss_decrypt(cipher_env_t* env, buffer_t *cipher, enc_ctx_t *ctx, size_t capacity)
         }
 
         if (env->enc_method >= SALSA20) {
-            int padding = ctx->counter % SODIUM_BLOCK_SIZE;
-            brealloc(plain, (plain->len + padding) * 2, capacity);
+            // int padding = ctx->counter % SODIUM_BLOCK_SIZE;
+            // brealloc(plain, (plain->len + padding) * 2, capacity);
 
-            if (padding) {
-                brealloc(cipher, cipher->len + padding, capacity);
-                memmove(cipher->array + iv_len + padding, cipher->array + iv_len,
-                        cipher->len - iv_len);
-                sodium_memzero(cipher->array + iv_len, padding);
-            }
-            crypto_stream_xor_ic((uint8_t *)plain->array,
-                                 (const uint8_t *)(cipher->array + iv_len),
-                                 (uint64_t)(cipher->len - iv_len + padding),
-                                 (const uint8_t *)ctx->evp.iv,
-                                 ctx->counter / SODIUM_BLOCK_SIZE, env->enc_key,
-                                 env->enc_method);
-            ctx->counter += cipher->len - iv_len;
-            if (padding) {
-                memmove(plain->array, plain->array + padding, plain->len);
-            }
+            // if (padding) {
+            //     brealloc(cipher, cipher->len + padding, capacity);
+            //     memmove(cipher->array + iv_len + padding, cipher->array + iv_len,
+            //             cipher->len - iv_len);
+            //     sodium_memzero(cipher->array + iv_len, padding);
+            // }
+            // crypto_stream_xor_ic((uint8_t *)plain->array,
+            //                      (const uint8_t *)(cipher->array + iv_len),
+            //                      (uint64_t)(cipher->len - iv_len + padding),
+            //                      (const uint8_t *)ctx->evp.iv,
+            //                      ctx->counter / SODIUM_BLOCK_SIZE, env->enc_key,
+            //                      env->enc_method);
+            // ctx->counter += cipher->len - iv_len;
+            // if (padding) {
+            //     memmove(plain->array, plain->array + padding, plain->len);
+            // }
         } else {
             err = cipher_context_update(&ctx->evp, (uint8_t *)plain->array, &plain->len,
                                         (const uint8_t *)(cipher->array + iv_len),
@@ -1431,9 +1464,9 @@ enc_key_init(cipher_env_t *env, int method, const char *pass)
     memset(&cipher, 0, sizeof(cipher_t));
 
     // Initialize sodium for random generator
-    if (sodium_init() == -1) {
-        FATAL("Failed to initialize sodium");
-    }
+    // if (sodium_init() == -1) {
+    //     FATAL("Failed to initialize sodium");
+    // }
 
     if (method == SALSA20 || method == CHACHA20 || method == CHACHA20IETF) {
 #if defined(USE_CRYPTO_OPENSSL)
@@ -1533,4 +1566,14 @@ enc_release(cipher_env_t *env) {
     } else {
         cache_delete(env->iv_cache, 0);
     }
+}
+
+int
+ss_support_armv8()
+{
+#if defined(USE_CRYPTO_MBEDTLS) && defined(MBEDTLS_HAVE_ARM64)
+    return mbedtls_aesarm_has_support();
+#else
+    return 0;
+#endif
 }

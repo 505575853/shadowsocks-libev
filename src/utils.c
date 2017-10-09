@@ -38,6 +38,7 @@
 #include <sys/stat.h>
 
 #include "utils.h"
+#include "encrypt.h"
 
 #ifdef HAVE_SETRLIMIT
 #include <sys/time.h>
@@ -256,8 +257,12 @@ ss_realloc(void *ptr, size_t new_size)
 void
 usage()
 {
-    printf("\n");
-    printf("shadowsocks-libev %s with %s\n\n", VERSION, USING_CRYPTO);
+    const char *HARD_ACC = "";
+    printf("\n");   
+    if (ss_support_armv8()) {
+        HARD_ACC = " (armv8 AES)";
+    }
+    printf("shadowsocks-libev %s with %s%s\n\n", VERSION, USING_CRYPTO, HARD_ACC);
     printf(
         "  maintained by Max Lv <max.c.lv@gmail.com> and Linus Yang <laokongzi@gmail.com>\n\n");
     printf("  usage:\n\n");
