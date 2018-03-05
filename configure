@@ -14005,7 +14005,7 @@ fi
 
 case $host in
   *-mingw*)
-    LIBS="$LIBS -ladvapi32 -lgdi32 -lws2_32 -lcrypt32"
+    LIBS="$LIBS -lgdi32 -lws2_32"
     ;;
   *)
     ;;
@@ -14872,19 +14872,6 @@ case $host in
 $as_echo "Linux" >&6; }
     ;;
   *-mingw*)
-
-$as_echo "#define FD_SETSIZE 2048" >>confdefs.h
-
-
-$as_echo "#define EV_FD_TO_WIN32_HANDLE(fd) (fd)" >>confdefs.h
-
-
-$as_echo "#define EV_WIN32_HANDLE_TO_FD(handle) (handle)" >>confdefs.h
-
-
-$as_echo "#define EV_WIN32_CLOSE_FD(fd) closesocket(fd)" >>confdefs.h
-
-
     os_support=mingw
     { $as_echo "$as_me:${as_lineno-$LINENO}: result: MinGW" >&5
 $as_echo "MinGW" >&6; }
@@ -15502,7 +15489,7 @@ case $host in
 
 $as_echo "#define CONNECT_IN_PROGRESS WSAEWOULDBLOCK" >>confdefs.h
 
-    for ac_header in windows.h winsock2.h ws2tcpip.h
+    for ac_header in winsock2.h ws2tcpip.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
@@ -16525,55 +16512,6 @@ _ACEOF
 fi
 done
 
-
-if test "$ac_cv_func_select" != "yes"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for select in ws2_32" >&5
-$as_echo_n "checking for select in ws2_32... " >&6; }
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-#ifdef HAVE_WINSOCK2_H
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-#include <winsock2.h>
-#endif
-
-int
-main ()
-{
-
-      select(0,(fd_set *)NULL,(fd_set *)NULL,(fd_set *)NULL,(struct timeval *)NULL);
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-
-      { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-      HAVE_SELECT="1"
-
-cat >>confdefs.h <<_ACEOF
-#define HAVE_SELECT 1
-_ACEOF
-
-      HAVE_SYS_SELECT_H="1"
-
-cat >>confdefs.h <<_ACEOF
-#define HAVE_SYS_SELECT_H 1
-_ACEOF
-
-
-else
-
-      as_fn_error $? "no" "$LINENO" 5
-
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for connect in -lsocket" >&5
 $as_echo_n "checking for connect in -lsocket... " >&6; }
