@@ -33,12 +33,12 @@ winsock_init(void)
     WORD wVersionRequested;
     WSADATA wsaData;
     int ret;
-    wVersionRequested = MAKEWORD(1, 1);
+    wVersionRequested = MAKEWORD(2, 2);
     ret               = WSAStartup(wVersionRequested, &wsaData);
     if (ret != 0) {
         FATAL("Could not initialize winsock");
     }
-    if (LOBYTE(wsaData.wVersion) != 1 || HIBYTE(wsaData.wVersion) != 1) {
+    if (LOBYTE(wsaData.wVersion) != 2 || HIBYTE(wsaData.wVersion) != 2) {
         WSACleanup();
         FATAL("Could not find a usable version of winsock");
     }
