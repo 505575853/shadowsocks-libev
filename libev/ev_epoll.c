@@ -63,7 +63,11 @@
  * file descriptors.
  */
 
+#ifdef _WIN32
+#include "wepoll.h"
+#else
 #include <sys/epoll.h>
+#endif
 
 #define EV_EMASK_EPERM 0x80
 
@@ -248,7 +252,9 @@ epoll_init (EV_P_ int flags)
   if (backend_fd < 0)
     return 0;
 
+#ifndef _WIN32
   fcntl (backend_fd, F_SETFD, FD_CLOEXEC);
+#endif
 
   backend_mintime = 1e-3; /* epoll does sometimes return early, this is just to avoid the worst */
   backend_modify  = epoll_modify;
@@ -270,12 +276,18 @@ epoll_destroy (EV_P)
 void inline_size
 epoll_fork (EV_P)
 {
+#ifdef _WIN32
+  epoll_close (backend_fd);
+#else
   close (backend_fd);
+#endif
 
   while ((backend_fd = epoll_create (256)) < 0)
     ev_syserr ("(libev) epoll_create");
 
+#ifndef _WIN32
   fcntl (backend_fd, F_SETFD, FD_CLOEXEC);
+#endif
 
   fd_rearm_all (EV_A);
 }
