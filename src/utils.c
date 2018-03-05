@@ -258,9 +258,13 @@ void
 usage()
 {
     const char *HARD_ACC = "";
-    printf("\n");   
-    if (ss_support_armv8()) {
-        HARD_ACC = " (armv8 AES)";
+    printf("\n");
+    int hard_aes = ss_support_armv8();
+    if (hard_aes == 1) {
+        HARD_ACC = " (Assembly AES)";
+    }
+    if (hard_aes == 2) {
+        HARD_ACC = " (Hardware AES)";
     }
     printf("shadowsocks-libev %s with %s%s\n\n", VERSION, USING_CRYPTO, HARD_ACC);
     printf(

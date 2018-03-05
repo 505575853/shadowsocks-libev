@@ -63,7 +63,7 @@
 #include <mbedtls/ctr_drbg.h>
 #include <mbedtls/version.h>
 #include <mbedtls/aes.h>
-#include <mbedtls/aesarm.h>
+#include <mbedtls/aesasm.h>
 #define CIPHER_UNSUPPORTED "unsupported"
 
 #include <time.h>
@@ -1571,9 +1571,5 @@ enc_release(cipher_env_t *env) {
 int
 ss_support_armv8()
 {
-#if defined(USE_CRYPTO_MBEDTLS) && defined(MBEDTLS_HAVE_ARM64)
-    return mbedtls_aesarm_has_support();
-#else
-    return 0;
-#endif
+    return mbedtls_asm_supported();
 }
