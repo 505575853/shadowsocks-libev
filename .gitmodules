@@ -1,6 +1,6 @@
 [submodule "libcork"]
 	path = libcork
-	url = https://github.com/shadowsocks/libcork.git
+	url = https://github.com/linusyang92/libcork.git
     ignore = dirty
 [submodule "libipset"]
 	path = libipset
