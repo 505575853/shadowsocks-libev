@@ -53,14 +53,22 @@ winsock_cleanup(void)
 void
 ss_error(const char *s)
 {
-    LPVOID *msg = NULL;
+    char *msg = NULL;
+    DWORD err = GetLastError();
     FormatMessage(
-        FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-        NULL, WSAGetLastError(),
+        FORMAT_MESSAGE_ALLOCATE_BUFFER |
+        FORMAT_MESSAGE_FROM_SYSTEM |
+        FORMAT_MESSAGE_IGNORE_INSERTS,
+        NULL, err,
         MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
         (LPTSTR)&msg, 0, NULL);
     if (msg != NULL) {
-        LOGE("%s: %s", s, (char *)msg);
+        // Remove trailing newline character
+        ssize_t len = strlen(msg) - 1;
+        if (len >= 0 && msg[len] == '\n') {
+            msg[len] = '\0';
+        }
+        LOGE("%s: [%ld] %s", s, err, msg);
         LocalFree(msg);
     }
 }
