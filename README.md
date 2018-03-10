@@ -336,6 +336,23 @@ Install shadowsocks-libev:
 brew install shadowsocks-libev
 ```
 
+### Windows (MinGW)
+To build Windows native binaries, the recommended method is to use Docker:
+
+* On Windows: double-click `make.bat` in `docker\mingw`
+* On Unix-like system:
+
+        cd shadowsocks-libev/docker/mingw
+        make
+
+A tarball with 32-bit and 64-bit binaries will be generated in the same directory.
+
+You could also manually use MinGW-w64 compilers to build in Unix-like shell (MSYS2/Cygwin), or cross-compile on Unix-like systems (Linux/MacOS). Please refer to build scripts in `docker/mingw`.
+
+Notice that currently you need to use a patched libev library for MinGW:
+
+* https://github.com/shadowsocks/libev/archive/mingw.zip
+
 ### Docker
 
 As you expect, simply pull the image and run.
