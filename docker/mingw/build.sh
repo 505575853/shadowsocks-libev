@@ -65,11 +65,13 @@ dk_package() {
     pushd "$SRC/proj"
     GIT_REV="$(git rev-parse --short HEAD)"
     popd
-    echo "SHA1 checksum for build $(date +"%y%m%d")-${GIT_REV}" > checksum.txt
+    echo "SHA1 checksum for build $(date +"%y%m%d")-${GIT_REV}" > checksum
     for f in *.exe; do
-        echo "  $f:" >> checksum.txt
-        echo "    $(sha1sum $f | cut -d ' ' -f 1)" >> checksum.txt
+        echo "  $f:" >> checksum
+        echo "    $(sha1sum $f | cut -d ' ' -f 1)" >> checksum
     done
+    sed -e 's/$/\r/' checksum > checksum.txt
+    rm -f checksum
     cd ..
     tar zcf /bin.tgz ssr-libev-${PROJ_REV}
 }

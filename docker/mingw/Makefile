@@ -26,7 +26,10 @@ DIST=ssr-libev-win-dist.tar.gz
 all: build
 
 build:
-	docker build --force-rm -t $(IMAGE) --build-arg REV=$(REV) --build-arg REPO=$(REPO) .
+	docker build --force-rm -t $(IMAGE) \
+	  --build-arg REV=$(REV) \
+	  --build-arg REPO=$(REPO) \
+	  --build-arg REBUILD="$$(date +%Y-%m-%d-%H-%M-%S)" .
 	docker run --rm --entrypoint cat $(IMAGE) /bin.tgz > $(DIST)
 
 clean:
