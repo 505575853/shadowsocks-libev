@@ -1,7 +1,7 @@
 /*
- * win32.c - Win32 port helpers
+ * winsock.c - Windows socket compatibility layer
  *
- * Copyright (C) 2014, Linus Yang <linusyang@gmail.com>
+ * Copyright (C) 2013 - 2018, Max Lv <max.c.lv@gmail.com>
  *
  * This file is part of the shadowsocks-libev.
  *
@@ -20,27 +20,19 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifdef __MINGW32__
+
 #include "win32.h"
 #include "utils.h"
-
-#ifdef setsockopt
-#undef setsockopt
-#endif
 
 void
 winsock_init(void)
 {
-    WORD wVersionRequested;
-    WSADATA wsaData;
     int ret;
-    wVersionRequested = MAKEWORD(2, 2);
-    ret               = WSAStartup(wVersionRequested, &wsaData);
+    WSADATA wsa_data;
+    ret = WSAStartup(MAKEWORD(2, 2), &wsa_data);
     if (ret != 0) {
-        FATAL("Could not initialize winsock");
-    }
-    if (LOBYTE(wsaData.wVersion) != 2 || HIBYTE(wsaData.wVersion) != 2) {
-        WSACleanup();
-        FATAL("Could not find a usable version of winsock");
+        FATAL("Failed to initialize winsock");
     }
 }
 
@@ -50,11 +42,18 @@ winsock_cleanup(void)
     WSACleanup();
 }
 
+int
+setnonblocking(SOCKET socket)
+{
+    u_long arg = 1;
+    return ioctlsocket(socket, FIONBIO, &arg);
+}
+
 void
 ss_error(const char *s)
 {
     char *msg = NULL;
-    DWORD err = GetLastError();
+    DWORD err = WSAGetLastError();
     FormatMessage(
         FORMAT_MESSAGE_ALLOCATE_BUFFER |
         FORMAT_MESSAGE_FROM_SYSTEM |
@@ -73,42 +72,61 @@ ss_error(const char *s)
     }
 }
 
-int
-setnonblocking(int fd)
+#ifdef TCP_FASTOPEN_WINSOCK
+LPFN_CONNECTEX
+winsock_getconnectex(void)
 {
-    u_long iMode = 1;
-    long int iResult;
-    iResult = ioctlsocket(fd, FIONBIO, &iMode);
-    if (iResult != NO_ERROR) {
-        LOGE("ioctlsocket failed with error: %ld\n", iResult);
+    static LPFN_CONNECTEX pConnectEx = NULL;
+    if (pConnectEx != NULL) {
+        return pConnectEx;
     }
-    return iResult;
-}
 
-size_t
-strnlen(const char *s, size_t maxlen)
-{
-    const char *end = memchr(s, 0, maxlen);
-    return end ? (size_t)(end - s) : maxlen;
-}
-
-const char *
-inet_ntop(int af, const void *src, char *dst, socklen_t size)
-{
-    struct sockaddr_storage ss;
-    unsigned long s = size;
-    ZeroMemory(&ss, sizeof(ss));
-    ss.ss_family = af;
-    switch (af) {
-    case AF_INET:
-        ((struct sockaddr_in *)&ss)->sin_addr = *(struct in_addr *)src;
-        break;
-    case AF_INET6:
-        ((struct sockaddr_in6 *)&ss)->sin6_addr = *(struct in6_addr *)src;
-        break;
-    default:
+    // Dummy socket for WSAIoctl
+    SOCKET s = socket(AF_INET, SOCK_STREAM, 0);
+    if (s == INVALID_SOCKET) {
+        ERROR("socket");
         return NULL;
     }
-    return (WSAAddressToString((struct sockaddr *)&ss, sizeof(ss), NULL, dst,
-                               &s) == 0) ? dst : NULL;
+
+    // Load ConnectEx function
+    GUID guid = WSAID_CONNECTEX;
+    DWORD numBytes;
+    int ret = -1;
+    ret = WSAIoctl(s, SIO_GET_EXTENSION_FUNCTION_POINTER,
+                   (void *)&guid, sizeof(guid),
+                   (void *)&pConnectEx, sizeof(pConnectEx),
+                   &numBytes, NULL, NULL);
+    if (ret != 0) {
+        ERROR("WSAIoctl");
+        closesocket(s);
+        return NULL;
+    }
+    closesocket(s);
+    return pConnectEx;
 }
+
+int
+winsock_dummybind(SOCKET fd, struct sockaddr *sa)
+{
+    struct sockaddr_storage ss;
+    memset(&ss, 0, sizeof(ss));
+    if (sa->sa_family == AF_INET) {
+        struct sockaddr_in *sin = (struct sockaddr_in *)&ss;
+        sin->sin_family = AF_INET;
+        sin->sin_addr.s_addr = INADDR_ANY;
+    } else if (sa->sa_family == AF_INET6) {
+        struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *)&ss;
+        sin6->sin6_family = AF_INET6;
+        sin6->sin6_addr = in6addr_any;
+    } else {
+        return -1;
+    }
+    if (bind(fd, (struct sockaddr *)&ss, sizeof(ss)) < 0 &&
+        WSAGetLastError() != WSAEINVAL) {
+        return -1;
+    }
+    return 0;
+}
+#endif
+
+#endif // __MINGW32__
