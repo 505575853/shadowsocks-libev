@@ -450,15 +450,15 @@ server_recv_cb(EV_P_ ev_io *w, int revents)
                         }
                         // ConnectEx requires a bound socket
                         if (winsock_dummybind(remote->fd,
-                                              (struct sockaddr *)&(remote->addr)) != 0) {
+                                              (struct sockaddr *)&(remote->direct_addr.addr)) != 0) {
                             ERROR("bind");
                             break;
                         }
                         // Call ConnectEx to send data
                         memset(&remote->olap, 0, sizeof(remote->olap));
                         remote->connect_ex_done = 0;
-                        if (ConnectEx(remote->fd, (const struct sockaddr *)&(remote->addr),
-                                      remote->addr_len, remote->buf->data, remote->buf->len,
+                        if (ConnectEx(remote->fd, (const struct sockaddr *)&(remote->direct_addr.addr),
+                                      remote->direct_addr.addr_len, remote->buf->array, remote->buf->len,
                                       &s, &remote->olap)) {
                             remote->connect_ex_done = 1;
                             break;

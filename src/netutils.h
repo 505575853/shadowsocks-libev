@@ -40,10 +40,6 @@
 #ifndef MSG_FASTOPEN
 #define MSG_FASTOPEN   0x20000000
 #endif
-#elif !defined(__APPLE__)
-#ifdef TCP_FASTOPEN
-#undef TCP_FASTOPEN
-#endif
 #endif
 
 /* Backward compatibility for MPTCP_ENABLED between kernel 3 & 4 */
