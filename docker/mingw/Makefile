@@ -21,7 +21,7 @@
 REPO=linusyang92
 REV=ssr
 IMAGE=ssr-build-mingw
-DIST=ssr-libev-win-dist.tar.gz
+DIST=ssr-win.tar.gz
 
 all: build
 
