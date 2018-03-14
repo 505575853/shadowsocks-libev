@@ -20,7 +20,7 @@
 
 REPO=linusyang92
 REV=mingw
-IMAGE=ss-build-mingw
+IMAGE=ss-build-mingw-asm
 DIST=ss-libev-win-dist.tar.gz
 
 all: build
