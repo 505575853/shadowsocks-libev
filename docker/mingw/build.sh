@@ -48,8 +48,8 @@ build_proj() {
     make LDFLAGS="-all-static -L${dep}/lib"
     make install-strip
 
-    PLUGIN_URL=https://github.com/${PROJ_SITE}/simple-obfs.git
-    PLUGIN_REV=mingw-new
+    PLUGIN_URL=https://github.com/shadowsocks/simple-obfs.git
+    PLUGIN_REV=master
 
     cd "$SRC"
     git clone ${PLUGIN_URL} plugin

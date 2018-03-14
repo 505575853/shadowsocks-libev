@@ -96,6 +96,7 @@ static int mode      = TCP_ONLY;
 static int nofile = 0;
 #endif
 static int no_delay = 0;
+static int ret_val  = 0;
 
 static struct ev_signal sigint_watcher;
 static struct ev_signal sigterm_watcher;
@@ -752,8 +753,10 @@ signal_cb(EV_P_ ev_signal *w, int revents)
         switch (w->signum) {
 #ifndef __MINGW32__
         case SIGCHLD:
-            if (!is_plugin_running())
+            if (!is_plugin_running()) {
                 LOGE("plugin service exit unexpectedly");
+                ret_val = -1;
+            }
             else
                 return;
 #endif
@@ -784,6 +787,7 @@ plugin_watcher_cb(EV_P_ ev_io *w, int revents)
     recv(fd, buf, 1, 0);
     closesocket(fd);
     LOGE("plugin service exit unexpectedly");
+    ret_val = -1;
     ev_signal_stop(EV_DEFAULT, &sigint_watcher);
     ev_signal_stop(EV_DEFAULT, &sigterm_watcher);
     ev_io_stop(EV_DEFAULT, &plugin_watcher.io);
@@ -1267,5 +1271,5 @@ main(int argc, char **argv)
     winsock_cleanup();
 #endif
 
-    return 0;
+    return ret_val;
 }
