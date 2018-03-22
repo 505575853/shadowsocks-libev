@@ -78,7 +78,7 @@
  * OS X. Also disable TLS for uClibc*/
 
 #if !(defined(__APPLE__) && defined(__MACH__))
-#if CORK_CONFIG_GCC_VERSION >= 30300 && defined(TLS)
+#if CORK_CONFIG_GCC_VERSION >= 30300 && !defined(__UCLIBC__)
 #define CORK_CONFIG_HAVE_THREAD_STORAGE_CLASS  1
 #else
 #define CORK_CONFIG_HAVE_THREAD_STORAGE_CLASS  0

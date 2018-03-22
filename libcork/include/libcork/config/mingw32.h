@@ -23,7 +23,7 @@
 #define CORK_CONFIG_IS_LITTLE_ENDIAN   1
 
 #define CORK_HAVE_REALLOCF  0
-#define CORK_HAVE_PTHREADS  1
+#define CORK_HAVE_PTHREADS  0
 
 /*
  * File io stuff. Odd that this is not defined by MinGW.
