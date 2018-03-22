@@ -33,34 +33,12 @@ PROJ_SITE=$REPO   # Change REPO in Makefile
 PROJ_REV=$REV     # Change REV in Makefile
 PROJ_URL=https://github.com/${PROJ_SITE}/shadowsocks-libev.git
 
-# Libraries from project
-
-## libev for MinGW
-LIBEV_VER=mingw
-LIBEV_SRC=libev-${LIBEV_VER}
-LIBEV_URL=https://github.com/${PROJ_SITE}/libev/archive/${LIBEV_VER}.tar.gz
-
-## mbedTLS for MinGW
-MBEDTLS_VER=mingw
-MBEDTLS_SRC=mbedtls-${MBEDTLS_VER}
-MBEDTLS_URL=https://github.com/${PROJ_SITE}/mbedtls/archive/${MBEDTLS_VER}.tar.gz
-
-# Public libraries
-
-## Sodium
-SODIUM_VER=1.0.16
-SODIUM_SRC=libsodium-${SODIUM_VER}
-SODIUM_URL=https://download.libsodium.org/libsodium/releases/${SODIUM_SRC}.tar.gz
+# Third-party libraries
 
 ## PCRE
 PCRE_VER=8.41
 PCRE_SRC=pcre-${PCRE_VER}
 PCRE_URL=https://ftp.pcre.org/pub/pcre/${PCRE_SRC}.tar.gz
-
-## c-ares
-CARES_VER=1.14.0
-CARES_SRC=c-ares-${CARES_VER}
-CARES_URL=https://c-ares.haxx.se/download/${CARES_SRC}.tar.gz
 
 # Build steps
 
@@ -74,7 +52,7 @@ dk_download() {
     mkdir -p "${SRC}"
     cd "${SRC}"
     DOWN="aria2c --file-allocation=trunc -s10 -x10 -j10 -c"
-    for pkg in MBEDTLS PCRE; do
+    for pkg in PCRE; do
         src=${pkg}_SRC
         url=${pkg}_URL
         out="${!src}".tar.gz

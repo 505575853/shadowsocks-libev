@@ -30,12 +30,6 @@ build_deps() {
     prefix=${PREFIX}/$arch
     args="--host=${host} --prefix=${prefix} --disable-shared --enable-static"
 
-    # mbedtls
-    cd "$SRC/$MBEDTLS_SRC"
-    make clean
-    make lib WINDOWS=1 CC="${host}-gcc" AR="${host}-ar"
-    make install DESTDIR="${prefix}"
-
     # pcre
     cd "$SRC/$PCRE_SRC"
     ./configure $args \

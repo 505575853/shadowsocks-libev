@@ -37,9 +37,6 @@ build_proj() {
     git submodule update --init
     ./autogen.sh
     ./configure --host=${host} --prefix=${prefix} \
-      --disable-documentation \
-      --with-crypto-library=mbedtls \
-      --with-mbedtls="$dep" \
       --with-pcre="$dep"
     make clean
     make LDFLAGS="-all-static -L${dep}/lib"
