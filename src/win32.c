@@ -87,10 +87,9 @@ setnonblocking(SOCKET socket)
 }
 
 void
-ss_error(const char *s)
+ss_error_no(const char *s, DWORD err)
 {
     char *msg = NULL;
-    DWORD err = WSAGetLastError();
     FormatMessage(
         FORMAT_MESSAGE_ALLOCATE_BUFFER |
         FORMAT_MESSAGE_FROM_SYSTEM |
@@ -107,6 +106,12 @@ ss_error(const char *s)
         LOGE("%s: [%ld] %s", s, err, msg);
         LocalFree(msg);
     }
+}
+
+void
+ss_error(const char *s)
+{
+    ss_error_no(s, WSAGetLastError());
 }
 
 char *

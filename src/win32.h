@@ -98,6 +98,7 @@
 #endif
 #define ERROR(s) ss_error(s)
 void ss_error(const char *s);
+void ss_error_no(const char *s, DWORD err);
 
 #ifdef gai_strerror
 #undef gai_strerror
