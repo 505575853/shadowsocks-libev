@@ -1325,7 +1325,9 @@ signal_cb(EV_P_ ev_signal *w, int revents)
             ev_signal_stop(EV_DEFAULT, &sigchld_watcher);
             ev_signal_stop(EV_DEFAULT, &sigusr1_watcher);
 #else
+#ifndef LIB_ONLY
             ev_io_stop(EV_DEFAULT, &plugin_watcher.io);
+#endif
 #endif
             keep_resolving = 0;
             ev_unloop(EV_A_ EVUNLOOP_ALL);
