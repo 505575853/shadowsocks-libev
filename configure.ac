@@ -38,37 +38,9 @@ AC_ARG_ENABLE(
     esac], [enable_system_shared_lib=false])
 AM_CONDITIONAL([USE_SYSTEM_SHARED_LIB], [test x$enable_system_shared_lib = xtrue])
 
-dnl Checks for crypto library
-AC_ARG_WITH(
-  [crypto-library],
-  [AS_HELP_STRING([--with-crypto-library=library], [build with the given crypto library, TYPE=openssl|polarssl|mbedtls @<:@default=openssl@:>@])],
-  [
-    case "${withval}" in
-      openssl|polarssl|mbedtls) ;;
-      *) AC_MSG_ERROR([bad value ${withval} for --with-crypto-library]) ;;
-    esac
-  ],
-  [with_crypto_library="openssl"]
-)
-
-AC_ARG_ENABLE([documentation],
-  AS_HELP_STRING([--disable-documentation], [do not build documentation]),
-  [disable_documentation=true],
-  [disable_documentation=false])
-AM_CONDITIONAL([ENABLE_DOCUMENTATION], [test x$disable_documentation = xfalse])
-
-AM_COND_IF([ENABLE_DOCUMENTATION], [
-  AC_PATH_PROG([ASCIIDOC], [asciidoc])
-  test x"${ASCIIDOC}" != x || AC_MSG_ERROR([Cannot find `asciidoc` in PATH.]) 
-  AC_PATH_PROG([XMLTO], [xmlto])
-  test x"$XMLTO" != x || AC_MSG_ERROR([Cannot find `xmlto` in PATH.]) 
-  AC_PATH_PROG([GZIP], [gzip], [gzip])
-  AC_PATH_PROG([MV], [mv], [mv])
-  AC_PROG_SED
-])
-
 dnl Checks for programs.
 AC_PROG_CC
+AM_PROG_AS
 AM_PROG_CC_C_O
 AC_PROG_INSTALL
 AC_PROG_LN_S
@@ -84,7 +56,7 @@ AM_COND_IF([USE_SYSTEM_SHARED_LIB],
 dnl Add library for mingw
 case $host in
   *-mingw*)
-    LIBS="$LIBS -lgdi32 -lws2_32"
+    LIBS="$LIBS -lws2_32"
     ;;
   *)
     ;;
@@ -94,21 +66,7 @@ dnl Checks for TLS
 AX_TLS([:], [:])
 
 dnl Checks for crypto library
-case "${with_crypto_library}" in
-  openssl)
-    ss_ZLIB
-    ss_OPENSSL
-    AC_DEFINE([USE_CRYPTO_OPENSSL], [1], [Use OpenSSL library])
-    ;;
-  polarssl)
-    ss_POLARSSL
-    AC_DEFINE([USE_CRYPTO_POLARSSL], [1], [Use PolarSSL library])
-    ;;
-  mbedtls)
-    ss_MBEDTLS
-    AC_DEFINE([USE_CRYPTO_MBEDTLS], [1], [Use mbed TLS library])
-    ;;
-esac
+AC_DEFINE([USE_CRYPTO_MBEDTLS], [1], [Use mbed TLS library])
 
 dnl Checks for Apple CommonCrypto API
 AC_ARG_ENABLE(applecc,
@@ -144,10 +102,17 @@ case $host in
     ;;
 esac
 
-dnl Checks for pthread
-AX_PTHREAD([LIBS="$PTHREAD_LIBS $LIBS"
-            CFLAGS="$CFLAGS $PTHREAD_CFLAGS"
-            CC="$PTHREAD_CC"], AC_MSG_ERROR(Can not find pthreads.  This is required.))
+AC_MSG_CHECKING(for what arch of host)
+case $host in
+  aarch64-*)
+    os_arch=arm64
+    AC_MSG_RESULT(arm64)
+    ;;
+  *)
+    os_arch=other
+    AC_MSG_RESULT(other)
+    ;;
+esac
 
 dnl Checks for stack protector
 GGL_CHECK_STACK_PROTECTOR([has_stack_protector=yes], [has_stack_protector=no])
@@ -183,6 +148,7 @@ fi
 
 AM_CONDITIONAL(BUILD_REDIRECTOR, test "$os_support" = "linux")
 AM_CONDITIONAL(BUILD_WINCOMPAT, test "$os_support" = "mingw")
+AM_CONDITIONAL(BUILD_ARM64, test "$os_arch" = "arm64")
 
 dnl Checks for header files.
 AC_CHECK_HEADERS([limits.h stdint.h inttypes.h arpa/inet.h fcntl.h langinfo.h locale.h netdb.h netinet/in.h stdlib.h string.h strings.h unistd.h sys/ioctl.h])
@@ -281,12 +247,10 @@ AC_CONFIG_FILES([ shadowsocks-libev.pc
 AM_COND_IF([USE_SYSTEM_SHARED_LIB],[
     AC_CHECK_LIB([udns], [dns_dnlen], ,[AC_MSG_ERROR([Couldn't find libudns. Try installing libudns-dev or udns-devel.])])
     AC_CHECK_LIB([ev], [ev_loop_destroy], ,[AC_MSG_ERROR([Couldn't find libev. Try installing libev-dev@<:@el@:>@.])])
+    AC_CHECK_LIB([mbedcrypto], [mbedtls_cipher_setup], ,[AC_MSG_ERROR([Couldn't find mbedtls. Try installing libmbedtls-dev@<:@el@:>@.])])
   ],
   [AC_CONFIG_FILES([libudns/Makefile
-                 libev/Makefile])])
-
-AM_COND_IF([ENABLE_DOCUMENTATION],
-  [AC_CONFIG_FILES([doc/Makefile])
-])
+                 libev/Makefile
+                 mbedtls/Makefile])])
 
 AC_OUTPUT

@@ -39,11 +39,11 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <netinet/in.h>
-#include <pthread.h>
+//#include <pthread.h>
 #endif
 
 #ifdef LIB_ONLY
-#include <pthread.h>
+//#include <pthread.h>
 #include "shadowsocks.h"
 #endif
 

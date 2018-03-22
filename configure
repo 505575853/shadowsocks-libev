@@ -637,21 +637,18 @@ ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS
 LIBOBJS
+BUILD_ARM64_FALSE
+BUILD_ARM64_TRUE
 BUILD_WINCOMPAT_FALSE
 BUILD_WINCOMPAT_TRUE
 BUILD_REDIRECTOR_FALSE
 BUILD_REDIRECTOR_TRUE
-PTHREAD_CFLAGS
-PTHREAD_LIBS
-PTHREAD_CC
-ax_pthread_config
 INET_NTOP_LIB
-MV
-GZIP
-XMLTO
-ASCIIDOC
-ENABLE_DOCUMENTATION_FALSE
-ENABLE_DOCUMENTATION_TRUE
+am__fastdepCCAS_FALSE
+am__fastdepCCAS_TRUE
+CCASDEPMODE
+CCASFLAGS
+CCAS
 USE_SYSTEM_SHARED_LIB_FALSE
 USE_SYSTEM_SHARED_LIB_TRUE
 pcre_pcreh
@@ -790,21 +787,6 @@ with_sysroot
 enable_libtool_lock
 with_pcre
 enable_system_shared_lib
-with_crypto_library
-enable_documentation
-enable_zlib
-with_zlib
-with_zlib_include
-with_zlib_lib
-with_openssl
-with_openssl_include
-with_openssl_lib
-with_polarssl
-with_polarssl_include
-with_polarssl_lib
-with_mbedtls
-with_mbedtls_include
-with_mbedtls_lib
 enable_applecc
 enable_ssp
 enable_assert
@@ -818,7 +800,9 @@ LDFLAGS
 LIBS
 CPPFLAGS
 CPP
-LT_SYS_LIBRARY_PATH'
+LT_SYS_LIBRARY_PATH
+CCAS
+CCASFLAGS'
 
 
 # Initialize some variables set by options.
@@ -1454,8 +1438,6 @@ Optional Features:
   --disable-libtool-lock  avoid locking (might break parallel builds)
   --enable-system-shared-lib
                           build against shared libraries when possible
-  --disable-documentation do not build documentation
-  --disable-zlib          disable zlib compression support
   --enable-applecc        enable Apple CommonCrypto API support
   --disable-ssp           Do not compile with -fstack-protector
   --disable-assert        turn off assertions
@@ -1472,27 +1454,6 @@ Optional Packages:
   --with-sysroot[=DIR]    Search for dependent libraries within DIR (or the
                           compiler's sysroot if not specified).
   --with-pcre=DIR         use a specific pcre library
-  --with-crypto-library=library
-                          build with the given crypto library,
-                          TYPE=openssl|polarssl|mbedtls [default=openssl]
-  --with-zlib=DIR         zlib base directory, or:
-  --with-zlib-include=DIR zlib headers directory
-  --with-zlib-lib=DIR     zlib library directory
-  --with-openssl=DIR      OpenSSL base directory, or:
-  --with-openssl-include=DIR
-                          OpenSSL headers directory (without trailing
-                          /openssl)
-  --with-openssl-lib=DIR  OpenSSL library directory
-  --with-polarssl=DIR     PolarSSL base directory, or:
-  --with-polarssl-include=DIR
-                          PolarSSL headers directory (without trailing
-                          /polarssl)
-  --with-polarssl-lib=DIR PolarSSL library directory
-  --with-mbedtls=DIR      mbed TLS base directory, or:
-  --with-mbedtls-include=DIR
-                          mbed TLS headers directory (without trailing
-                          /mbedtls)
-  --with-mbedtls-lib=DIR  mbed TLS library directory
 
 Some influential environment variables:
   CC          C compiler command
@@ -1505,6 +1466,8 @@ Some influential environment variables:
   CPP         C preprocessor
   LT_SYS_LIBRARY_PATH
               User-defined run-time library search path.
+  CCAS        assembler compiler command (defaults to CC)
+  CCASFLAGS   assembler compiler flags (defaults to CFLAGS)
 
 Use these variables to override the choices made by `configure' or to help
 it to find libraries and programs with nonstandard names/locations.
@@ -12816,275 +12779,6 @@ else
 fi
 
 
-
-# Check whether --with-crypto-library was given.
-if test "${with_crypto_library+set}" = set; then :
-  withval=$with_crypto_library;
-    case "${withval}" in
-      openssl|polarssl|mbedtls) ;;
-      *) as_fn_error $? "bad value ${withval} for --with-crypto-library" "$LINENO" 5 ;;
-    esac
-
-else
-  with_crypto_library="openssl"
-
-fi
-
-
-# Check whether --enable-documentation was given.
-if test "${enable_documentation+set}" = set; then :
-  enableval=$enable_documentation; disable_documentation=true
-else
-  disable_documentation=false
-fi
-
- if test x$disable_documentation = xfalse; then
-  ENABLE_DOCUMENTATION_TRUE=
-  ENABLE_DOCUMENTATION_FALSE='#'
-else
-  ENABLE_DOCUMENTATION_TRUE='#'
-  ENABLE_DOCUMENTATION_FALSE=
-fi
-
-
-if test -z "$ENABLE_DOCUMENTATION_TRUE"; then :
-
-  # Extract the first word of "asciidoc", so it can be a program name with args.
-set dummy asciidoc; ac_word=$2
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-$as_echo_n "checking for $ac_word... " >&6; }
-if ${ac_cv_path_ASCIIDOC+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  case $ASCIIDOC in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_ASCIIDOC="$ASCIIDOC" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_path_ASCIIDOC="$as_dir/$ac_word$ac_exec_ext"
-    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-  ;;
-esac
-fi
-ASCIIDOC=$ac_cv_path_ASCIIDOC
-if test -n "$ASCIIDOC"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ASCIIDOC" >&5
-$as_echo "$ASCIIDOC" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-
-
-  test x"${ASCIIDOC}" != x || as_fn_error $? "Cannot find \`asciidoc\` in PATH." "$LINENO" 5
-  # Extract the first word of "xmlto", so it can be a program name with args.
-set dummy xmlto; ac_word=$2
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-$as_echo_n "checking for $ac_word... " >&6; }
-if ${ac_cv_path_XMLTO+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  case $XMLTO in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_XMLTO="$XMLTO" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_path_XMLTO="$as_dir/$ac_word$ac_exec_ext"
-    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-  ;;
-esac
-fi
-XMLTO=$ac_cv_path_XMLTO
-if test -n "$XMLTO"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $XMLTO" >&5
-$as_echo "$XMLTO" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-
-
-  test x"$XMLTO" != x || as_fn_error $? "Cannot find \`xmlto\` in PATH." "$LINENO" 5
-  # Extract the first word of "gzip", so it can be a program name with args.
-set dummy gzip; ac_word=$2
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-$as_echo_n "checking for $ac_word... " >&6; }
-if ${ac_cv_path_GZIP+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  case $GZIP in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_GZIP="$GZIP" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_path_GZIP="$as_dir/$ac_word$ac_exec_ext"
-    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-  test -z "$ac_cv_path_GZIP" && ac_cv_path_GZIP="gzip"
-  ;;
-esac
-fi
-GZIP=$ac_cv_path_GZIP
-if test -n "$GZIP"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $GZIP" >&5
-$as_echo "$GZIP" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-
-
-  # Extract the first word of "mv", so it can be a program name with args.
-set dummy mv; ac_word=$2
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-$as_echo_n "checking for $ac_word... " >&6; }
-if ${ac_cv_path_MV+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  case $MV in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_MV="$MV" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_path_MV="$as_dir/$ac_word$ac_exec_ext"
-    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-  test -z "$ac_cv_path_MV" && ac_cv_path_MV="mv"
-  ;;
-esac
-fi
-MV=$ac_cv_path_MV
-if test -n "$MV"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $MV" >&5
-$as_echo "$MV" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-
-
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for a sed that does not truncate output" >&5
-$as_echo_n "checking for a sed that does not truncate output... " >&6; }
-if ${ac_cv_path_SED+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-            ac_script=s/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb/
-     for ac_i in 1 2 3 4 5 6 7; do
-       ac_script="$ac_script$as_nl$ac_script"
-     done
-     echo "$ac_script" 2>/dev/null | sed 99q >conftest.sed
-     { ac_script=; unset ac_script;}
-     if test -z "$SED"; then
-  ac_path_SED_found=false
-  # Loop through the user's path and test for each of PROGNAME-LIST
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-    for ac_prog in sed gsed; do
-    for ac_exec_ext in '' $ac_executable_extensions; do
-      ac_path_SED="$as_dir/$ac_prog$ac_exec_ext"
-      as_fn_executable_p "$ac_path_SED" || continue
-# Check for GNU ac_path_SED and select it if it is found.
-  # Check for GNU $ac_path_SED
-case `"$ac_path_SED" --version 2>&1` in
-*GNU*)
-  ac_cv_path_SED="$ac_path_SED" ac_path_SED_found=:;;
-*)
-  ac_count=0
-  $as_echo_n 0123456789 >"conftest.in"
-  while :
-  do
-    cat "conftest.in" "conftest.in" >"conftest.tmp"
-    mv "conftest.tmp" "conftest.in"
-    cp "conftest.in" "conftest.nl"
-    $as_echo '' >> "conftest.nl"
-    "$ac_path_SED" -f conftest.sed < "conftest.nl" >"conftest.out" 2>/dev/null || break
-    diff "conftest.out" "conftest.nl" >/dev/null 2>&1 || break
-    as_fn_arith $ac_count + 1 && ac_count=$as_val
-    if test $ac_count -gt ${ac_path_SED_max-0}; then
-      # Best one so far, save it but keep looking for a better one
-      ac_cv_path_SED="$ac_path_SED"
-      ac_path_SED_max=$ac_count
-    fi
-    # 10*(2^10) chars as input seems more than enough
-    test $ac_count -gt 10 && break
-  done
-  rm -f conftest.in conftest.tmp conftest.nl conftest.out;;
-esac
-
-      $ac_path_SED_found && break 3
-    done
-  done
-  done
-IFS=$as_save_IFS
-  if test -z "$ac_cv_path_SED"; then
-    as_fn_error $? "no acceptable sed could be found in \$PATH" "$LINENO" 5
-  fi
-else
-  ac_cv_path_SED=$SED
-fi
-
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_path_SED" >&5
-$as_echo "$ac_cv_path_SED" >&6; }
- SED="$ac_cv_path_SED"
-  rm -f conftest.sed
-
-
-fi
-
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -13683,6 +13377,139 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
+# By default we simply use the C compiler to build assembly code.
+
+test "${CCAS+set}" = set || CCAS=$CC
+test "${CCASFLAGS+set}" = set || CCASFLAGS=$CFLAGS
+
+
+
+depcc="$CCAS"   am_compiler_list=
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking dependency style of $depcc" >&5
+$as_echo_n "checking dependency style of $depcc... " >&6; }
+if ${am_cv_CCAS_dependencies_compiler_type+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  if test -z "$AMDEP_TRUE" && test -f "$am_depcomp"; then
+  # We make a subdir and do the tests there.  Otherwise we can end up
+  # making bogus files that we don't know about and never remove.  For
+  # instance it was reported that on HP-UX the gcc test will end up
+  # making a dummy file named 'D' -- because '-MD' means "put the output
+  # in D".
+  rm -rf conftest.dir
+  mkdir conftest.dir
+  # Copy depcomp to subdir because otherwise we won't find it if we're
+  # using a relative directory.
+  cp "$am_depcomp" conftest.dir
+  cd conftest.dir
+  # We will build objects and dependencies in a subdirectory because
+  # it helps to detect inapplicable dependency modes.  For instance
+  # both Tru64's cc and ICC support -MD to output dependencies as a
+  # side effect of compilation, but ICC will put the dependencies in
+  # the current directory while Tru64 will put them in the object
+  # directory.
+  mkdir sub
+
+  am_cv_CCAS_dependencies_compiler_type=none
+  if test "$am_compiler_list" = ""; then
+     am_compiler_list=`sed -n 's/^#*\([a-zA-Z0-9]*\))$/\1/p' < ./depcomp`
+  fi
+  am__universal=false
+
+
+  for depmode in $am_compiler_list; do
+    # Setup a source with many dependencies, because some compilers
+    # like to wrap large dependency lists on column 80 (with \), and
+    # we should not choose a depcomp mode which is confused by this.
+    #
+    # We need to recreate these files for each test, as the compiler may
+    # overwrite some of them when testing with obscure command lines.
+    # This happens at least with the AIX C compiler.
+    : > sub/conftest.c
+    for i in 1 2 3 4 5 6; do
+      echo '#include "conftst'$i'.h"' >> sub/conftest.c
+      # Using ": > sub/conftst$i.h" creates only sub/conftst1.h with
+      # Solaris 10 /bin/sh.
+      echo '/* dummy */' > sub/conftst$i.h
+    done
+    echo "${am__include} ${am__quote}sub/conftest.Po${am__quote}" > confmf
+
+    # We check with '-c' and '-o' for the sake of the "dashmstdout"
+    # mode.  It turns out that the SunPro C++ compiler does not properly
+    # handle '-M -o', and we need to detect this.  Also, some Intel
+    # versions had trouble with output in subdirs.
+    am__obj=sub/conftest.${OBJEXT-o}
+    am__minus_obj="-o $am__obj"
+    case $depmode in
+    gcc)
+      # This depmode causes a compiler race in universal mode.
+      test "$am__universal" = false || continue
+      ;;
+    nosideeffect)
+      # After this tag, mechanisms are not by side-effect, so they'll
+      # only be used when explicitly requested.
+      if test "x$enable_dependency_tracking" = xyes; then
+	continue
+      else
+	break
+      fi
+      ;;
+    msvc7 | msvc7msys | msvisualcpp | msvcmsys)
+      # This compiler won't grok '-c -o', but also, the minuso test has
+      # not run yet.  These depmodes are late enough in the game, and
+      # so weak that their functioning should not be impacted.
+      am__obj=conftest.${OBJEXT-o}
+      am__minus_obj=
+      ;;
+    none) break ;;
+    esac
+    if depmode=$depmode \
+       source=sub/conftest.c object=$am__obj \
+       depfile=sub/conftest.Po tmpdepfile=sub/conftest.TPo \
+       $SHELL ./depcomp $depcc -c $am__minus_obj sub/conftest.c \
+         >/dev/null 2>conftest.err &&
+       grep sub/conftst1.h sub/conftest.Po > /dev/null 2>&1 &&
+       grep sub/conftst6.h sub/conftest.Po > /dev/null 2>&1 &&
+       grep $am__obj sub/conftest.Po > /dev/null 2>&1 &&
+       ${MAKE-make} -s -f confmf > /dev/null 2>&1; then
+      # icc doesn't choke on unknown options, it will just issue warnings
+      # or remarks (even with -Werror).  So we grep stderr for any message
+      # that says an option was ignored or not supported.
+      # When given -MP, icc 7.0 and 7.1 complain thusly:
+      #   icc: Command line warning: ignoring option '-M'; no argument required
+      # The diagnosis changed in icc 8.0:
+      #   icc: Command line remark: option '-MP' not supported
+      if (grep 'ignoring option' conftest.err ||
+          grep 'not supported' conftest.err) >/dev/null 2>&1; then :; else
+        am_cv_CCAS_dependencies_compiler_type=$depmode
+        break
+      fi
+    fi
+  done
+
+  cd ..
+  rm -rf conftest.dir
+else
+  am_cv_CCAS_dependencies_compiler_type=none
+fi
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $am_cv_CCAS_dependencies_compiler_type" >&5
+$as_echo "$am_cv_CCAS_dependencies_compiler_type" >&6; }
+CCASDEPMODE=depmode=$am_cv_CCAS_dependencies_compiler_type
+
+ if
+  test "x$enable_dependency_tracking" != xno \
+  && test "$am_cv_CCAS_dependencies_compiler_type" = gcc3; then
+  am__fastdepCCAS_TRUE=
+  am__fastdepCCAS_FALSE='#'
+else
+  am__fastdepCCAS_TRUE='#'
+  am__fastdepCCAS_FALSE=
+fi
+
+
 
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether ln -s works" >&5
@@ -14005,7 +13832,7 @@ fi
 
 case $host in
   *-mingw*)
-    LIBS="$LIBS -lgdi32 -lws2_32"
+    LIBS="$LIBS -lws2_32"
     ;;
   *)
     ;;
@@ -14065,590 +13892,9 @@ else
 fi
 
 
-case "${with_crypto_library}" in
-  openssl)
-
-  # Check whether --enable-zlib was given.
-if test "${enable_zlib+set}" = set; then :
-  enableval=$enable_zlib;
-fi
-
-  if test "x$enable_zlib" != "xno"; then :
-
-
-$as_echo "#define HAVE_ZLIB 1" >>confdefs.h
-
-
-# Check whether --with-zlib was given.
-if test "${with_zlib+set}" = set; then :
-  withval=$with_zlib; zlib="$withval"
-       CPPFLAGS="$CPPFLAGS -I$withval/include"
-       LDFLAGS="$LDFLAGS -L$withval/lib"
-
-fi
-
-
-
-# Check whether --with-zlib-include was given.
-if test "${with_zlib_include+set}" = set; then :
-  withval=$with_zlib_include; zlib_include="$withval"
-       CPPFLAGS="$CPPFLAGS -I$withval"
-
-fi
-
-
-
-# Check whether --with-zlib-lib was given.
-if test "${with_zlib_lib+set}" = set; then :
-  withval=$with_zlib_lib; zlib_lib="$withval"
-       LDFLAGS="$LDFLAGS -L$withval"
-
-fi
-
-
-    for ac_header in zlib.h
-do :
-  ac_fn_c_check_header_mongrel "$LINENO" "zlib.h" "ac_cv_header_zlib_h" "$ac_includes_default"
-if test "x$ac_cv_header_zlib_h" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_ZLIB_H 1
-_ACEOF
-
-else
-  as_fn_error $? "\"zlib header files not found.\"" "$LINENO" 5; break
-
-fi
-
-done
-
-
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for compress2 in -lz" >&5
-$as_echo_n "checking for compress2 in -lz... " >&6; }
-if ${ac_cv_lib_z_compress2+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lz  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char compress2 ();
-int
-main ()
-{
-return compress2 ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_z_compress2=yes
-else
-  ac_cv_lib_z_compress2=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_z_compress2" >&5
-$as_echo "$ac_cv_lib_z_compress2" >&6; }
-if test "x$ac_cv_lib_z_compress2" = xyes; then :
-  LIBS="$LIBS -lz"
-else
-  as_fn_error $? "\"zlib libraries not found.\"" "$LINENO" 5
-
-fi
-
-
-fi
-
-
-  case $host_os in
-    *mingw*)
-    ;;
-    *)
-      ac_fn_c_check_func "$LINENO" "dlopen" "ac_cv_func_dlopen"
-if test "x$ac_cv_func_dlopen" = xyes; then :
-
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for dlopen in -ldl" >&5
-$as_echo_n "checking for dlopen in -ldl... " >&6; }
-if ${ac_cv_lib_dl_dlopen+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-ldl  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char dlopen ();
-int
-main ()
-{
-return dlopen ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_dl_dlopen=yes
-else
-  ac_cv_lib_dl_dlopen=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_dl_dlopen" >&5
-$as_echo "$ac_cv_lib_dl_dlopen" >&6; }
-if test "x$ac_cv_lib_dl_dlopen" = xyes; then :
-  LIBS="$LIBS -ldl"
-else
-  as_fn_error $? "OpenSSL depends on libdl." "$LINENO" 5; break
-
-fi
-
-
-fi
-
-    ;;
-  esac
-
-
-# Check whether --with-openssl was given.
-if test "${with_openssl+set}" = set; then :
-  withval=$with_openssl; openssl="$withval"
-     CFLAGS="$CFLAGS -I$withval/include"
-     LDFLAGS="$LDFLAGS -L$withval/lib"
-
-fi
-
-
-
-# Check whether --with-openssl-include was given.
-if test "${with_openssl_include+set}" = set; then :
-  withval=$with_openssl_include; openssl_include="$withval"
-     CFLAGS="$CFLAGS -I$withval"
-
-fi
-
-
-
-# Check whether --with-openssl-lib was given.
-if test "${with_openssl_lib+set}" = set; then :
-  withval=$with_openssl_lib; openssl_lib="$withval"
-     LDFLAGS="$LDFLAGS -L$withval"
-
-fi
-
-
-  for ac_header in openssl/evp.h openssl/rsa.h openssl/rand.h openssl/err.h openssl/sha.h openssl/pem.h openssl/engine.h
-do :
-  as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
-ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
-if eval test \"x\$"$as_ac_Header"\" = x"yes"; then :
-  cat >>confdefs.h <<_ACEOF
-#define `$as_echo "HAVE_$ac_header" | $as_tr_cpp` 1
-_ACEOF
-
-else
-  as_fn_error $? "OpenSSL header files not found." "$LINENO" 5; break
-
-fi
-
-done
-
-
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for EVP_EncryptInit_ex in -lcrypto" >&5
-$as_echo_n "checking for EVP_EncryptInit_ex in -lcrypto... " >&6; }
-if ${ac_cv_lib_crypto_EVP_EncryptInit_ex+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lcrypto  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char EVP_EncryptInit_ex ();
-int
-main ()
-{
-return EVP_EncryptInit_ex ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_crypto_EVP_EncryptInit_ex=yes
-else
-  ac_cv_lib_crypto_EVP_EncryptInit_ex=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_crypto_EVP_EncryptInit_ex" >&5
-$as_echo "$ac_cv_lib_crypto_EVP_EncryptInit_ex" >&6; }
-if test "x$ac_cv_lib_crypto_EVP_EncryptInit_ex" = xyes; then :
-  LIBS="-lcrypto $LIBS"
-else
-  as_fn_error $? "OpenSSL libraries not found." "$LINENO" 5
-
-fi
-
-
-  for ac_func in RAND_pseudo_bytes EVP_EncryptInit_ex
-do :
-  as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
-ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
-if eval test \"x\$"$as_ac_var"\" = x"yes"; then :
-  cat >>confdefs.h <<_ACEOF
-#define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
-_ACEOF
-
-else
-  as_fn_error $? "Missing OpenSSL functionality, make sure you have installed the latest version." "$LINENO" 5; break
-fi
-done
-
-
-  ac_fn_c_check_decl "$LINENO" "OpenSSL_add_all_algorithms" "ac_cv_have_decl_OpenSSL_add_all_algorithms" "#include <openssl/evp.h>
-
-"
-if test "x$ac_cv_have_decl_OpenSSL_add_all_algorithms" = xyes; then :
-
-else
-  as_fn_error $? "Missing OpenSSL functionality, make sure you have installed the latest version." "$LINENO" 5; break
-fi
-
-
-
-$as_echo "#define USE_CRYPTO_OPENSSL 1" >>confdefs.h
-
-    ;;
-  polarssl)
-
-
-
-# Check whether --with-polarssl was given.
-if test "${with_polarssl+set}" = set; then :
-  withval=$with_polarssl; polarssl="$withval"
-     CFLAGS="$CFLAGS -I$withval/include"
-     LDFLAGS="$LDFLAGS -L$withval/lib"
-
-fi
-
-
-
-# Check whether --with-polarssl-include was given.
-if test "${with_polarssl_include+set}" = set; then :
-  withval=$with_polarssl_include; polarssl_include="$withval"
-     CFLAGS="$CFLAGS -I$withval"
-
-fi
-
-
-
-# Check whether --with-polarssl-lib was given.
-if test "${with_polarssl_lib+set}" = set; then :
-  withval=$with_polarssl_lib; polarssl_lib="$withval"
-     LDFLAGS="$LDFLAGS -L$withval"
-
-fi
-
-
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for cipher_init_ctx in -lpolarssl" >&5
-$as_echo_n "checking for cipher_init_ctx in -lpolarssl... " >&6; }
-if ${ac_cv_lib_polarssl_cipher_init_ctx+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lpolarssl  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char cipher_init_ctx ();
-int
-main ()
-{
-return cipher_init_ctx ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_polarssl_cipher_init_ctx=yes
-else
-  ac_cv_lib_polarssl_cipher_init_ctx=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_polarssl_cipher_init_ctx" >&5
-$as_echo "$ac_cv_lib_polarssl_cipher_init_ctx" >&6; }
-if test "x$ac_cv_lib_polarssl_cipher_init_ctx" = xyes; then :
-  LIBS="-lpolarssl $LIBS"
-else
-  as_fn_error $? "PolarSSL libraries not found." "$LINENO" 5
-
-fi
-
-
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking polarssl version" >&5
-$as_echo_n "checking polarssl version... " >&6; }
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-#include <polarssl/version.h>
-
-int
-main ()
-{
-
-#if POLARSSL_VERSION_NUMBER < 0x01020500
-#error invalid version
-#endif
-
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: ok" >&5
-$as_echo "ok" >&6; }
-else
-  as_fn_error $? "PolarSSL 1.2.5 or newer required" "$LINENO" 5
-
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-
-
-$as_echo "#define USE_CRYPTO_POLARSSL 1" >>confdefs.h
-
-    ;;
-  mbedtls)
-
-
-
-# Check whether --with-mbedtls was given.
-if test "${with_mbedtls+set}" = set; then :
-  withval=$with_mbedtls; mbedtls="$withval"
-     CFLAGS="$CFLAGS -I$withval/include"
-     LDFLAGS="$LDFLAGS -L$withval/lib"
-
-fi
-
-
-
-# Check whether --with-mbedtls-include was given.
-if test "${with_mbedtls_include+set}" = set; then :
-  withval=$with_mbedtls_include; mbedtls_include="$withval"
-     CFLAGS="$CFLAGS -I$withval"
-
-fi
-
-
-
-# Check whether --with-mbedtls-lib was given.
-if test "${with_mbedtls_lib+set}" = set; then :
-  withval=$with_mbedtls_lib; mbedtls_lib="$withval"
-     LDFLAGS="$LDFLAGS -L$withval"
-
-fi
-
-
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for mbedtls_cipher_setup in -lmbedcrypto" >&5
-$as_echo_n "checking for mbedtls_cipher_setup in -lmbedcrypto... " >&6; }
-if ${ac_cv_lib_mbedcrypto_mbedtls_cipher_setup+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lmbedcrypto  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char mbedtls_cipher_setup ();
-int
-main ()
-{
-return mbedtls_cipher_setup ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_mbedcrypto_mbedtls_cipher_setup=yes
-else
-  ac_cv_lib_mbedcrypto_mbedtls_cipher_setup=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_mbedcrypto_mbedtls_cipher_setup" >&5
-$as_echo "$ac_cv_lib_mbedcrypto_mbedtls_cipher_setup" >&6; }
-if test "x$ac_cv_lib_mbedcrypto_mbedtls_cipher_setup" = xyes; then :
-  LIBS="-lmbedcrypto $LIBS"
-else
-  as_fn_error $? "mbed TLS libraries not found." "$LINENO" 5
-
-fi
-
-
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether mbedtls supports Cipher Feedback mode or not" >&5
-$as_echo_n "checking whether mbedtls supports Cipher Feedback mode or not... " >&6; }
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-#include <mbedtls/config.h>
-
-int
-main ()
-{
-
-#ifndef MBEDTLS_CIPHER_MODE_CFB
-#error Cipher Feedback mode a.k.a CFB not supported by your mbed TLS.
-#endif
-
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: ok" >&5
-$as_echo "ok" >&6; }
-else
-  as_fn_error $? "MBEDTLS_CIPHER_MODE_CFB required" "$LINENO" 5
-
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-
-
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether mbedtls supports the ARC4 stream cipher or not" >&5
-$as_echo_n "checking whether mbedtls supports the ARC4 stream cipher or not... " >&6; }
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-#include <mbedtls/config.h>
-
-int
-main ()
-{
-
-#ifndef MBEDTLS_ARC4_C
-#error the ARC4 stream cipher not supported by your mbed TLS.
-#endif
-
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: ok" >&5
-$as_echo "ok" >&6; }
-else
-  as_fn_error $? "MBEDTLS_ARC4_C required" "$LINENO" 5
-
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether mbedtls supports the Blowfish block cipher or not" >&5
-$as_echo_n "checking whether mbedtls supports the Blowfish block cipher or not... " >&6; }
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-#include <mbedtls/config.h>
-
-int
-main ()
-{
-
-#ifndef MBEDTLS_BLOWFISH_C
-#error the Blowfish block cipher not supported by your mbed TLS.
-#endif
-
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: ok" >&5
-$as_echo "ok" >&6; }
-else
-  as_fn_error $? "MBEDTLS_BLOWFISH_C required" "$LINENO" 5
-
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether mbedtls supports the Camellia block cipher or not" >&5
-$as_echo_n "checking whether mbedtls supports the Camellia block cipher or not... " >&6; }
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-#include <mbedtls/config.h>
-
-int
-main ()
-{
-
-#ifndef MBEDTLS_CAMELLIA_C
-#error the Camellia block cipher not supported by your mbed TLS.
-#endif
-
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: ok" >&5
-$as_echo "ok" >&6; }
-else
-  as_fn_error $? "MBEDTLS_CAMELLIA_C required" "$LINENO" 5
-
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-
 
 $as_echo "#define USE_CRYPTO_MBEDTLS 1" >>confdefs.h
 
-    ;;
-esac
 
 # Check whether --enable-applecc was given.
 if test "${enable_applecc+set}" = set; then :
@@ -14882,444 +14128,20 @@ $as_echo "transparent proxy does not support for $host" >&6; }
     ;;
 esac
 
-
-
-ac_ext=c
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_c_compiler_gnu
-
-ax_pthread_ok=no
-
-# We used to check for pthread.h first, but this fails if pthread.h
-# requires special compiler flags (e.g. on True64 or Sequent).
-# It gets checked for in the link test anyway.
-
-# First of all, check if the user has set any of the PTHREAD_LIBS,
-# etcetera environment variables, and if threads linking works using
-# them:
-if test x"$PTHREAD_LIBS$PTHREAD_CFLAGS" != x; then
-        save_CFLAGS="$CFLAGS"
-        CFLAGS="$CFLAGS $PTHREAD_CFLAGS"
-        save_LIBS="$LIBS"
-        LIBS="$PTHREAD_LIBS $LIBS"
-        { $as_echo "$as_me:${as_lineno-$LINENO}: checking for pthread_join in LIBS=$PTHREAD_LIBS with CFLAGS=$PTHREAD_CFLAGS" >&5
-$as_echo_n "checking for pthread_join in LIBS=$PTHREAD_LIBS with CFLAGS=$PTHREAD_CFLAGS... " >&6; }
-        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char pthread_join ();
-int
-main ()
-{
-return pthread_join ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ax_pthread_ok=yes
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-        { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ax_pthread_ok" >&5
-$as_echo "$ax_pthread_ok" >&6; }
-        if test x"$ax_pthread_ok" = xno; then
-                PTHREAD_LIBS=""
-                PTHREAD_CFLAGS=""
-        fi
-        LIBS="$save_LIBS"
-        CFLAGS="$save_CFLAGS"
-fi
-
-# We must check for the threads library under a number of different
-# names; the ordering is very important because some systems
-# (e.g. DEC) have both -lpthread and -lpthreads, where one of the
-# libraries is broken (non-POSIX).
-
-# Create a list of thread flags to try.  Items starting with a "-" are
-# C compiler flags, and other items are library names, except for "none"
-# which indicates that we try without any flags at all, and "pthread-config"
-# which is a program returning the flags for the Pth emulation library.
-
-ax_pthread_flags="pthreads none -Kthread -kthread lthread -pthread -pthreads -mthreads pthread --thread-safe -mt pthread-config"
-
-# The ordering *is* (sometimes) important.  Some notes on the
-# individual items follow:
-
-# pthreads: AIX (must check this before -lpthread)
-# none: in case threads are in libc; should be tried before -Kthread and
-#       other compiler flags to prevent continual compiler warnings
-# -Kthread: Sequent (threads in libc, but -Kthread needed for pthread.h)
-# -kthread: FreeBSD kernel threads (preferred to -pthread since SMP-able)
-# lthread: LinuxThreads port on FreeBSD (also preferred to -pthread)
-# -pthread: Linux/gcc (kernel threads), BSD/gcc (userland threads)
-# -pthreads: Solaris/gcc
-# -mthreads: Mingw32/gcc, Lynx/gcc
-# -mt: Sun Workshop C (may only link SunOS threads [-lthread], but it
-#      doesn't hurt to check since this sometimes defines pthreads too;
-#      also defines -D_REENTRANT)
-#      ... -mt is also the pthreads flag for HP/aCC
-# pthread: Linux, etcetera
-# --thread-safe: KAI C++
-# pthread-config: use pthread-config program (for GNU Pth library)
-
-case ${host_os} in
-        solaris*)
-
-        # On Solaris (at least, for some versions), libc contains stubbed
-        # (non-functional) versions of the pthreads routines, so link-based
-        # tests will erroneously succeed.  (We need to link with -pthreads/-mt/
-        # -lpthread.)  (The stubs are missing pthread_cleanup_push, or rather
-        # a function called by this macro, so we could check for that, but
-        # who knows whether they'll stub that too in a future libc.)  So,
-        # we'll just look for -pthreads and -lpthread first:
-
-        ax_pthread_flags="-pthreads pthread -mt -pthread $ax_pthread_flags"
-        ;;
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for what arch of host" >&5
+$as_echo_n "checking for what arch of host... " >&6; }
+case $host in
+  aarch64-*)
+    os_arch=arm64
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: arm64" >&5
+$as_echo "arm64" >&6; }
+    ;;
+  *)
+    os_arch=other
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: other" >&5
+$as_echo "other" >&6; }
+    ;;
 esac
-
-# Clang doesn't consider unrecognized options an error unless we specify
-# -Werror. We throw in some extra Clang-specific options to ensure that
-# this doesn't happen for GCC, which also accepts -Werror.
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if compiler needs -Werror to reject unknown flags" >&5
-$as_echo_n "checking if compiler needs -Werror to reject unknown flags... " >&6; }
-save_CFLAGS="$CFLAGS"
-ax_pthread_extra_flags="-Werror"
-CFLAGS="$CFLAGS $ax_pthread_extra_flags -Wunknown-warning-option -Wsizeof-array-argument"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-int foo(void);
-int
-main ()
-{
-foo()
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-else
-  ax_pthread_extra_flags=
-                   { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-CFLAGS="$save_CFLAGS"
-
-if test x"$ax_pthread_ok" = xno; then
-for flag in $ax_pthread_flags; do
-
-        case $flag in
-                none)
-                { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether pthreads work without any flags" >&5
-$as_echo_n "checking whether pthreads work without any flags... " >&6; }
-                ;;
-
-                -*)
-                { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether pthreads work with $flag" >&5
-$as_echo_n "checking whether pthreads work with $flag... " >&6; }
-                PTHREAD_CFLAGS="$flag"
-                ;;
-
-                pthread-config)
-                # Extract the first word of "pthread-config", so it can be a program name with args.
-set dummy pthread-config; ac_word=$2
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-$as_echo_n "checking for $ac_word... " >&6; }
-if ${ac_cv_prog_ax_pthread_config+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  if test -n "$ax_pthread_config"; then
-  ac_cv_prog_ax_pthread_config="$ax_pthread_config" # Let the user override the test.
-else
-as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_prog_ax_pthread_config="yes"
-    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-  test -z "$ac_cv_prog_ax_pthread_config" && ac_cv_prog_ax_pthread_config="no"
-fi
-fi
-ax_pthread_config=$ac_cv_prog_ax_pthread_config
-if test -n "$ax_pthread_config"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ax_pthread_config" >&5
-$as_echo "$ax_pthread_config" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-
-
-                if test x"$ax_pthread_config" = xno; then continue; fi
-                PTHREAD_CFLAGS="`pthread-config --cflags`"
-                PTHREAD_LIBS="`pthread-config --ldflags` `pthread-config --libs`"
-                ;;
-
-                *)
-                { $as_echo "$as_me:${as_lineno-$LINENO}: checking for the pthreads library -l$flag" >&5
-$as_echo_n "checking for the pthreads library -l$flag... " >&6; }
-                PTHREAD_LIBS="-l$flag"
-                ;;
-        esac
-
-        save_LIBS="$LIBS"
-        save_CFLAGS="$CFLAGS"
-        LIBS="$PTHREAD_LIBS $LIBS"
-        CFLAGS="$CFLAGS $PTHREAD_CFLAGS $ax_pthread_extra_flags"
-
-        # Check for various functions.  We must include pthread.h,
-        # since some functions may be macros.  (On the Sequent, we
-        # need a special flag -Kthread to make this header compile.)
-        # We check for pthread_join because it is in -lpthread on IRIX
-        # while pthread_create is in libc.  We check for pthread_attr_init
-        # due to DEC craziness with -lpthreads.  We check for
-        # pthread_cleanup_push because it is one of the few pthread
-        # functions on Solaris that doesn't have a non-functional libc stub.
-        # We try pthread_create on general principles.
-        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <pthread.h>
-                        static void routine(void *a) { a = 0; }
-                        static void *start_routine(void *a) { return a; }
-int
-main ()
-{
-pthread_t th; pthread_attr_t attr;
-                        pthread_create(&th, 0, start_routine, 0);
-                        pthread_join(th, 0);
-                        pthread_attr_init(&attr);
-                        pthread_cleanup_push(routine, 0);
-                        pthread_cleanup_pop(0) /* ; */
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ax_pthread_ok=yes
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-
-        LIBS="$save_LIBS"
-        CFLAGS="$save_CFLAGS"
-
-        { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ax_pthread_ok" >&5
-$as_echo "$ax_pthread_ok" >&6; }
-        if test "x$ax_pthread_ok" = xyes; then
-                break;
-        fi
-
-        PTHREAD_LIBS=""
-        PTHREAD_CFLAGS=""
-done
-fi
-
-# Various other checks:
-if test "x$ax_pthread_ok" = xyes; then
-        save_LIBS="$LIBS"
-        LIBS="$PTHREAD_LIBS $LIBS"
-        save_CFLAGS="$CFLAGS"
-        CFLAGS="$CFLAGS $PTHREAD_CFLAGS"
-
-        # Detect AIX lossage: JOINABLE attribute is called UNDETACHED.
-        { $as_echo "$as_me:${as_lineno-$LINENO}: checking for joinable pthread attribute" >&5
-$as_echo_n "checking for joinable pthread attribute... " >&6; }
-        attr_name=unknown
-        for attr in PTHREAD_CREATE_JOINABLE PTHREAD_CREATE_UNDETACHED; do
-            cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <pthread.h>
-int
-main ()
-{
-int attr = $attr; return attr /* ; */
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  attr_name=$attr; break
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-        done
-        { $as_echo "$as_me:${as_lineno-$LINENO}: result: $attr_name" >&5
-$as_echo "$attr_name" >&6; }
-        if test "$attr_name" != PTHREAD_CREATE_JOINABLE; then
-
-cat >>confdefs.h <<_ACEOF
-#define PTHREAD_CREATE_JOINABLE $attr_name
-_ACEOF
-
-        fi
-
-        { $as_echo "$as_me:${as_lineno-$LINENO}: checking if more special flags are required for pthreads" >&5
-$as_echo_n "checking if more special flags are required for pthreads... " >&6; }
-        flag=no
-        case ${host_os} in
-            aix* | freebsd* | darwin*) flag="-D_THREAD_SAFE";;
-            osf* | hpux*) flag="-D_REENTRANT";;
-            solaris*)
-            if test "$GCC" = "yes"; then
-                flag="-D_REENTRANT"
-            else
-                # TODO: What about Clang on Solaris?
-                flag="-mt -D_REENTRANT"
-            fi
-            ;;
-        esac
-        { $as_echo "$as_me:${as_lineno-$LINENO}: result: $flag" >&5
-$as_echo "$flag" >&6; }
-        if test "x$flag" != xno; then
-            PTHREAD_CFLAGS="$flag $PTHREAD_CFLAGS"
-        fi
-
-        { $as_echo "$as_me:${as_lineno-$LINENO}: checking for PTHREAD_PRIO_INHERIT" >&5
-$as_echo_n "checking for PTHREAD_PRIO_INHERIT... " >&6; }
-if ${ax_cv_PTHREAD_PRIO_INHERIT+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-
-                cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <pthread.h>
-int
-main ()
-{
-int i = PTHREAD_PRIO_INHERIT;
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ax_cv_PTHREAD_PRIO_INHERIT=yes
-else
-  ax_cv_PTHREAD_PRIO_INHERIT=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ax_cv_PTHREAD_PRIO_INHERIT" >&5
-$as_echo "$ax_cv_PTHREAD_PRIO_INHERIT" >&6; }
-        if test "x$ax_cv_PTHREAD_PRIO_INHERIT" = "xyes"; then :
-
-$as_echo "#define HAVE_PTHREAD_PRIO_INHERIT 1" >>confdefs.h
-
-fi
-
-        LIBS="$save_LIBS"
-        CFLAGS="$save_CFLAGS"
-
-        # More AIX lossage: compile with *_r variant
-        if test "x$GCC" != xyes; then
-            case $host_os in
-                aix*)
-                case "x/$CC" in #(
-  x*/c89|x*/c89_128|x*/c99|x*/c99_128|x*/cc|x*/cc128|x*/xlc|x*/xlc_v6|x*/xlc128|x*/xlc128_v6) :
-    #handle absolute path differently from PATH based program lookup
-                   case "x$CC" in #(
-  x/*) :
-    if as_fn_executable_p ${CC}_r; then :
-  PTHREAD_CC="${CC}_r"
-fi ;; #(
-  *) :
-    for ac_prog in ${CC}_r
-do
-  # Extract the first word of "$ac_prog", so it can be a program name with args.
-set dummy $ac_prog; ac_word=$2
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-$as_echo_n "checking for $ac_word... " >&6; }
-if ${ac_cv_prog_PTHREAD_CC+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  if test -n "$PTHREAD_CC"; then
-  ac_cv_prog_PTHREAD_CC="$PTHREAD_CC" # Let the user override the test.
-else
-as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_prog_PTHREAD_CC="$ac_prog"
-    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-fi
-fi
-PTHREAD_CC=$ac_cv_prog_PTHREAD_CC
-if test -n "$PTHREAD_CC"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $PTHREAD_CC" >&5
-$as_echo "$PTHREAD_CC" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-
-
-  test -n "$PTHREAD_CC" && break
-done
-test -n "$PTHREAD_CC" || PTHREAD_CC="$CC"
- ;;
-esac ;; #(
-  *) :
-     ;;
-esac
-                ;;
-            esac
-        fi
-fi
-
-test -n "$PTHREAD_CC" || PTHREAD_CC="$CC"
-
-
-
-
-
-# Finally, execute ACTION-IF-FOUND/ACTION-IF-NOT-FOUND:
-if test x"$ax_pthread_ok" = xyes; then
-        LIBS="$PTHREAD_LIBS $LIBS"
-            CFLAGS="$CFLAGS $PTHREAD_CFLAGS"
-            CC="$PTHREAD_CC"
-        :
-else
-        ax_pthread_ok=no
-        as_fn_error $? "Can not find pthreads.  This is required." "$LINENO" 5
-fi
-ac_ext=c
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_c_compiler_gnu
-
-
 
 
 ggl_check_stack_protector_save_CXXFLAGS="$CXXFLAGS"
@@ -15428,6 +14250,14 @@ fi
 else
   BUILD_WINCOMPAT_TRUE='#'
   BUILD_WINCOMPAT_FALSE=
+fi
+
+ if test "$os_arch" = "arm64"; then
+  BUILD_ARM64_TRUE=
+  BUILD_ARM64_FALSE='#'
+else
+  BUILD_ARM64_TRUE='#'
+  BUILD_ARM64_FALSE=
 fi
 
 
@@ -16674,15 +15504,56 @@ else
   as_fn_error $? "Couldn't find libev. Try installing libev-dev[el]." "$LINENO" 5
 fi
 
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for mbedtls_cipher_setup in -lmbedcrypto" >&5
+$as_echo_n "checking for mbedtls_cipher_setup in -lmbedcrypto... " >&6; }
+if ${ac_cv_lib_mbedcrypto_mbedtls_cipher_setup+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lmbedcrypto  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char mbedtls_cipher_setup ();
+int
+main ()
+{
+return mbedtls_cipher_setup ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_mbedcrypto_mbedtls_cipher_setup=yes
+else
+  ac_cv_lib_mbedcrypto_mbedtls_cipher_setup=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_mbedcrypto_mbedtls_cipher_setup" >&5
+$as_echo "$ac_cv_lib_mbedcrypto_mbedtls_cipher_setup" >&6; }
+if test "x$ac_cv_lib_mbedcrypto_mbedtls_cipher_setup" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBMBEDCRYPTO 1
+_ACEOF
+
+  LIBS="-lmbedcrypto $LIBS"
 
 else
-  ac_config_files="$ac_config_files libudns/Makefile libev/Makefile"
-
+  as_fn_error $? "Couldn't find mbedtls. Try installing libmbedtls-dev[el]." "$LINENO" 5
 fi
 
-if test -z "$ENABLE_DOCUMENTATION_TRUE"; then :
-  ac_config_files="$ac_config_files doc/Makefile"
 
+else
+  ac_config_files="$ac_config_files libudns/Makefile libev/Makefile mbedtls/Makefile"
 
 fi
 
@@ -16831,8 +15702,8 @@ if test -z "${USE_SYSTEM_SHARED_LIB_TRUE}" && test -z "${USE_SYSTEM_SHARED_LIB_F
   as_fn_error $? "conditional \"USE_SYSTEM_SHARED_LIB\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
-if test -z "${ENABLE_DOCUMENTATION_TRUE}" && test -z "${ENABLE_DOCUMENTATION_FALSE}"; then
-  as_fn_error $? "conditional \"ENABLE_DOCUMENTATION\" was never defined.
+if test -z "${am__fastdepCCAS_TRUE}" && test -z "${am__fastdepCCAS_FALSE}"; then
+  as_fn_error $? "conditional \"am__fastdepCCAS\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${BUILD_REDIRECTOR_TRUE}" && test -z "${BUILD_REDIRECTOR_FALSE}"; then
@@ -16841,6 +15712,10 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${BUILD_WINCOMPAT_TRUE}" && test -z "${BUILD_WINCOMPAT_FALSE}"; then
   as_fn_error $? "conditional \"BUILD_WINCOMPAT\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${BUILD_ARM64_TRUE}" && test -z "${BUILD_ARM64_FALSE}"; then
+  as_fn_error $? "conditional \"BUILD_ARM64\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 
@@ -17729,7 +16604,7 @@ do
     "src/Makefile") CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
     "libudns/Makefile") CONFIG_FILES="$CONFIG_FILES libudns/Makefile" ;;
     "libev/Makefile") CONFIG_FILES="$CONFIG_FILES libev/Makefile" ;;
-    "doc/Makefile") CONFIG_FILES="$CONFIG_FILES doc/Makefile" ;;
+    "mbedtls/Makefile") CONFIG_FILES="$CONFIG_FILES mbedtls/Makefile" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac

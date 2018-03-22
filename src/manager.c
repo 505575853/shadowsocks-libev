@@ -46,7 +46,7 @@
 #include <netdb.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
-#include <pthread.h>
+//#include <pthread.h>
 #include <sys/un.h>
 #include <sys/socket.h>
 #include <pwd.h>

@@ -5,6 +5,7 @@ AM_CFLAGS += $(PTHREAD_CFLAGS)
 if !USE_SYSTEM_SHARED_LIB
 AM_CFLAGS += -I$(top_srcdir)/libev
 AM_CFLAGS += -I$(top_srcdir)/libudns
+AM_CFLAGS += -I$(top_srcdir)/mbedtls/include
 endif
 AM_CFLAGS += -I$(top_srcdir)/libipset/include
 AM_CFLAGS += -I$(top_srcdir)/libcork/include
@@ -14,9 +15,10 @@ SS_COMMON_LIBS = $(top_builddir)/libipset/libipset.la \
                  $(top_builddir)/libcork/libcork.la \
                  $(INET_NTOP_LIB) $(LIBPCRE_LIBS)
 if USE_SYSTEM_SHARED_LIB
-SS_COMMON_LIBS += -lev -lm
+SS_COMMON_LIBS += -lev -lm -lmbedcrypto
 else
-SS_COMMON_LIBS += $(top_builddir)/libev/libev.la
+SS_COMMON_LIBS += $(top_builddir)/libev/libev.la \
+                  $(top_builddir)/mbedtls/libmbedcrypto.la
 endif
 
 bin_PROGRAMS = ss-local

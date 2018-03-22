@@ -35,7 +35,7 @@
 #include <errno.h>
 #include <netdb.h>
 #include <netinet/in.h>
-#include <pthread.h>
+//#include <pthread.h>
 #endif
 
 #ifdef HAVE_CONFIG_H

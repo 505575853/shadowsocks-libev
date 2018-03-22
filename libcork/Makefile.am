@@ -10,7 +10,7 @@ ds_src = ds/array.c ds/bitset.c ds/buffer.c ds/dllist.c \
 posix_src = posix/directory-walker.c posix/env.c posix/exec.c \
 			posix/files.c posix/process.c
 if !BUILD_WINCOMPAT
-posix_src += posix/subprocess.c pthreads/thread.c
+posix_src += posix/subprocess.c
 else
 posix_src += posix/mingw.c
 endif

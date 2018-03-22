@@ -1,11 +1,7 @@
 if USE_SYSTEM_SHARED_LIB
-SUBDIRS = libcork libipset src
+SUBDIRS = libcork libipset mbedtls src
 else
-SUBDIRS = libcork libipset libudns libev src
-endif
-
-if ENABLE_DOCUMENTATION
-SUBDIRS += doc
+SUBDIRS = libcork libipset libudns libev mbedtls src
 endif
 
 ACLOCAL_AMFLAGS = -I m4
