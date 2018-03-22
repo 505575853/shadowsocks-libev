@@ -115,22 +115,28 @@ extern FILE *logfile;
 
 #define USE_SYSLOG(ident)
 
-#define LOGI(format, ...)                                                   \
-    do {                                                                    \
-        time_t now = time(NULL);                                            \
-        char timestr[20];                                                   \
-        strftime(timestr, 20, TIME_FORMAT, localtime(&now));                \
-        fprintf(stderr, " %s INFO: " format "\n", timestr, ## __VA_ARGS__); \
-        fflush(stderr); }                                                   \
+#define LOGI(format, ...)                                    \
+    do {                                                     \
+        time_t now = time(NULL);                             \
+        char timestr[20];                                    \
+        strftime(timestr, 20, TIME_FORMAT, localtime(&now)); \
+        ss_color_info();                                     \
+        fprintf(stdout, " %s INFO: ", timestr);              \
+        ss_color_reset();                                    \
+        fprintf(stdout, format "\n", ## __VA_ARGS__);        \
+    }                                                        \
     while (0)
 
-#define LOGE(format, ...)                                                    \
-    do {                                                                     \
-        time_t now = time(NULL);                                             \
-        char timestr[20];                                                    \
-        strftime(timestr, 20, TIME_FORMAT, localtime(&now));                 \
-        fprintf(stderr, " %s ERROR: " format "\n", timestr, ## __VA_ARGS__); \
-        fflush(stderr); }                                                    \
+#define LOGE(format, ...)                                     \
+    do {                                                      \
+        time_t now = time(NULL);                              \
+        char timestr[20];                                     \
+        strftime(timestr, 20, TIME_FORMAT, localtime(&now));  \
+        ss_color_error();                                     \
+        fprintf(stdout, " %s ERROR: ", timestr);              \
+        ss_color_reset();                                     \
+        fprintf(stdout, format "\n", ## __VA_ARGS__);         \
+    }                                                         \
     while (0)
 
 #else
@@ -202,6 +208,10 @@ extern int use_syslog;
 #undef ERROR
 #endif
 #define ERROR(s) ss_error(s)
+
+void ss_color_info(void);
+void ss_color_error(void);
+void ss_color_reset(void);
 
 #else
 
