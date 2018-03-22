@@ -99,6 +99,10 @@
 #define ERROR(s) ss_error(s)
 void ss_error(const char *s);
 
+// Missing Unix functions
+#define bzero(s,n) memset(s,0,n)
+#define strndup(s,n) ss_strndup(s,n)
+
 // Winsock compatibility functions
 int setnonblocking(SOCKET socket);
 void winsock_init(void);
