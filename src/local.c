@@ -110,12 +110,14 @@ static struct ev_signal sigterm_watcher;
 static struct ev_signal sigchld_watcher;
 static struct ev_signal sigusr1_watcher;
 #else
+#ifndef LIB_ONLY
 static struct plugin_watcher_t {
     ev_io io;
     SOCKET fd;
     uint16_t port;
     int valid;
 } plugin_watcher;
+#endif
 #endif
 
 #ifdef HAVE_SETRLIMIT
@@ -1890,6 +1892,10 @@ main(int argc, char **argv)
     }
 
 #ifdef __MINGW32__
+    if (plugin_watcher.valid) {
+        closesocket(plugin_watcher.fd);
+    }
+
     winsock_cleanup();
 #endif
 
@@ -2039,10 +2045,6 @@ _start_ss_local_server(profile_t profile, ss_local_callback callback, void *udat
     }
 
 #ifdef __MINGW32__
-    if (plugin_watcher.valid) {
-        closesocket(plugin_watcher.fd);
-    }
-
     winsock_cleanup();
 #endif
 
