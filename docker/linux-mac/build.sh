@@ -83,11 +83,11 @@ dk_package() {
     echo "Build $(date +"%y%m%d"): Git-${GIT_REV}" >> $BASE/pack/checksum
     echo "SHA256 Checksum:" >> $BASE/pack/checksum
     find . -type f | while read f; do
-        echo "  $(basename f):" >> $BASE/pack/checksum
+        echo "  $(basename $f):" >> $BASE/pack/checksum
         echo "    $(sha256sum $f | cut -d ' ' -f 1)" >> $BASE/pack/checksum
     done
     sed -e 's/$/\r/' $BASE/pack/checksum > checksum.txt
     rm -f $BASE/pack/checksum
     cd ..
-    7za a /ssr-linux-mac.zip ssr-static
+    tar zcf /bin.tgz ssr-static
 }

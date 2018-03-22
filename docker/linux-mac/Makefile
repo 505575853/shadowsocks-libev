@@ -21,7 +21,7 @@
 REPO=linusyang92
 REV=ssr
 IMAGE=ssr-build-linux-mac
-DIST=ssr-linux-mac.zip
+DIST=ssr-linux-mac.tar.gz
 
 all: build
 
@@ -30,7 +30,7 @@ build:
 	  --build-arg REV=$(REV) \
 	  --build-arg REPO=$(REPO) \
 	  --build-arg REBUILD="$$(date +%Y-%m-%d-%H-%M-%S)" .
-	docker run --rm --entrypoint cat $(IMAGE) /$(DIST) > $(DIST)
+	docker run --rm --entrypoint cat $(IMAGE) /bin.tgz > $(DIST)
 
 clean:
 	rm -f $(DIST)
