@@ -31,11 +31,15 @@ build_proj() {
     dep=${PREFIX}/$arch
 
     cd "$SRC"
-    git clone ${PROJ_URL} proj
-    cd proj
-    git checkout ${PROJ_REV}
-    git submodule update --init
-    ./autogen.sh
+    if ! [ -d proj ]; then
+        git clone ${PROJ_URL} proj
+        cd proj
+        git checkout ${PROJ_REV}
+        git submodule update --init
+        ./autogen.sh
+    else
+        cd proj
+    fi
     ./configure --host=${host} --prefix=${prefix} \
       --with-pcre="$dep"
     make clean
