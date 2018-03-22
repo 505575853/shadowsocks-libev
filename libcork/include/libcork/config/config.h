@@ -44,7 +44,7 @@
 #include <sys/param.h>
 #endif
 
-#if defined(__linux) || defined(__CYGWIN__) || defined(__FreeBSD_kernel__) || defined(__GNU__)
+#if defined(__linux) || defined(__FreeBSD_kernel__) || defined(__GNU__) || defined(__CYGWIN__)
 /* Do some Linux, kFreeBSD or GNU/Hurd specific autodetection. */
 #include <libcork/config/linux.h>
 

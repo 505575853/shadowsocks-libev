@@ -48,7 +48,5 @@ static inline int mingw_mkdir(const char *path, int mode)
 }
 #define mkdir mingw_mkdir
 
-#define S_ISLNK(x) 0
-
 
 #endif /* LIBCORK_CONFIG_MINGW32_H */
