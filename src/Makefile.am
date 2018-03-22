@@ -40,6 +40,7 @@ ss_local_SOURCES = utils.c \
                    acl.c \
                    netutils.c \
                    local.c \
+                   plugin.c \
                    $(sni_src)
 
 #ss_tunnel_SOURCES = utils.c \

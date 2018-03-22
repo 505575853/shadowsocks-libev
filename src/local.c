@@ -66,6 +66,7 @@
 #include "acl.h"
 #include "http.h"
 #include "tls.h"
+#include "plugin.h"
 #include "local.h"
 
 #ifndef LIB_ONLY
@@ -109,6 +110,20 @@ char *prefix;
 static int acl       = 0;
 static int mode = TCP_ONLY;
 static int ipv6first = 0;
+
+static struct ev_signal sigint_watcher;
+static struct ev_signal sigterm_watcher;
+#ifndef __MINGW32__
+static struct ev_signal sigchld_watcher;
+static struct ev_signal sigusr1_watcher;
+#else
+static struct plugin_watcher_t {
+    ev_io io;
+    SOCKET fd;
+    uint16_t port;
+    int valid;
+} plugin_watcher;
+#endif
 
 static int fast_open = 0;
 #ifdef HAVE_SETRLIMIT
@@ -1492,15 +1507,50 @@ signal_cb(EV_P_ ev_signal *w, int revents)
 {
     if (revents & EV_SIGNAL) {
         switch (w->signum) {
-        case SIGINT:
-        case SIGTERM:
 #ifndef __MINGW32__
+        case SIGCHLD:
+            if (!is_plugin_running()) {
+                LOGE("plugin service exit unexpectedly");
+            }
+            else
+                return;
         case SIGUSR1:
 #endif
+        case SIGINT:
+        case SIGTERM:
+            ev_signal_stop(EV_DEFAULT, &sigint_watcher);
+            ev_signal_stop(EV_DEFAULT, &sigterm_watcher);
+#ifndef __MINGW32__
+            ev_signal_stop(EV_DEFAULT, &sigchld_watcher);
+            ev_signal_stop(EV_DEFAULT, &sigusr1_watcher);
+#else
+            ev_io_stop(EV_DEFAULT, &plugin_watcher.io);
+#endif
+            keep_resolving = 0;
             ev_unloop(EV_A_ EVUNLOOP_ALL);
         }
     }
 }
+
+#if defined(__MINGW32__) && !defined(LIB_ONLY)
+static void
+plugin_watcher_cb(EV_P_ ev_io *w, int revents)
+{
+    char buf[1];
+    SOCKET fd = accept(plugin_watcher.fd, NULL, NULL);
+    if (fd == INVALID_SOCKET) {
+        return;
+    }
+    recv(fd, buf, 1, 0);
+    closesocket(fd);
+    LOGE("plugin service exit unexpectedly");
+    ev_signal_stop(EV_DEFAULT, &sigint_watcher);
+    ev_signal_stop(EV_DEFAULT, &sigterm_watcher);
+    ev_io_stop(EV_DEFAULT, &plugin_watcher.io);
+    keep_resolving = 0;
+    ev_unloop(EV_A_ EVUNLOOP_ALL);
+}
+#endif
 
 void
 accept_cb(EV_P_ ev_io *w, int revents)
@@ -1521,12 +1571,6 @@ accept_cb(EV_P_ ev_io *w, int revents)
     server_t *server = new_server(serverfd, listener);
 
     ev_io_start(EV_A_ & server->recv_ctx->io);
-}
-
-void
-resolve_int_cb(int dummy)
-{
-    keep_resolving = 0;
 }
 
 static void
@@ -1568,6 +1612,15 @@ main(int argc, char **argv)
     char *pid_path = NULL;
     char *conf_path = NULL;
     char *iface = NULL;
+
+    char *plugin      = NULL;
+    char *plugin_opts = NULL;
+    char *plugin_host = NULL;
+    char *plugin_port = NULL;
+    char tmp_port[8];
+
+    srand(time(NULL));
+
     int remote_num = 0;
     char *hostnames[MAX_REMOTE_NUM] = {NULL};
     ss_addr_t remote_addr[MAX_REMOTE_NUM];
@@ -1586,6 +1639,8 @@ main(int argc, char **argv)
             { "mptcp",     no_argument,       0, 0 },
             { "help",      no_argument,       0, 0 },
             { "host",      required_argument, 0, 0 },
+            { "plugin",      required_argument, 0, 0 },
+            { "plugin-opts", required_argument, 0, 0 },
             {           0,                 0, 0, 0 }
     };
 
@@ -1621,6 +1676,10 @@ main(int argc, char **argv)
                     exit(EXIT_SUCCESS);
                 } else if (option_index == 5) {
                     hostnames[remote_num] = optarg;
+                } else if (option_index == 6) {
+                    plugin = optarg;
+                } else if (option_index == 7) {
+                    plugin_opts = optarg;
                 }
                 break;
             case 's':
@@ -1782,6 +1841,12 @@ main(int argc, char **argv)
         if (user == NULL) {
             user = conf->user;
         }
+        if (plugin == NULL) {
+            plugin = conf->plugin;
+        }
+        if (plugin_opts == NULL) {
+            plugin_opts = conf->plugin_opts;
+        }
         if (tunnel_addr_str == NULL) {
             tunnel_addr_str = conf->tunnel_address;
         }
@@ -1815,6 +1880,30 @@ main(int argc, char **argv)
         password == NULL) {
         usage();
         exit(EXIT_FAILURE);
+    }
+
+#ifdef __MINGW32__
+    winsock_init();
+#endif
+
+    if (plugin != NULL) {
+        uint16_t port = get_local_port();
+        if (port == 0) {
+            FATAL("failed to find a free port");
+        }
+        snprintf(tmp_port, 8, "%d", port);
+        plugin_host = "127.0.0.1";
+        plugin_port = tmp_port;
+
+#ifdef __MINGW32__
+        memset(&plugin_watcher, 0, sizeof(plugin_watcher));
+        plugin_watcher.port = get_local_port();
+        if (plugin_watcher.port == 0) {
+            LOGE("failed to assign a control port for plugin");
+        }
+#endif
+
+        LOGI("plugin \"%s\" enabled", plugin);
     }
 
     if (method == NULL) {
@@ -1859,7 +1948,6 @@ main(int argc, char **argv)
     if (ipv6first) {
         LOGI("resolving hostname to IPv6 address first");
     }
-    srand(time(NULL));
 
     // parse tunnel addr
     if (tunnel_addr_str) {
@@ -1867,13 +1955,66 @@ main(int argc, char **argv)
     }
 
 #ifdef __MINGW32__
-    winsock_init();
-#else
+    // Listen on plugin control port
+    if (plugin != NULL && plugin_watcher.port != 0) {
+        SOCKET fd;
+        fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+        if (fd != INVALID_SOCKET) {
+            plugin_watcher.valid = 0;
+            do {
+                struct sockaddr_in addr;
+                memset(&addr, 0, sizeof(addr));
+                addr.sin_family = AF_INET;
+                addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+                addr.sin_port = htons(plugin_watcher.port);
+                if (bind(fd, (struct sockaddr *)&addr, sizeof(addr))) {
+                    LOGE("failed to bind plugin control port");
+                    break;
+                }
+                if (listen(fd, 1)) {
+                    LOGE("failed to listen on plugin control port");
+                    break;
+                }
+                plugin_watcher.fd = fd;
+                ev_io_init(&plugin_watcher.io, plugin_watcher_cb, fd, EV_READ);
+                ev_io_start(EV_DEFAULT, &plugin_watcher.io);
+                plugin_watcher.valid = 1;
+            } while (0);
+            if (!plugin_watcher.valid) {
+                closesocket(fd);
+                plugin_watcher.port = 0;
+            }
+        }
+    }
+#endif
+
+    if (plugin != NULL) {
+        int len          = 0;
+        size_t buf_size  = 256 * remote_num;
+        char *remote_str = ss_malloc(buf_size);
+
+        snprintf(remote_str, buf_size, "%s", remote_addr[0].host);
+        len = strlen(remote_str);
+        for (int i = 1; i < remote_num; i++) {
+            snprintf(remote_str + len, buf_size - len, "|%s", remote_addr[i].host);
+            len = strlen(remote_str);
+        }
+        int err = start_plugin(plugin, plugin_opts, remote_str,
+                               remote_port, plugin_host, plugin_port,
+#ifdef __MINGW32__
+                               plugin_watcher.port,
+#endif
+                               MODE_CLIENT);
+        if (err) {
+            ERROR("start_plugin");
+            FATAL("failed to start the plugin");
+        }
+    }
+
+#ifndef __MINGW32__
     // ignore SIGPIPE
     signal(SIGPIPE, SIG_IGN);
     signal(SIGABRT, SIG_IGN);
-    signal(SIGINT,  resolve_int_cb);
-    signal(SIGTERM, resolve_int_cb);
 #endif
 
     // Setup profiles
@@ -1948,7 +2089,10 @@ main(int argc, char **argv)
             char *host = remote_addr[i].host;
             char *port = remote_addr[i].port == NULL ? remote_port :
                          remote_addr[i].port;
-
+            if (plugin != NULL) {
+                host = plugin_host;
+                port = plugin_port;
+            }
             struct sockaddr_storage *storage = ss_malloc(sizeof(struct sockaddr_storage));
             if (get_sockaddr(host, port, storage, 1, ipv6first) == -1) {
                 FATAL("failed to resolve the provided hostname");
@@ -1971,6 +2115,9 @@ main(int argc, char **argv)
             init_obfs(serv, ss_strdup(protocol), ss_strdup(protocol_param), ss_strdup(obfs), ss_strdup(obfs_param));
 
             serv->enable = 1;
+
+            if (plugin != NULL)
+                break;
         }
     }
 
@@ -1979,12 +2126,14 @@ main(int argc, char **argv)
     current_profile = profile;
 
     // Setup signal handler
-    struct ev_signal sigint_watcher;
-    struct ev_signal sigterm_watcher;
     ev_signal_init(&sigint_watcher, signal_cb, SIGINT);
     ev_signal_init(&sigterm_watcher, signal_cb, SIGTERM);
     ev_signal_start(EV_DEFAULT, &sigint_watcher);
     ev_signal_start(EV_DEFAULT, &sigterm_watcher);
+#ifndef __MINGW32__
+    ev_signal_init(&sigchld_watcher, signal_cb, SIGCHLD);
+    ev_signal_start(EV_DEFAULT, &sigchld_watcher);
+#endif
 
     struct ev_loop *loop = EV_DEFAULT;
 
@@ -2052,6 +2201,10 @@ main(int argc, char **argv)
     }
 
     // Clean up
+    if (plugin != NULL) {
+        stop_plugin();
+    }
+
     if (mode != TCP_ONLY) {
         free_udprelay(); // udp relay use some data from profile, so we need to release udp first
     }
@@ -2063,11 +2216,11 @@ main(int argc, char **argv)
     }
 
 #ifdef __MINGW32__
+    if (plugin_watcher.valid) {
+        closesocket(plugin_watcher.fd);
+    }
     winsock_cleanup();
 #endif
-
-    ev_signal_stop(EV_DEFAULT, &sigint_watcher);
-    ev_signal_stop(EV_DEFAULT, &sigterm_watcher);
 
     return 0;
 }
@@ -2077,162 +2230,7 @@ main(int argc, char **argv)
 int
 start_ss_local_server(profile_t profile)
 {
-    srand(time(NULL));
-
-    char *remote_host = profile.remote_host;
-    char *local_addr  = profile.local_addr;
-    char *method      = profile.method;
-    char *password    = profile.password;
-    char *log         = profile.log;
-    int remote_port   = profile.remote_port;
-    int local_port    = profile.local_port;
-    int timeout       = profile.timeout;
-    int mtu           = 0;
-    int mptcp         = 0;
-
-    ss_addr_t tunnel_addr = { .host = NULL, .port = NULL };
-
-    mode      = profile.mode;
-    fast_open = profile.fast_open;
-    verbose   = profile.verbose;
-    mtu       = profile.mtu;
-    mptcp     = profile.mptcp;
-
-    char local_port_str[16];
-    char remote_port_str[16];
-    sprintf(local_port_str, "%d", local_port);
-    sprintf(remote_port_str, "%d", remote_port);
-
-    USE_LOGFILE(log);
-
-    if (profile.acl != NULL) {
-        acl = !init_acl(profile.acl);
-    }
-
-    if (local_addr == NULL) {
-        local_addr = "127.0.0.1";
-    }
-
-#ifdef __MINGW32__
-    winsock_init();
-#else
-    // ignore SIGPIPE
-    signal(SIGPIPE, SIG_IGN);
-    signal(SIGABRT, SIG_IGN);
-#endif
-
-    struct ev_signal sigint_watcher;
-    struct ev_signal sigterm_watcher;
-    ev_signal_init(&sigint_watcher, signal_cb, SIGINT);
-    ev_signal_init(&sigterm_watcher, signal_cb, SIGTERM);
-    ev_signal_start(EV_DEFAULT, &sigint_watcher);
-    ev_signal_start(EV_DEFAULT, &sigterm_watcher);
-#ifndef __MINGW32__
-    struct ev_signal sigusr1_watcher;
-    ev_signal_init(&sigusr1_watcher, signal_cb, SIGUSR1);
-    ev_signal_start(EV_DEFAULT, &sigusr1_watcher);
-#endif
-
-    struct sockaddr_storage *storage = ss_malloc(sizeof(struct sockaddr_storage));
-    memset(storage, 0, sizeof(struct sockaddr_storage));
-    if (get_sockaddr(remote_host, remote_port_str, storage, 0, ipv6first) == -1) {
-        return -1;
-    }
-
-    // Setup proxy context
-    struct ev_loop *loop = EV_DEFAULT;
-
-    listen_ctx_t listen_ctx;
-    listen_ctx.server_num     = 1;
-    server_def_t *serv = &listen_ctx.servers[0];
-    ss_server_t server_cfg;
-    ss_server_t *serv_cfg = &server_cfg;
-    server_cfg.protocol = 0;
-    server_cfg.protocol_param = 0;
-    server_cfg.obfs = 0;
-    server_cfg.obfs_param = 0;
-    serv->addr = serv->addr_udp = storage;
-    serv->addr_len = serv->addr_udp_len = get_sockaddr_len((struct sockaddr *) storage);
-    listen_ctx.timeout        = timeout;
-    listen_ctx.iface          = NULL;
-    listen_ctx.mptcp          = mptcp;
-
-    if (mode != UDP_ONLY) {
-        // Setup socket
-        int listenfd;
-        listenfd = create_and_bind(local_addr, local_port_str);
-        if (listenfd == -1) {
-            ERROR("bind()");
-            return -1;
-        }
-        if (listen(listenfd, SOMAXCONN) == -1) {
-            ERROR("listen()");
-            return -1;
-        }
-        setnonblocking(listenfd);
-
-        listen_ctx.fd = listenfd;
-
-        ev_io_init(&listen_ctx.io, accept_cb, listenfd, EV_READ);
-        ev_io_start(loop, &listen_ctx.io);
-    }
-
-    // Setup UDP
-    if (mode != TCP_ONLY) {
-        LOGI("udprelay enabled");
-        init_udprelay(local_addr, local_port_str, (struct sockaddr*)listen_ctx.servers[0].addr_udp,
-                      listen_ctx.servers[0].addr_udp_len, tunnel_addr, mtu, listen_ctx.timeout, listen_ctx.iface, &listen_ctx.servers[0].cipher, listen_ctx.servers[0].protocol_name, listen_ctx.servers[0].protocol_param);
-    }
-
-    if (strcmp(local_addr, ":") > 0)
-        LOGI("listening at [%s]:%s", local_addr, local_port_str);
-    else
-        LOGI("listening at %s:%s", local_addr, local_port_str);
-
-    // Setup keys
-    LOGI("initializing ciphers... %s", method);
-    enc_init(&serv->cipher, password, method);
-
-    // init obfs
-    init_obfs(serv, ss_strdup(serv_cfg->protocol), ss_strdup(serv_cfg->protocol_param), ss_strdup(serv_cfg->obfs), ss_strdup(serv_cfg->obfs_param));
-
-    // Init connections
-    cork_dllist_init(&serv->connections);
-
-    cork_dllist_init(&inactive_profiles); //
-
-    // Enter the loop
-    ev_run(loop, 0);
-
-    if (verbose) {
-        LOGI("closed gracefully");
-    }
-
-    // Clean up
-    if (mode != TCP_ONLY) {
-        free_udprelay();
-    }
-
-    if (mode != UDP_ONLY) {
-        ev_io_stop(loop, &listen_ctx.io);
-        free_connections(loop);
-        close(listen_ctx.fd);
-    }
-
-    ss_free(serv->addr);
-
-#ifdef __MINGW32__
-    winsock_cleanup();
-#endif
-
-    ev_signal_stop(EV_DEFAULT, &sigint_watcher);
-    ev_signal_stop(EV_DEFAULT, &sigterm_watcher);
-#ifndef __MINGW32__
-    ev_signal_stop(EV_DEFAULT, &sigusr1_watcher);
-#endif
-
-    // cannot reach here
-    return 0;
+    return -1;
 }
 
 #endif

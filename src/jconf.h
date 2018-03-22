@@ -97,6 +97,8 @@ typedef struct {
     };
     char *timeout;
     char *user;
+    char *plugin;
+    char *plugin_opts;
     int fast_open;
     int nofile;
     char *nameserver;
