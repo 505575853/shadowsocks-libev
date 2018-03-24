@@ -1206,7 +1206,11 @@ remote_send_cb(EV_P_ ev_io *w, int revents)
             }
         } else {
             // not connected
+#ifdef __MINGW32__
             ss_error_no("getsockopt", err_no);
+#else
+            LOGE("getsockopt: %s", strerror(err_no));
+#endif
             close_and_free_remote(EV_A_ remote);
             close_and_free_server(EV_A_ server);
             return;

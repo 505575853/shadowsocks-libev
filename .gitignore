@@ -7,6 +7,7 @@ libudns/Makefile
 libcork/Makefile
 libipset/Makefile
 doc/Makefile
+mbedtls/Makefile
 autom4te.cache/
 /config.h
 config.log
@@ -62,7 +63,6 @@ doc/*.html
 *.l[oa]
 *.[oa]
 *.obj
-*.patch
 *.so
 *.pcf.gz
 *.pdb
