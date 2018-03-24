@@ -41,7 +41,7 @@ build_proj() {
         cd proj
     fi
     ./configure --host=${host} --prefix=${prefix} \
-      --with-pcre="$dep"
+      --with-pcre="$dep" CFLAGS="-DPCRE_STATIC"
     make clean
     make LDFLAGS="-all-static -L${dep}/lib"
     make install-strip
