@@ -13612,9 +13612,10 @@ if test "x$golang" = xyes; then
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for golang cross-compilation" >&5
 $as_echo_n "checking for golang cross-compilation... " >&6; }
   GOARCH=""
-  IFS='-' read -ra HOSTARR <<< "$host"
+  GOCROSS=""
+  GOFLAGS=""
+  HOSTARCH="$(echo "$host" | cut -d "-" -f 1)"
   if test "x$HOSTARCH" != x; then
-  HOSTARCH="${HOSTARR0}"
   case $HOSTARCH in
     aarch64)
       GOARCH="GOARCH=arm64"
@@ -13636,6 +13637,7 @@ $as_echo_n "checking for golang cross-compilation... " >&6; }
       ;;
   esac
   fi
+  if test "x$HOSTARCH" != x; then
   case $host in
   *-mingw*)
     GOCROSS="GOOS=windows $GOARCH CC=$CC"
@@ -13663,12 +13665,14 @@ $as_echo "Android" >&6; }
 $as_echo "Linux Musl" >&6; }
     ;;
   *)
-    GOCROSS=""
-    GOFLAGS=""
     { $as_echo "$as_me:${as_lineno-$LINENO}: result: Native" >&5
 $as_echo "Native" >&6; }
     ;;
   esac
+  else
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: Native" >&5
+$as_echo "Native" >&6; }
+  fi
 fi
 
 
