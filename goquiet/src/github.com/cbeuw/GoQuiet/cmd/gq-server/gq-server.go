@@ -4,7 +4,6 @@ import (
 	"errors"
 	"flag"
 	"github.com/cbeuw/GoQuiet/gqserver"
-	"github.com/cbeuw/gotfo"
 	"io"
 	"log"
 	"net"
@@ -105,8 +104,8 @@ func dispatchConnection(conn net.Conn, sta *gqserver.State) {
 		go pair.remoteToServer()
 		go pair.serverToRemote()
 	}
-	goSS := func(data []byte) {
-		pair, err := makeSSPipe(conn, sta, data)
+	goSS := func() {
+		pair, err := makeSSPipe(conn, sta)
 		if err != nil {
 			log.Fatalf("Making connection to ss-server: %v\n", err)
 		}
@@ -149,14 +148,7 @@ func dispatchConnection(conn net.Conn, sta *gqserver.State) {
 			return
 		}
 	}
-
-	if sta.FastOpen {
-		data, _ = gqserver.ReadTillDrain(conn)
-		data = gqserver.PeelRecordLayer(data)
-		goSS(data)
-	} else {
-		goSS(nil)
-	}
+	goSS()
 }
 
 func makeWebPipe(remote net.Conn, sta *gqserver.State) (*webPair, error) {
@@ -171,8 +163,8 @@ func makeWebPipe(remote net.Conn, sta *gqserver.State) (*webPair, error) {
 	return pair, nil
 }
 
-func makeSSPipe(remote net.Conn, sta *gqserver.State, data []byte) (*ssPair, error) {
-	conn, err := gotfo.Dial(sta.SS_LOCAL_HOST+":"+sta.SS_LOCAL_PORT, sta.FastOpen, data)
+func makeSSPipe(remote net.Conn, sta *gqserver.State) (*ssPair, error) {
+	conn, err := net.Dial("tcp", sta.SS_LOCAL_HOST+":"+sta.SS_LOCAL_PORT)
 	if err != nil {
 		return &ssPair{}, errors.New("Connection to SS server failed")
 	}
@@ -238,37 +230,18 @@ func main() {
 	}
 	sta.SetAESKey()
 	go usedRandomCleaner(sta)
-
-	listen := func(addr, port string) {
-		listener, err := gotfo.Listen(addr+":"+port, sta.FastOpen)
-		log.Println("Listening on " + addr + ":" + port)
-		if err != nil {
-			log.Fatal(err)
-		}
-		for {
-			conn, err := listener.Accept()
-			if err != nil {
-				log.Printf("%v", err)
-				continue
-			}
-			go dispatchConnection(conn, sta)
-		}
+	listener, err := net.Listen("tcp", sta.SS_REMOTE_HOST+":"+sta.SS_REMOTE_PORT)
+	log.Println("Listening on " + sta.SS_REMOTE_HOST + ":" + sta.SS_REMOTE_PORT)
+	if err != nil {
+		log.Fatal(err)
 	}
-
-	// When listening on an IPv6 and IPv4, SS gives REMOTE_HOST as e.g. ::|0.0.0.0
-	listeningIP := strings.Split(sta.SS_REMOTE_HOST, "|")
-	for i, ip := range listeningIP {
-		if net.ParseIP(ip).To4() == nil {
-			// IPv6 needs square brackets
-			ip = "[" + ip + "]"
+	for {
+		conn, err := listener.Accept()
+		if err != nil {
+			log.Printf("%v", err)
+			continue
 		}
-
-		// The last listener must block main() because the program exits on main return.
-		if i == len(listeningIP)-1 {
-			listen(ip, sta.SS_REMOTE_PORT)
-		} else {
-			go listen(ip, sta.SS_REMOTE_PORT)
-		}
+		go dispatchConnection(conn, sta)
 	}
 
 }

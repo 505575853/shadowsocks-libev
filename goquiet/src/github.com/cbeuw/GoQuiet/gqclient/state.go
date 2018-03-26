@@ -26,7 +26,6 @@ type State struct {
 	AESKey         []byte
 	ServerName     string
 	Browser        string
-	FastOpen       bool
 }
 
 // semi-colon separated value. This is for Android plugin options
@@ -40,9 +39,9 @@ func ssvToJson(ssv string) (ret []byte) {
 		sp := strings.Split(ln, "=")
 		key := sp[0]
 		value := sp[1]
-		// JSON doesn't like quotation marks around int and boolean
+		// JSON doesn't like quotation marks around int
 		// Yes this is extremely ugly but it's still better than writing a tokeniser
-		if key == "TicketTimeHint" || key == "FastOpen" {
+		if key == "TicketTimeHint" {
 			ret = append(ret, []byte("\""+key+"\":"+value+",")...)
 		} else {
 			ret = append(ret, []byte("\""+key+"\":\""+value+"\",")...)
