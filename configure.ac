@@ -66,6 +66,16 @@ if test "x$golang" = xyes; then
     LIBS="$LIBS -lwinmm"
     AC_MSG_RESULT(MinGW 32-bit)
     ;;
+  x86_64-apple-darwin*)
+    GOCROSS="GOOS=darwin GOARCH=amd64 CC=$CC"
+    GOFLAGS="-ldflags=\"-extar $AR\""
+    AC_MSG_RESULT(macOS)
+    ;;
+  x86_64-linux-musl*)
+    GOCROSS="GOOS=linux GOARCH=amd64 CC=$CC"
+    GOFLAGS="-ldflags=\"-extar $AR\""
+    AC_MSG_RESULT(Linux Musl)
+    ;;
   *)
     GOCROSS=""
     GOFLAGS=""

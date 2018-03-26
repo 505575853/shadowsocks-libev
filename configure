@@ -13626,6 +13626,18 @@ $as_echo "MinGW 64-bit" >&6; }
     { $as_echo "$as_me:${as_lineno-$LINENO}: result: MinGW 32-bit" >&5
 $as_echo "MinGW 32-bit" >&6; }
     ;;
+  x86_64-apple-darwin*)
+    GOCROSS="GOOS=darwin GOARCH=amd64 CC=$CC"
+    GOFLAGS="-ldflags=\"-extar $AR\""
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: macOS" >&5
+$as_echo "macOS" >&6; }
+    ;;
+  x86_64-linux-musl*)
+    GOCROSS="GOOS=linux GOARCH=amd64 CC=$CC"
+    GOFLAGS="-ldflags=\"-extar $AR\""
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: Linux Musl" >&5
+$as_echo "Linux Musl" >&6; }
+    ;;
   *)
     GOCROSS=""
     GOFLAGS=""
