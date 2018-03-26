@@ -13609,8 +13609,8 @@ else
 fi
 
 if test "x$golang" = xyes; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for golang target" >&5
-$as_echo_n "checking for golang target... " >&6; }
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for golang cross-compilation" >&5
+$as_echo_n "checking for golang cross-compilation... " >&6; }
   case $host in
   x86_64-*-mingw*)
     GOCROSS="GOOS=windows GOARCH=amd64 CC=$CC"
@@ -13632,7 +13632,7 @@ $as_echo "MinGW 32-bit" >&6; }
     { $as_echo "$as_me:${as_lineno-$LINENO}: result: macOS" >&5
 $as_echo "macOS" >&6; }
     ;;
-  x86_64-linux-musl*)
+  *-linux-musl*)
     GOCROSS="GOOS=linux GOARCH=amd64 CC=$CC"
     GOFLAGS="-ldflags=\"-extar $AR\""
     { $as_echo "$as_me:${as_lineno-$LINENO}: result: Linux Musl" >&5
@@ -13641,6 +13641,8 @@ $as_echo "Linux Musl" >&6; }
   *)
     GOCROSS=""
     GOFLAGS=""
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: Native" >&5
+$as_echo "Native" >&6; }
     ;;
   esac
 fi

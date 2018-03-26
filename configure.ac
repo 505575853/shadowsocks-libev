@@ -52,7 +52,7 @@ dnl Checks for golang
 AC_CHECK_PROG([golang],[go],[yes],[no])
 AM_CONDITIONAL([HAS_GOLANG], [test "x$golang" = xyes])
 if test "x$golang" = xyes; then
-  AC_MSG_CHECKING(for golang target)
+  AC_MSG_CHECKING(for golang cross-compilation)
   case $host in
   x86_64-*-mingw*)
     GOCROSS="GOOS=windows GOARCH=amd64 CC=$CC"
@@ -71,7 +71,7 @@ if test "x$golang" = xyes; then
     GOFLAGS="-ldflags=\"-extar $AR\""
     AC_MSG_RESULT(macOS)
     ;;
-  x86_64-linux-musl*)
+  *-linux-musl*)
     GOCROSS="GOOS=linux GOARCH=amd64 CC=$CC"
     GOFLAGS="-ldflags=\"-extar $AR\""
     AC_MSG_RESULT(Linux Musl)
@@ -79,6 +79,7 @@ if test "x$golang" = xyes; then
   *)
     GOCROSS=""
     GOFLAGS=""
+    AC_MSG_RESULT(Native)
     ;;
   esac
 fi
