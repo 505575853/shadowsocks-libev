@@ -13611,7 +13611,9 @@ fi
 if test "x$golang" = xyes; then
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for golang cross-compilation" >&5
 $as_echo_n "checking for golang cross-compilation... " >&6; }
+  GOARCH=""
   IFS='-' read -ra HOSTARR <<< "$host"
+  if test "x$HOSTARCH" != x; then
   HOSTARCH="${HOSTARR0}"
   case $HOSTARCH in
     aarch64)
@@ -13633,6 +13635,7 @@ $as_echo_n "checking for golang cross-compilation... " >&6; }
       GOARCH="GOARCH=$HOSTARCH"
       ;;
   esac
+  fi
   case $host in
   *-mingw*)
     GOCROSS="GOOS=windows $GOARCH CC=$CC"

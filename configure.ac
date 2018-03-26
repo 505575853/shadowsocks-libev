@@ -53,7 +53,9 @@ AC_CHECK_PROG([golang],[go],[yes],[no])
 AM_CONDITIONAL([HAS_GOLANG], [test "x$golang" = xyes])
 if test "x$golang" = xyes; then
   AC_MSG_CHECKING(for golang cross-compilation)
+  GOARCH=""
   IFS='-' read -ra HOSTARR <<< "$host"
+  if test "x$HOSTARCH" != x; then
   HOSTARCH="${HOSTARR[0]}"
   case $HOSTARCH in
     aarch64)
@@ -75,6 +77,7 @@ if test "x$golang" = xyes; then
       GOARCH="GOARCH=$HOSTARCH"
       ;;
   esac
+  fi
   case $host in
   *-mingw*)
     GOCROSS="GOOS=windows $GOARCH CC=$CC"
