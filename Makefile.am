@@ -1,7 +1,7 @@
 if USE_SYSTEM_SHARED_LIB
 SUBDIRS = libcork libipset mbedtls src
 else
-SUBDIRS = libcork libipset libudns libev mbedtls src
+SUBDIRS = libcork libipset libudns libev mbedtls goquiet src
 endif
 
 ACLOCAL_AMFLAGS = -I m4

@@ -83,7 +83,7 @@ typedef struct auth_chain_local_data {
 
 void auth_chain_local_data_init(auth_chain_local_data* local) {
     local->has_sent_header = 0;
-    local->recv_buffer = (char*)malloc(16384);
+    local->recv_buffer = (char*)malloc(RECV_BUF_LEN);
     local->recv_buffer_size = 0;
     local->recv_id = 1;
     local->pack_id = 1;
@@ -362,7 +362,7 @@ int auth_chain_a_client_post_decrypt(obfs *self, char **pplaindata, int dataleng
     auth_chain_local_data *local = (auth_chain_local_data*)self->l_data;
     server_info *server = (server_info*)&self->server;
     uint8_t * recv_buffer = (uint8_t *)local->recv_buffer;
-    if (local->recv_buffer_size + datalength > 16384)
+    if (local->recv_buffer_size + datalength > RECV_BUF_LEN)
         return -1;
     memmove(recv_buffer + local->recv_buffer_size, plaindata, datalength);
     local->recv_buffer_size += datalength;

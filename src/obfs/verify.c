@@ -12,7 +12,7 @@ typedef struct verify_simple_local_data {
 }verify_simple_local_data;
 
 void verify_simple_local_data_init(verify_simple_local_data* local) {
-    local->recv_buffer = (char*)malloc(16384);
+    local->recv_buffer = (char*)malloc(RECV_BUF_LEN);
     local->recv_buffer_size = 0;
 }
 
@@ -77,7 +77,7 @@ int verify_simple_client_post_decrypt(obfs *self, char **pplaindata, int datalen
     char *plaindata = *pplaindata;
     verify_simple_local_data *local = (verify_simple_local_data*)self->l_data;
     uint8_t * recv_buffer = (uint8_t *)local->recv_buffer;
-    if (local->recv_buffer_size + datalength > 16384)
+    if (local->recv_buffer_size + datalength > RECV_BUF_LEN)
         return -1;
     memmove(recv_buffer + local->recv_buffer_size, plaindata, datalength);
     local->recv_buffer_size += datalength;

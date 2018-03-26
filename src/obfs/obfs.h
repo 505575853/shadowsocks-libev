@@ -11,6 +11,7 @@
 #include <unistd.h>
 
 #define OBFS_HMAC_SHA1_LEN 10
+#define RECV_BUF_LEN (16384 * 2)
 
 typedef struct {
     char host[256];

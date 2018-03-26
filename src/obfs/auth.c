@@ -33,7 +33,7 @@ typedef struct auth_simple_local_data {
 
 void auth_simple_local_data_init(auth_simple_local_data* local) {
     local->has_sent_header = 0;
-    local->recv_buffer = (char*)malloc(16384);
+    local->recv_buffer = (char*)malloc(RECV_BUF_LEN);
     local->recv_buffer_size = 0;
     local->recv_id = 1;
     local->pack_id = 1;
@@ -176,7 +176,7 @@ int auth_simple_client_post_decrypt(obfs *self, char **pplaindata, int datalengt
     char *plaindata = *pplaindata;
     auth_simple_local_data *local = (auth_simple_local_data*)self->l_data;
     uint8_t * recv_buffer = (uint8_t *)local->recv_buffer;
-    if (local->recv_buffer_size + datalength > 16384)
+    if (local->recv_buffer_size + datalength > RECV_BUF_LEN)
         return -1;
     memmove(recv_buffer + local->recv_buffer_size, plaindata, datalength);
     local->recv_buffer_size += datalength;
@@ -293,7 +293,7 @@ int auth_sha1_client_post_decrypt(obfs *self, char **pplaindata, int datalength,
     char *plaindata = *pplaindata;
     auth_simple_local_data *local = (auth_simple_local_data*)self->l_data;
     uint8_t * recv_buffer = (uint8_t *)local->recv_buffer;
-    if (local->recv_buffer_size + datalength > 16384)
+    if (local->recv_buffer_size + datalength > RECV_BUF_LEN)
         return -1;
     memmove(recv_buffer + local->recv_buffer_size, plaindata, datalength);
     local->recv_buffer_size += datalength;
@@ -431,7 +431,7 @@ int auth_sha1_v2_client_post_decrypt(obfs *self, char **pplaindata, int dataleng
     char *plaindata = *pplaindata;
     auth_simple_local_data *local = (auth_simple_local_data*)self->l_data;
     uint8_t * recv_buffer = (uint8_t *)local->recv_buffer;
-    if (local->recv_buffer_size + datalength > 16384)
+    if (local->recv_buffer_size + datalength > RECV_BUF_LEN)
         return -1;
     memmove(recv_buffer + local->recv_buffer_size, plaindata, datalength);
     local->recv_buffer_size += datalength;
@@ -589,7 +589,7 @@ int auth_sha1_v4_client_post_decrypt(obfs *self, char **pplaindata, int dataleng
     char *plaindata = *pplaindata;
     auth_simple_local_data *local = (auth_simple_local_data*)self->l_data;
     uint8_t * recv_buffer = (uint8_t *)local->recv_buffer;
-    if (local->recv_buffer_size + datalength > 16384)
+    if (local->recv_buffer_size + datalength > RECV_BUF_LEN)
         return -1;
     memmove(recv_buffer + local->recv_buffer_size, plaindata, datalength);
     local->recv_buffer_size += datalength;
@@ -856,8 +856,10 @@ int auth_aes128_sha1_client_post_decrypt(obfs *self, char **pplaindata, int data
     auth_simple_local_data *local = (auth_simple_local_data*)self->l_data;
     //server_info *server = (server_info*)&self->server;
     uint8_t * recv_buffer = (uint8_t *)local->recv_buffer;
-    if (local->recv_buffer_size + datalength > 16384)
+    if (local->recv_buffer_size + datalength > RECV_BUF_LEN) {
+        LOGE("Large: %d", local->recv_buffer_size + datalength);
         return -1;
+    }
     memmove(recv_buffer + local->recv_buffer_size, plaindata, datalength);
     local->recv_buffer_size += datalength;
 

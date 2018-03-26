@@ -8,6 +8,7 @@ libcork/Makefile
 libipset/Makefile
 doc/Makefile
 mbedtls/Makefile
+goquiet/Makefile
 autom4te.cache/
 /config.h
 config.log

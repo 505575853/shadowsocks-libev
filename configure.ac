@@ -48,6 +48,33 @@ AC_PROG_LIBTOOL
 AC_PROG_MAKE_SET
 AC_LANG_SOURCE
 
+dnl Checks for golang
+AC_CHECK_PROG([golang],[go],[yes],[no])
+AM_CONDITIONAL([HAS_GOLANG], [test "x$golang" = xyes])
+if test "x$golang" = xyes; then
+  AC_MSG_CHECKING(for golang target)
+  case $host in
+  x86_64-*-mingw*)
+    GOCROSS="GOOS=windows GOARCH=amd64 CC=$CC"
+    GOFLAGS="-ldflags=\"-extar $AR\""
+    LIBS="$LIBS -lwinmm"
+    AC_MSG_RESULT(MinGW 64-bit)
+    ;;
+  i686-*-mingw*)
+    GOCROSS="GOOS=windows GOARCH=386 CC=$CC"
+    GOFLAGS="-ldflags=\"-extar $AR\""
+    LIBS="$LIBS -lwinmm"
+    AC_MSG_RESULT(MinGW 32-bit)
+    ;;
+  *)
+    GOCROSS=""
+    GOFLAGS=""
+    ;;
+  esac
+fi
+AC_SUBST(GOCROSS)
+AC_SUBST(GOFLAGS)
+
 dnl Checks for libev
 AM_COND_IF([USE_SYSTEM_SHARED_LIB],
   [],
@@ -243,6 +270,7 @@ AC_CONFIG_FILES([ shadowsocks-libev.pc
                  Makefile
                  libcork/Makefile
                  libipset/Makefile
+                 goquiet/Makefile
                  src/Makefile])
 AM_COND_IF([USE_SYSTEM_SHARED_LIB],[
     AC_CHECK_LIB([udns], [dns_dnlen], ,[AC_MSG_ERROR([Couldn't find libudns. Try installing libudns-dev or udns-devel.])])

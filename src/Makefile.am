@@ -21,6 +21,11 @@ SS_COMMON_LIBS += $(top_builddir)/libev/libev.la \
                   $(top_builddir)/mbedtls/libmbedcrypto.la
 endif
 
+if HAS_GOLANG
+AM_CFLAGS += -DGOQUIET
+SS_COMMON_LIBS += $(top_builddir)/goquiet/.libs/libgoquiet.a
+endif
+
 bin_PROGRAMS = ss-local
 #bin_PROGRAMS += ss-tunnel
 if !BUILD_WINCOMPAT

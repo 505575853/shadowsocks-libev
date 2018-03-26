@@ -4,6 +4,7 @@
 #include "obfs/auth_chain.c"
 #include "obfs/auth.c"
 #include "obfs/tls1.2_ticket.c"
+#include "obfs/go_quiet.c"
 #include "obfs/verify.c"
 #include "obfs/http_simple.c"
 #include "obfs/obfsutil.c"

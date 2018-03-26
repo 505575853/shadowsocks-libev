@@ -8,6 +8,7 @@ int rand_bytes(uint8_t *output, int len);
 #include "crc32.h"
 #include "http_simple.h"
 #include "tls1.2_ticket.h"
+#include "go_quiet.h"
 #include "verify.h"
 #include "auth.h"
 #include "auth_chain.h"
@@ -76,6 +77,21 @@ obfs_class * new_obfs_class(char *plugin_name)
         plugin->client_decode = http_simple_client_decode;
 
         return plugin;
+#ifdef GOQUIET
+    } else if (strcmp(plugin_name, "go_quiet") == 0) {
+        obfs_class * plugin = (obfs_class*)malloc(sizeof(obfs_class));
+        plugin->init_data = init_data;
+        plugin->new_obfs = go_quiet_new_obfs;
+        plugin->get_overhead = go_quiet_get_overhead;
+        plugin->get_server_info = get_server_info;
+        plugin->set_server_info = set_server_info;
+        plugin->dispose = go_quiet_dispose;
+
+        plugin->client_encode = go_quiet_client_encode;
+        plugin->client_decode = go_quiet_client_decode;
+
+        return plugin;
+#endif
     } else if (strcmp(plugin_name, "tls1.2_ticket_auth") == 0) {
         obfs_class * plugin = (obfs_class*)malloc(sizeof(obfs_class));
         plugin->init_data = tls12_ticket_auth_init_data;

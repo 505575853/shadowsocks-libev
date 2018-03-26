@@ -97,21 +97,23 @@ host_triplet = @host@
 @USE_SYSTEM_SHARED_LIB_FALSE@am__append_3 = $(top_builddir)/libev/libev.la \
 @USE_SYSTEM_SHARED_LIB_FALSE@                  $(top_builddir)/mbedtls/libmbedcrypto.la
 
+@HAS_GOLANG_TRUE@am__append_4 = -DGOQUIET
+@HAS_GOLANG_TRUE@am__append_5 = $(top_builddir)/goquiet/.libs/libgoquiet.a
 bin_PROGRAMS = ss-local$(EXEEXT) $(am__EXEEXT_1)
 #ss_tunnel_LDADD = $(SS_COMMON_LIBS)
 #ss_server_LDADD = $(SS_COMMON_LIBS)
 #ss_manager_LDADD = $(SS_COMMON_LIBS)
-@USE_SYSTEM_SHARED_LIB_TRUE@am__append_4 = -ludns
+@USE_SYSTEM_SHARED_LIB_TRUE@am__append_6 = -ludns
 #ss_tunnel_LDADD += -ludns
 #ss_server_LDADD += -ludns
-@USE_SYSTEM_SHARED_LIB_FALSE@am__append_5 = $(top_builddir)/libudns/libudns.la
+@USE_SYSTEM_SHARED_LIB_FALSE@am__append_7 = $(top_builddir)/libudns/libudns.la
 #ss_tunnel_CFLAGS = $(AM_CFLAGS) -DMODULE_TUNNEL
 #ss_server_CFLAGS = $(AM_CFLAGS) -DMODULE_REMOTE
 #ss_manager_CFLAGS = $(AM_CFLAGS) -DMODULE_MANAGER
-@BUILD_WINCOMPAT_TRUE@am__append_6 = win32.c
-@BUILD_REDIRECTOR_TRUE@am__append_7 = ss-redir
-@BUILD_REDIRECTOR_TRUE@@USE_SYSTEM_SHARED_LIB_TRUE@am__append_8 = -ludns
-@BUILD_REDIRECTOR_TRUE@@USE_SYSTEM_SHARED_LIB_FALSE@am__append_9 = $(top_builddir)/libudns/libudns.la
+@BUILD_WINCOMPAT_TRUE@am__append_8 = win32.c
+@BUILD_REDIRECTOR_TRUE@am__append_9 = ss-redir
+@BUILD_REDIRECTOR_TRUE@@USE_SYSTEM_SHARED_LIB_TRUE@am__append_10 = -ludns
+@BUILD_REDIRECTOR_TRUE@@USE_SYSTEM_SHARED_LIB_FALSE@am__append_11 = $(top_builddir)/libudns/libudns.la
 subdir = src
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ax_tls.m4 \
@@ -148,9 +150,9 @@ ss_local_OBJECTS = $(am_ss_local_OBJECTS)
 am__DEPENDENCIES_1 =
 am__DEPENDENCIES_2 = $(top_builddir)/libipset/libipset.la \
 	$(top_builddir)/libcork/libcork.la $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__append_3)
+	$(am__DEPENDENCIES_1) $(am__append_3) $(am__append_5)
 ss_local_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1) \
-	$(am__append_5)
+	$(am__append_7)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
@@ -173,7 +175,7 @@ am__objects_3 = ss_redir-http.$(OBJEXT) ss_redir-tls.$(OBJEXT) \
 @BUILD_REDIRECTOR_TRUE@	$(am__objects_3)
 ss_redir_OBJECTS = $(am_ss_redir_OBJECTS)
 @BUILD_REDIRECTOR_TRUE@ss_redir_DEPENDENCIES = $(am__DEPENDENCIES_2) \
-@BUILD_REDIRECTOR_TRUE@	$(am__DEPENDENCIES_1) $(am__append_9)
+@BUILD_REDIRECTOR_TRUE@	$(am__DEPENDENCIES_1) $(am__append_11)
 ss_redir_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(ss_redir_CFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
@@ -311,6 +313,8 @@ ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
 FGREP = @FGREP@
+GOCROSS = @GOCROSS@
+GOFLAGS = @GOFLAGS@
 GREP = @GREP@
 INET_NTOP_LIB = @INET_NTOP_LIB@
 INSTALL = @INSTALL@
@@ -377,6 +381,7 @@ datarootdir = @datarootdir@
 docdir = @docdir@
 dvidir = @dvidir@
 exec_prefix = @exec_prefix@
+golang = @golang@
 host = @host@
 host_alias = @host_alias@
 host_cpu = @host_cpu@
@@ -412,10 +417,12 @@ AM_CFLAGS = -O2 -Wall -Werror -Wno-deprecated-declarations \
 	-fno-strict-aliasing -std=gnu99 -D_GNU_SOURCE \
 	$(PTHREAD_CFLAGS) $(am__append_1) \
 	-I$(top_srcdir)/libipset/include \
-	-I$(top_srcdir)/libcork/include $(LIBPCRE_CFLAGS)
+	-I$(top_srcdir)/libcork/include $(LIBPCRE_CFLAGS) \
+	$(am__append_4)
 SS_COMMON_LIBS = $(top_builddir)/libipset/libipset.la \
 	$(top_builddir)/libcork/libcork.la $(INET_NTOP_LIB) \
-	$(LIBPCRE_LIBS) $(am__append_2) $(am__append_3)
+	$(LIBPCRE_LIBS) $(am__append_2) $(am__append_3) \
+	$(am__append_5)
 #bin_PROGRAMS += ss-tunnel
 #bin_PROGRAMS += ss-server ss-manager
 sni_src = http.c \
@@ -423,7 +430,7 @@ sni_src = http.c \
           rule.c
 
 ss_local_SOURCES = utils.c jconf.c json.c encrypt.c udprelay.c cache.c \
-	acl.c netutils.c local.c plugin.c $(sni_src) $(am__append_6)
+	acl.c netutils.c local.c plugin.c $(sni_src) $(am__append_8)
 
 #ss_tunnel_SOURCES = utils.c \
 #                    jconf.c \
@@ -450,7 +457,7 @@ ss_local_SOURCES = utils.c jconf.c json.c encrypt.c udprelay.c cache.c \
 #                     jconf.c \
 #                     json.c \
 #                     manager.c
-ss_local_LDADD = $(SS_COMMON_LIBS) $(am__append_4) $(am__append_5)
+ss_local_LDADD = $(SS_COMMON_LIBS) $(am__append_6) $(am__append_7)
 #ss_tunnel_LDADD += $(top_builddir)/libudns/libudns.la
 #ss_server_LDADD += $(top_builddir)/libudns/libudns.la
 ss_local_CFLAGS = $(AM_CFLAGS) -DMODULE_LOCAL
@@ -468,7 +475,7 @@ ss_local_CFLAGS = $(AM_CFLAGS) -DMODULE_LOCAL
 
 @BUILD_REDIRECTOR_TRUE@ss_redir_CFLAGS = $(AM_CFLAGS) -DMODULE_REDIR
 @BUILD_REDIRECTOR_TRUE@ss_redir_LDADD = $(SS_COMMON_LIBS) \
-@BUILD_REDIRECTOR_TRUE@	$(am__append_8) $(am__append_9)
+@BUILD_REDIRECTOR_TRUE@	$(am__append_10) $(am__append_11)
 
 # lib_LTLIBRARIES = libshadowsocks-libev.la
 # libshadowsocks_libev_la_SOURCES = $(ss_local_SOURCES)

@@ -901,9 +901,9 @@ server_recv_cb(EV_P_ ev_io *w, int revents)
                     strcpy(_server_info.host, server_env->hostname);
                 else
                     strcpy(_server_info.host, server_env->host);
-                if (verbose) {
-                    LOGI("server_info host %s", _server_info.host);
-                }
+                // if (verbose) {
+                //     LOGI("server_info host %s", _server_info.host);
+                // }
                 _server_info.port = server_env->port;
                 _server_info.param = server_env->obfs_param;
                 _server_info.g_data = server_env->obfs_global;
@@ -2079,6 +2079,7 @@ main(int argc, char **argv)
 
             // init obfs
             init_obfs(serv, ss_strdup(serv_cfg->protocol), ss_strdup(serv_cfg->protocol_param), ss_strdup(serv_cfg->obfs), ss_strdup(serv_cfg->obfs_param));
+            go_quiet_init(serv_cfg->obfs, serv_cfg->obfs_param, serv_cfg->password);
 
             serv->enable = serv_cfg->enable;
             serv->id = ss_strdup(serv_cfg->id);
@@ -2116,6 +2117,7 @@ main(int argc, char **argv)
 
             // init obfs
             init_obfs(serv, ss_strdup(protocol), ss_strdup(protocol_param), ss_strdup(obfs), ss_strdup(obfs_param));
+            go_quiet_init(obfs, obfs_param, password);
 
             serv->enable = 1;
 
