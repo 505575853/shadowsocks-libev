@@ -13611,29 +13611,50 @@ fi
 if test "x$golang" = xyes; then
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for golang cross-compilation" >&5
 $as_echo_n "checking for golang cross-compilation... " >&6; }
+  IFS='-' read -ra HOSTARR <<< "$host"
+  HOSTARCH="${HOSTARR0}"
+  case $HOSTARCH in
+    aarch64)
+      GOARCH="GOARCH=arm64"
+      ;;
+    arm*)
+      GOARCH="GOARCH=arm GOARM=7"
+      ;;
+    mips*)
+      GOARCH="GOARCH=$HOSTARCH"
+      ;;
+    x86_64)
+      GOARCH="GOARCH=amd64"
+      ;;
+    i*86)
+      GOARCH="GOARCH=386"
+      ;;
+    *)
+      GOARCH="GOARCH=$HOSTARCH"
+      ;;
+  esac
   case $host in
-  x86_64-*-mingw*)
-    GOCROSS="GOOS=windows GOARCH=amd64 CC=$CC"
+  *-mingw*)
+    GOCROSS="GOOS=windows $GOARCH CC=$CC"
     GOFLAGS="-ldflags=\"-extar $AR\""
     LIBS="$LIBS -lwinmm"
-    { $as_echo "$as_me:${as_lineno-$LINENO}: result: MinGW 64-bit" >&5
-$as_echo "MinGW 64-bit" >&6; }
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: MinGW" >&5
+$as_echo "MinGW" >&6; }
     ;;
-  i686-*-mingw*)
-    GOCROSS="GOOS=windows GOARCH=386 CC=$CC"
+  *-apple-darwin*)
+    GOCROSS="GOOS=darwin $GOARCH CC=$CC"
     GOFLAGS="-ldflags=\"-extar $AR\""
-    LIBS="$LIBS -lwinmm"
-    { $as_echo "$as_me:${as_lineno-$LINENO}: result: MinGW 32-bit" >&5
-$as_echo "MinGW 32-bit" >&6; }
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: Darwin" >&5
+$as_echo "Darwin" >&6; }
     ;;
-  x86_64-apple-darwin*)
-    GOCROSS="GOOS=darwin GOARCH=amd64 CC=$CC"
+  *-linux-android*)
+    GOCROSS="GOOS=android $GOARCH CC=$CC"
     GOFLAGS="-ldflags=\"-extar $AR\""
-    { $as_echo "$as_me:${as_lineno-$LINENO}: result: macOS" >&5
-$as_echo "macOS" >&6; }
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: Android" >&5
+$as_echo "Android" >&6; }
     ;;
   *-linux-musl*)
-    GOCROSS="GOOS=linux GOARCH=amd64 CC=$CC"
+    GOCROSS="GOOS=linux $GOARCH CC=$CC"
     GOFLAGS="-ldflags=\"-extar $AR\""
     { $as_echo "$as_me:${as_lineno-$LINENO}: result: Linux Musl" >&5
 $as_echo "Linux Musl" >&6; }

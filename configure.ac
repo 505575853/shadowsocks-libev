@@ -53,26 +53,47 @@ AC_CHECK_PROG([golang],[go],[yes],[no])
 AM_CONDITIONAL([HAS_GOLANG], [test "x$golang" = xyes])
 if test "x$golang" = xyes; then
   AC_MSG_CHECKING(for golang cross-compilation)
+  IFS='-' read -ra HOSTARR <<< "$host"
+  HOSTARCH="${HOSTARR[0]}"
+  case $HOSTARCH in
+    aarch64)
+      GOARCH="GOARCH=arm64"
+      ;;
+    arm*)
+      GOARCH="GOARCH=arm GOARM=7"
+      ;;
+    mips*)
+      GOARCH="GOARCH=$HOSTARCH"
+      ;;
+    x86_64)
+      GOARCH="GOARCH=amd64"
+      ;;
+    i*86)
+      GOARCH="GOARCH=386"
+      ;;
+    *)
+      GOARCH="GOARCH=$HOSTARCH"
+      ;;
+  esac
   case $host in
-  x86_64-*-mingw*)
-    GOCROSS="GOOS=windows GOARCH=amd64 CC=$CC"
+  *-mingw*)
+    GOCROSS="GOOS=windows $GOARCH CC=$CC"
     GOFLAGS="-ldflags=\"-extar $AR\""
     LIBS="$LIBS -lwinmm"
-    AC_MSG_RESULT(MinGW 64-bit)
+    AC_MSG_RESULT(MinGW)
     ;;
-  i686-*-mingw*)
-    GOCROSS="GOOS=windows GOARCH=386 CC=$CC"
+  *-apple-darwin*)
+    GOCROSS="GOOS=darwin $GOARCH CC=$CC"
     GOFLAGS="-ldflags=\"-extar $AR\""
-    LIBS="$LIBS -lwinmm"
-    AC_MSG_RESULT(MinGW 32-bit)
+    AC_MSG_RESULT(Darwin)
     ;;
-  x86_64-apple-darwin*)
-    GOCROSS="GOOS=darwin GOARCH=amd64 CC=$CC"
+  *-linux-android*)
+    GOCROSS="GOOS=android $GOARCH CC=$CC"
     GOFLAGS="-ldflags=\"-extar $AR\""
-    AC_MSG_RESULT(macOS)
+    AC_MSG_RESULT(Android)
     ;;
   *-linux-musl*)
-    GOCROSS="GOOS=linux GOARCH=amd64 CC=$CC"
+    GOCROSS="GOOS=linux $GOARCH CC=$CC"
     GOFLAGS="-ldflags=\"-extar $AR\""
     AC_MSG_RESULT(Linux Musl)
     ;;
