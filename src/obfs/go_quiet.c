@@ -188,7 +188,7 @@ int go_quiet_client_encode(obfs *self, char **pencryptdata, int datalength, size
         free(local->send_buffer);
         free(reply);
         local->send_buffer = NULL;
-        local->handshake_status = 8;
+        local->handshake_status = TLS_ESTABLISHED;
     } else {
         return 0;
     }
