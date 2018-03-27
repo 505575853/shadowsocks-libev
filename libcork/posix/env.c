@@ -27,9 +27,12 @@
 #define environ  (*_NSGetEnviron())
 
 #else
+// Do not override existing macro
+#ifndef environ
 /* On all other POSIX platforms, we assume that environ is available in shared
  * libraries. */
 extern char  **environ;
+#endif
 
 #endif
 
