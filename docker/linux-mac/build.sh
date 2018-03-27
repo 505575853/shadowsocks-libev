@@ -39,8 +39,6 @@ build_proj() {
         git clone ${PROJ_URL} proj
         cd proj
         git checkout ${PROJ_REV}
-        git submodule update --init
-        ./autogen.sh
     else
         cd proj
     fi
