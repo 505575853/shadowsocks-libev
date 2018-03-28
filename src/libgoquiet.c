@@ -14,6 +14,11 @@
 #endif
 #include <time.h>
 
+#ifdef __MINGW32__
+#ifndef uint
+#define uint (unsigned int)
+#endif
+
 #define SHA256_BYTES 32
 #define DEFAULT_TIME_HINT 3600
 
