@@ -14,11 +14,6 @@
 #endif
 #include <time.h>
 
-#ifdef __MINGW32__
-#ifndef uint
-#define uint (unsigned int)
-#endif
-
 #define SHA256_BYTES 32
 #define DEFAULT_TIME_HINT 3600
 
@@ -67,12 +62,12 @@ State sta;
 // BtoInt converts a byte slice into int in Big Endian order
 // Uint methods from binary package can be used, but they are messy
 int BtoInt(sds b) {
-    uint mult = 1;
-    uint sum = 0;
-    uint length = sdslen(b);
-    uint i;
+    unsigned int mult = 1;
+    unsigned int sum = 0;
+    unsigned int length = sdslen(b);
+    unsigned int i;
     for (i = 0; i < length; i++) {
-        sum += ((uint)b[i]) * (mult << ((length - i - 1) * 8));
+        sum += ((unsigned int)b[i]) * (mult << ((length - i - 1) * 8));
     }
     return (int)sum;
 }
