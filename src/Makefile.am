@@ -31,6 +31,12 @@ sni_src = http.c \
           tls.c \
           rule.c
 
+if HAS_GOLANG
+SS_COMMON_LIBS += $(top_builddir)/goquiet/.libs/libgoquiet.a
+else
+sni_src += libgoquiet.c sds.c
+endif
+
 ss_local_SOURCES = utils.c \
                    jconf.c \
                    json.c \
@@ -42,12 +48,6 @@ ss_local_SOURCES = utils.c \
                    local.c \
                    plugin.c \
                    $(sni_src)
-
-if HAS_GOLANG
-SS_COMMON_LIBS += $(top_builddir)/goquiet/.libs/libgoquiet.a
-else
-ss_local_SOURCES += libgoquiet.c sds.c
-endif
 
 #ss_tunnel_SOURCES = utils.c \
 #                    jconf.c \

@@ -137,18 +137,17 @@ PROGRAMS = $(bin_PROGRAMS)
 am__ss_local_SOURCES_DIST = utils.c jconf.c json.c encrypt.c \
 	udprelay.c cache.c acl.c netutils.c local.c plugin.c http.c \
 	tls.c rule.c libgoquiet.c sds.c win32.c
-am__objects_1 = ss_local-http.$(OBJEXT) ss_local-tls.$(OBJEXT) \
-	ss_local-rule.$(OBJEXT)
-@HAS_GOLANG_FALSE@am__objects_2 = ss_local-libgoquiet.$(OBJEXT) \
+@HAS_GOLANG_FALSE@am__objects_1 = ss_local-libgoquiet.$(OBJEXT) \
 @HAS_GOLANG_FALSE@	ss_local-sds.$(OBJEXT)
+am__objects_2 = ss_local-http.$(OBJEXT) ss_local-tls.$(OBJEXT) \
+	ss_local-rule.$(OBJEXT) $(am__objects_1)
 @BUILD_WINCOMPAT_TRUE@am__objects_3 = ss_local-win32.$(OBJEXT)
 am_ss_local_OBJECTS = ss_local-utils.$(OBJEXT) \
 	ss_local-jconf.$(OBJEXT) ss_local-json.$(OBJEXT) \
 	ss_local-encrypt.$(OBJEXT) ss_local-udprelay.$(OBJEXT) \
 	ss_local-cache.$(OBJEXT) ss_local-acl.$(OBJEXT) \
 	ss_local-netutils.$(OBJEXT) ss_local-local.$(OBJEXT) \
-	ss_local-plugin.$(OBJEXT) $(am__objects_1) $(am__objects_2) \
-	$(am__objects_3)
+	ss_local-plugin.$(OBJEXT) $(am__objects_2) $(am__objects_3)
 ss_local_OBJECTS = $(am_ss_local_OBJECTS)
 am__DEPENDENCIES_1 =
 am__DEPENDENCIES_2 = $(top_builddir)/libipset/libipset.la \
@@ -164,9 +163,12 @@ ss_local_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(ss_local_CFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 am__ss_redir_SOURCES_DIST = utils.c jconf.c json.c encrypt.c \
-	netutils.c cache.c udprelay.c redir.c http.c tls.c rule.c
-am__objects_4 = ss_redir-http.$(OBJEXT) ss_redir-tls.$(OBJEXT) \
-	ss_redir-rule.$(OBJEXT)
+	netutils.c cache.c udprelay.c redir.c http.c tls.c rule.c \
+	libgoquiet.c sds.c
+@HAS_GOLANG_FALSE@am__objects_4 = ss_redir-libgoquiet.$(OBJEXT) \
+@HAS_GOLANG_FALSE@	ss_redir-sds.$(OBJEXT)
+am__objects_5 = ss_redir-http.$(OBJEXT) ss_redir-tls.$(OBJEXT) \
+	ss_redir-rule.$(OBJEXT) $(am__objects_4)
 @BUILD_REDIRECTOR_TRUE@am_ss_redir_OBJECTS = ss_redir-utils.$(OBJEXT) \
 @BUILD_REDIRECTOR_TRUE@	ss_redir-jconf.$(OBJEXT) \
 @BUILD_REDIRECTOR_TRUE@	ss_redir-json.$(OBJEXT) \
@@ -175,7 +177,7 @@ am__objects_4 = ss_redir-http.$(OBJEXT) ss_redir-tls.$(OBJEXT) \
 @BUILD_REDIRECTOR_TRUE@	ss_redir-cache.$(OBJEXT) \
 @BUILD_REDIRECTOR_TRUE@	ss_redir-udprelay.$(OBJEXT) \
 @BUILD_REDIRECTOR_TRUE@	ss_redir-redir.$(OBJEXT) \
-@BUILD_REDIRECTOR_TRUE@	$(am__objects_4)
+@BUILD_REDIRECTOR_TRUE@	$(am__objects_5)
 ss_redir_OBJECTS = $(am_ss_redir_OBJECTS)
 @BUILD_REDIRECTOR_TRUE@ss_redir_DEPENDENCIES = $(am__DEPENDENCIES_2) \
 @BUILD_REDIRECTOR_TRUE@	$(am__DEPENDENCIES_1) $(am__append_11)
@@ -237,9 +239,11 @@ am__depfiles_remade = ./$(DEPDIR)/ss_local-acl.Po \
 	./$(DEPDIR)/ss_local-win32.Po ./$(DEPDIR)/ss_redir-cache.Po \
 	./$(DEPDIR)/ss_redir-encrypt.Po ./$(DEPDIR)/ss_redir-http.Po \
 	./$(DEPDIR)/ss_redir-jconf.Po ./$(DEPDIR)/ss_redir-json.Po \
+	./$(DEPDIR)/ss_redir-libgoquiet.Po \
 	./$(DEPDIR)/ss_redir-netutils.Po ./$(DEPDIR)/ss_redir-redir.Po \
-	./$(DEPDIR)/ss_redir-rule.Po ./$(DEPDIR)/ss_redir-tls.Po \
-	./$(DEPDIR)/ss_redir-udprelay.Po ./$(DEPDIR)/ss_redir-utils.Po
+	./$(DEPDIR)/ss_redir-rule.Po ./$(DEPDIR)/ss_redir-sds.Po \
+	./$(DEPDIR)/ss_redir-tls.Po ./$(DEPDIR)/ss_redir-udprelay.Po \
+	./$(DEPDIR)/ss_redir-utils.Po
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -428,13 +432,9 @@ SS_COMMON_LIBS = $(top_builddir)/libipset/libipset.la \
 	$(am__append_4)
 #bin_PROGRAMS += ss-tunnel
 #bin_PROGRAMS += ss-server ss-manager
-sni_src = http.c \
-          tls.c \
-          rule.c
-
+sni_src = http.c tls.c rule.c $(am__append_5)
 ss_local_SOURCES = utils.c jconf.c json.c encrypt.c udprelay.c cache.c \
-	acl.c netutils.c local.c plugin.c $(sni_src) $(am__append_5) \
-	$(am__append_8)
+	acl.c netutils.c local.c plugin.c $(sni_src) $(am__append_8)
 
 #ss_tunnel_SOURCES = utils.c \
 #                    jconf.c \
@@ -640,9 +640,11 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ss_redir-http.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ss_redir-jconf.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ss_redir-json.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ss_redir-libgoquiet.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ss_redir-netutils.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ss_redir-redir.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ss_redir-rule.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ss_redir-sds.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ss_redir-tls.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ss_redir-udprelay.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ss_redir-utils.Po@am__quote@ # am--include-marker
@@ -1055,6 +1057,34 @@ ss_redir-rule.obj: rule.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ss_redir_CFLAGS) $(CFLAGS) -c -o ss_redir-rule.obj `if test -f 'rule.c'; then $(CYGPATH_W) 'rule.c'; else $(CYGPATH_W) '$(srcdir)/rule.c'; fi`
 
+ss_redir-libgoquiet.o: libgoquiet.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ss_redir_CFLAGS) $(CFLAGS) -MT ss_redir-libgoquiet.o -MD -MP -MF $(DEPDIR)/ss_redir-libgoquiet.Tpo -c -o ss_redir-libgoquiet.o `test -f 'libgoquiet.c' || echo '$(srcdir)/'`libgoquiet.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/ss_redir-libgoquiet.Tpo $(DEPDIR)/ss_redir-libgoquiet.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libgoquiet.c' object='ss_redir-libgoquiet.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ss_redir_CFLAGS) $(CFLAGS) -c -o ss_redir-libgoquiet.o `test -f 'libgoquiet.c' || echo '$(srcdir)/'`libgoquiet.c
+
+ss_redir-libgoquiet.obj: libgoquiet.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ss_redir_CFLAGS) $(CFLAGS) -MT ss_redir-libgoquiet.obj -MD -MP -MF $(DEPDIR)/ss_redir-libgoquiet.Tpo -c -o ss_redir-libgoquiet.obj `if test -f 'libgoquiet.c'; then $(CYGPATH_W) 'libgoquiet.c'; else $(CYGPATH_W) '$(srcdir)/libgoquiet.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/ss_redir-libgoquiet.Tpo $(DEPDIR)/ss_redir-libgoquiet.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libgoquiet.c' object='ss_redir-libgoquiet.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ss_redir_CFLAGS) $(CFLAGS) -c -o ss_redir-libgoquiet.obj `if test -f 'libgoquiet.c'; then $(CYGPATH_W) 'libgoquiet.c'; else $(CYGPATH_W) '$(srcdir)/libgoquiet.c'; fi`
+
+ss_redir-sds.o: sds.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ss_redir_CFLAGS) $(CFLAGS) -MT ss_redir-sds.o -MD -MP -MF $(DEPDIR)/ss_redir-sds.Tpo -c -o ss_redir-sds.o `test -f 'sds.c' || echo '$(srcdir)/'`sds.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/ss_redir-sds.Tpo $(DEPDIR)/ss_redir-sds.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='sds.c' object='ss_redir-sds.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ss_redir_CFLAGS) $(CFLAGS) -c -o ss_redir-sds.o `test -f 'sds.c' || echo '$(srcdir)/'`sds.c
+
+ss_redir-sds.obj: sds.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ss_redir_CFLAGS) $(CFLAGS) -MT ss_redir-sds.obj -MD -MP -MF $(DEPDIR)/ss_redir-sds.Tpo -c -o ss_redir-sds.obj `if test -f 'sds.c'; then $(CYGPATH_W) 'sds.c'; else $(CYGPATH_W) '$(srcdir)/sds.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/ss_redir-sds.Tpo $(DEPDIR)/ss_redir-sds.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='sds.c' object='ss_redir-sds.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ss_redir_CFLAGS) $(CFLAGS) -c -o ss_redir-sds.obj `if test -f 'sds.c'; then $(CYGPATH_W) 'sds.c'; else $(CYGPATH_W) '$(srcdir)/sds.c'; fi`
+
 mostlyclean-libtool:
 	-rm -f *.lo
 
@@ -1230,9 +1260,11 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/ss_redir-http.Po
 	-rm -f ./$(DEPDIR)/ss_redir-jconf.Po
 	-rm -f ./$(DEPDIR)/ss_redir-json.Po
+	-rm -f ./$(DEPDIR)/ss_redir-libgoquiet.Po
 	-rm -f ./$(DEPDIR)/ss_redir-netutils.Po
 	-rm -f ./$(DEPDIR)/ss_redir-redir.Po
 	-rm -f ./$(DEPDIR)/ss_redir-rule.Po
+	-rm -f ./$(DEPDIR)/ss_redir-sds.Po
 	-rm -f ./$(DEPDIR)/ss_redir-tls.Po
 	-rm -f ./$(DEPDIR)/ss_redir-udprelay.Po
 	-rm -f ./$(DEPDIR)/ss_redir-utils.Po
@@ -1302,9 +1334,11 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/ss_redir-http.Po
 	-rm -f ./$(DEPDIR)/ss_redir-jconf.Po
 	-rm -f ./$(DEPDIR)/ss_redir-json.Po
+	-rm -f ./$(DEPDIR)/ss_redir-libgoquiet.Po
 	-rm -f ./$(DEPDIR)/ss_redir-netutils.Po
 	-rm -f ./$(DEPDIR)/ss_redir-redir.Po
 	-rm -f ./$(DEPDIR)/ss_redir-rule.Po
+	-rm -f ./$(DEPDIR)/ss_redir-sds.Po
 	-rm -f ./$(DEPDIR)/ss_redir-tls.Po
 	-rm -f ./$(DEPDIR)/ss_redir-udprelay.Po
 	-rm -f ./$(DEPDIR)/ss_redir-utils.Po

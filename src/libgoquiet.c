@@ -27,15 +27,20 @@
         } \
     } \
 } while(0)
-#define CHK_FIELD(err, field) do {\
+#define CHK_FIELD(err, field) do { \
     if (p ## field == NULL) { \
         (err) = 1; \
     } \
 } while(0)
 #define make_sds(len) sdsgrowzero(sdsempty(), len)
 #define makeNullBytes(len) make_sds(len)
-#define make_bytes(bytes...) sdsnewlen((uint8_t[]){bytes}, (sizeof((uint8_t[]){bytes})))
+#define make_bytes(bytes...) sdsnewlen(MKBYTE{bytes}, (sizeof(MKBYTE{bytes})))
 #define append(a, b) a = sdscatsds((a), (b))
+#define appendf(a, b) do { \
+    a = sdscatsds((a), (b)); \
+    sdsfree(b); \
+} while(0)
+#define MKBYTE (uint8_t[])
 
 #define PUT_UINT16_BE(b, v) do { \
     (b)[0] = (unsigned char) ((v) >> 8); \
@@ -177,11 +182,9 @@ sds AddRecordLayer(sds input, uint8_t typ[1], uint8_t ver[2]) {
     PUT_UINT16_BE(length, (uint16_t)(sdslen(input)));
     sds ver_dup = sdsnewlen(ver, 2);
     sds ret = sdsnewlen(typ, 1);
-    append(ret, ver_dup);
-    append(ret, length);
-    append(ret, input);
-    sdsfree(length);
-    sdsfree(ver_dup);
+    appendf(ret, ver_dup);
+    appendf(ret, length);
+    appendf(ret, input);
     return ret;
 }
 
@@ -190,13 +193,11 @@ sds makeServerName(State *sta) {
     sds serverNameLength = make_sds(2);
     PUT_UINT16_BE(serverNameLength, (uint16_t)(sdslen(serverName)));
     sds ret = make_bytes(0x00); // host_name
-    append(ret, serverNameLength);
+    appendf(ret, serverNameLength);
     append(ret, serverName);
     sds serverNameListLength = make_sds(2);
     PUT_UINT16_BE(serverNameListLength, (uint16_t)(sdslen(ret)));
-    append(serverNameListLength, ret);
-    sdsfree(ret);
-    sdsfree(serverNameLength);
+    appendf(serverNameListLength, ret);
     return serverNameListLength;
 }
 
@@ -210,10 +211,8 @@ sds addExtRec(uint8_t typ[2], sds data) {
     sds length = make_sds(2);
     PUT_UINT16_BE(length, (uint16_t)(sdslen(data)));
     sds ret = sdsnewlen(typ, 2);
-    append(ret, length);
-    append(ret, data);
-    sdsfree(data);
-    sdsfree(length);
+    appendf(ret, length);
+    appendf(ret, data);
     return ret;
 }
 
@@ -239,10 +238,9 @@ sds MakeRandomField(State* sta) {
     sds iv_in = sdsdup(iv);
     encrypt((uint8_t *)iv_in, (uint8_t *)sta->AESKey, goal, output);
     sds rest = sdsnewlen(output, 16);
-    append(iv, rest);
+    appendf(iv, rest);
     sdsfree(iv_in);
     sdsfree(tohash);
-    sdsfree(rest);
     return iv;
 }
 
@@ -260,10 +258,8 @@ sds makeSupportedGroupsChrome() {
     makeGREASEChrome(GREASE);
     sds suppGroup = sdsnewlen(GREASE, 2);
     sds group = make_bytes(0x00, 0x1d, 0x00, 0x17, 0x00, 0x18);
-    append(suppGroup, group);
-    append(suppGroupListLen, suppGroup);
-    sdsfree(group);
-    sdsfree(suppGroup);
+    appendf(suppGroup, group);
+    appendf(suppGroupListLen, suppGroup);
     return suppGroupListLen;
 }
 
@@ -272,26 +268,25 @@ sds composeExtensionsChrome(State* sta) {
     // This is exclusive to chrome.
     uint8_t GREASE[2];
     sds ext[14];
-    ext[0] = addExtRec(makeGREASEChrome(GREASE), sdsempty());                              // First GREASE
-    ext[1] = addExtRec((uint8_t[]){0xff, 0x01}, make_bytes(0x00));                         // renegotiation_info
-    ext[2] = addExtRec((uint8_t[]){0x00, 0x00}, makeServerName(sta));                      // server name indication
-    ext[3] = addExtRec((uint8_t[]){0x00, 0x17}, sdsempty());                               // extended_master_secret
-    ext[4] = addExtRec((uint8_t[]){0x00, 0x23}, makeSessionTicket(sta));                   // Session tickets
+    ext[0] = addExtRec(makeGREASEChrome(GREASE), sdsempty());                         // First GREASE
+    ext[1] = addExtRec(MKBYTE{0xff, 0x01}, make_bytes(0x00));                         // renegotiation_info
+    ext[2] = addExtRec(MKBYTE{0x00, 0x00}, makeServerName(sta));                      // server name indication
+    ext[3] = addExtRec(MKBYTE{0x00, 0x17}, sdsempty());                               // extended_master_secret
+    ext[4] = addExtRec(MKBYTE{0x00, 0x23}, makeSessionTicket(sta));                   // Session tickets
     sds sigAlgo = DecodeHexString("0012040308040401050308050501080606010201");
-    ext[5] = addExtRec((uint8_t[]){0x00, 0x0d}, sigAlgo);                                  // Signature Algorithms
-    ext[6] = addExtRec((uint8_t[]){0x00, 0x05}, make_bytes(0x01, 0x00, 0x00, 0x00, 0x00)); // status request
-    ext[7] = addExtRec((uint8_t[]){0x00, 0x12}, sdsempty());                               // signed cert timestamp
+    ext[5] = addExtRec(MKBYTE{0x00, 0x0d}, sigAlgo);                                  // Signature Algorithms
+    ext[6] = addExtRec(MKBYTE{0x00, 0x05}, make_bytes(0x01, 0x00, 0x00, 0x00, 0x00)); // status request
+    ext[7] = addExtRec(MKBYTE{0x00, 0x12}, sdsempty());                               // signed cert timestamp
     sds APLN = DecodeHexString("000c02683208687474702f312e31");
-    ext[8] = addExtRec((uint8_t[]){0x00, 0x10}, APLN);                                     // app layer proto negotiation
-    ext[9] = addExtRec((uint8_t[]){0x75, 0x50}, sdsempty());                               // channel id
-    ext[10] = addExtRec((uint8_t[]){0x00, 0x0b}, make_bytes(0x01, 0x00));                  // ec point formats
-    ext[11] = addExtRec((uint8_t[]){0x00, 0x0a}, makeSupportedGroupsChrome());             // supported groups
-    ext[12] = addExtRec(makeGREASEChrome(GREASE), make_bytes(0x00));                       // Last GREASE
-    ext[13] = addExtRec((uint8_t[]){0x00, 0x15}, makeNullBytes(110-sdslen(ext[2])));       // padding
+    ext[8] = addExtRec(MKBYTE{0x00, 0x10}, APLN);                                     // app layer proto negotiation
+    ext[9] = addExtRec(MKBYTE{0x75, 0x50}, sdsempty());                               // channel id
+    ext[10] = addExtRec(MKBYTE{0x00, 0x0b}, make_bytes(0x01, 0x00));                  // ec point formats
+    ext[11] = addExtRec(MKBYTE{0x00, 0x0a}, makeSupportedGroupsChrome());             // supported groups
+    ext[12] = addExtRec(makeGREASEChrome(GREASE), make_bytes(0x00));                  // Last GREASE
+    ext[13] = addExtRec(MKBYTE{0x00, 0x15}, makeNullBytes(110-sdslen(ext[2])));       // padding
     sds ret = sdsempty();
     for (int i = 0; i < 14; i++) {
-        append(ret, ext[i]);
-        sdsfree(ext[i]);
+        appendf(ret, ext[i]);
     }
     return ret;
 }
@@ -313,14 +308,53 @@ sds composeClientHelloChrome(State* sta) {
     clientHello[11] = composeExtensionsChrome(sta);     // extensions
     sds ret = sdsempty();
     for (int i = 0; i < 12; i++) {
-        append(ret, clientHello[i]);
-        sdsfree(clientHello[i]);
+        appendf(ret, clientHello[i]);
+    }
+    return ret;
+}
+
+sds composeExtensionsFireFox(State* sta) {
+    sds ext[10];
+    ext[0] = addExtRec(MKBYTE{0x00, 0x00}, makeServerName(sta));                      // server name indication
+    ext[1] = addExtRec(MKBYTE{0x00, 0x17}, sdsempty());                               // extended_master_secret
+    ext[2] = addExtRec(MKBYTE{0xff, 0x01}, make_bytes(0x00));                         // renegotiation_info
+    sds suppGroup = DecodeHexString("0008001d001700180019");
+    ext[3] = addExtRec(MKBYTE{0x00, 0x0a}, suppGroup);                                // supported groups
+    ext[4] = addExtRec(MKBYTE{0x00, 0x0b}, make_bytes(0x01, 0x00));                   // ec point formats
+    ext[5] = addExtRec(MKBYTE{0x00, 0x23}, makeSessionTicket(sta));                   // Session tickets
+    sds APLN = DecodeHexString("000c02683208687474702f312e31");
+    ext[6] = addExtRec(MKBYTE{0x00, 0x10}, APLN);                                     // app layer proto negotiation
+    ext[7] = addExtRec(MKBYTE{0x00, 0x05}, make_bytes(0x01, 0x00, 0x00, 0x00, 0x00)); // status request
+    sds sigAlgo = DecodeHexString("001604030503060308040805080604010501060102030201");
+    ext[8] = addExtRec(MKBYTE{0x00, 0x0d}, sigAlgo);                                  // Signature Algorithms
+    ext[9] = addExtRec(MKBYTE{0x00, 0x15}, makeNullBytes(121-sdslen(ext[0])));        // padding
+    sds ret = sdsempty();
+    for (int i = 0; i < 10; i++) {
+        appendf(ret, ext[i]);
     }
     return ret;
 }
 
 sds composeClientHelloFireFox(State* sta) {
-    return NULL;
+    sds clientHello[12];
+    clientHello[0] = make_bytes(0x01);                  // handshake type
+    clientHello[1] = make_bytes(0x00, 0x01, 0xfc);      // length 508
+    clientHello[2] = make_bytes(0x03, 0x03);            // client version
+    clientHello[3] = MakeRandomField(sta);              // random
+    clientHello[4] = make_bytes(0x20);                  // session id length 32
+    clientHello[5] = PsudoRandBytes(32, NowUnixNano()); // session id
+    clientHello[6] = make_bytes(0x00, 0x1e);            // cipher suites length 28
+    sds cipherSuites = DecodeHexString("c02bc02fcca9cca8c02cc030c00ac009c013c01400330039002f0035000a");
+    clientHello[7] = cipherSuites;                      // cipher suites
+    clientHello[8] = make_bytes(0x01);                  // compression methods length 1
+    clientHello[9] = make_bytes(0x00);                  // compression methods
+    clientHello[10] = make_bytes(0x01, 0x95);           // extensions length 405
+    clientHello[11] = composeExtensionsFireFox(sta);    // extensions
+    sds ret = sdsempty();
+    for (int i = 0; i < 12; i++) {
+        appendf(ret, clientHello[i]);
+    }
+    return ret;
 }
 
 // ComposeInitHandshake composes ClientHello with record layer
@@ -331,8 +365,7 @@ sds ComposeInitHandshake(State* sta) {
     } else {
         ch = composeClientHelloFireFox(sta);
     }
-    sds ret = AddRecordLayer(ch, (uint8_t[]){0x16}, (uint8_t[]){0x03, 0x01});
-    sdsfree(ch);
+    sds ret = AddRecordLayer(ch, MKBYTE{0x16}, MKBYTE{0x03, 0x01});
     return ret;
 }
 
@@ -340,13 +373,10 @@ sds ComposeInitHandshake(State* sta) {
 sds ComposeReply() {
     uint8_t TLS12[2] = {0x03, 0x03};
     sds inp = make_bytes(0x01);
-    sds ccsBytes = AddRecordLayer(inp, (uint8_t[]){0x14}, TLS12);
+    sds ccsBytes = AddRecordLayer(inp, MKBYTE{0x14}, TLS12);
     sds finished = PsudoRandBytes(40, NowUnixNano());
-    sds fBytes = AddRecordLayer(finished, (uint8_t[]){0x16}, TLS12);
-    ccsBytes = sdscatsds(ccsBytes, fBytes);
-    sdsfree(inp);
-    sdsfree(finished);
-    sdsfree(fBytes);
+    sds fBytes = AddRecordLayer(finished, MKBYTE{0x16}, TLS12);
+    appendf(ccsBytes, fBytes);
     return ccsBytes;
 }
 
