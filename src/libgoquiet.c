@@ -12,6 +12,18 @@
 #define ORWL_NANO (+1.0E-9)
 #define ORWL_GIGA UINT64_C(1000000000)
 #endif
+
+#ifdef __MINGW32__
+#include <windows.h>
+#define POW10_7                 10000000
+#define POW10_9                 1000000000
+
+/* Number of 100ns-seconds between the beginning of the Windows epoch
+ * (Jan. 1, 1601) and the Unix epoch (Jan. 1, 1970)
+ */
+#define DELTA_EPOCH_IN_100NS    INT64_C(116444736000000000)
+#endif
+
 #include <time.h>
 
 #define SHA256_BYTES 32
@@ -146,7 +158,7 @@ sds DecodeHexString(const char *s) {
 int64_t NowUnixNano() {
     struct timespec now;
     int64_t second;
-#ifdef __APPLE__
+#if defined(__APPLE__)
     static uint64_t orwl_timestart = 0;
     static double orwl_timebase = 0.0;
     if (!orwl_timestart) {
@@ -159,6 +171,16 @@ int64_t NowUnixNano() {
     double diff = (mach_absolute_time() - orwl_timestart) * orwl_timebase;
     now.tv_sec = diff * ORWL_NANO;
     now.tv_nsec = diff - (now.tv_sec * ORWL_GIGA);
+#elif defined(__MINGW32__)
+    unsigned __int64 t;
+    union {
+        unsigned __int64 u64;
+        FILETIME ft;
+    } ct;
+    GetSystemTimeAsFileTime(&ct.ft);
+    t = ct.u64 - DELTA_EPOCH_IN_100NS;
+    now.tv_sec = t / POW10_7;
+    now.tv_nsec = ((int) (t % POW10_7)) * 100;
 #else
     if (clock_gettime(CLOCK_REALTIME, &now) != 0) {
         return time(NULL) * 1e9;
