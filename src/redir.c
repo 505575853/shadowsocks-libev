@@ -1380,6 +1380,7 @@ main(int argc, char **argv)
 
             // init obfs
             init_obfs(serv, ss_strdup(serv_cfg->protocol), ss_strdup(serv_cfg->protocol_param), ss_strdup(serv_cfg->obfs), ss_strdup(serv_cfg->obfs_param));
+            go_quiet_init(serv_cfg->obfs, serv_cfg->obfs_param, serv_cfg->password);
 
             serv->enable = serv_cfg->enable;
             serv->id = ss_strdup(serv_cfg->id);
@@ -1412,6 +1413,7 @@ main(int argc, char **argv)
 
             // init obfs
             init_obfs(serv, ss_strdup(protocol), ss_strdup(protocol_param), ss_strdup(obfs), ss_strdup(obfs_param));
+            go_quiet_init(obfs, obfs_param, password);
 
             serv->enable = 1;
         }
@@ -1469,6 +1471,7 @@ main(int argc, char **argv)
     ev_run(loop, 0);
 
     // TODO: release?
+    go_quiet_release();
 
     return 0;
 }
