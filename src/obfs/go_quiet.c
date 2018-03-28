@@ -1,4 +1,3 @@
-#ifdef GOQUIET
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -13,6 +12,7 @@
 
 // Exported go functions
 extern void go_quiet_setopt(char *opt, int *err);
+extern void go_quiet_freeopt();
 extern void go_quiet_make_hello(char **data, size_t *out_len);
 extern void go_quiet_make_reply(char **data, size_t *out_len);
 
@@ -40,10 +40,8 @@ obfs * go_quiet_new_obfs() {
     go_quiet_local_data_init((go_quiet_local_data*)self->l_data);
     return self;
 }
-#endif
 
 void go_quiet_init(const char *plugin_name, const char *param, const char *pass) {
-#ifdef GOQUIET
     if (strcmp(plugin_name, "go_quiet") != 0) {
         return;
     }
@@ -60,10 +58,13 @@ void go_quiet_init(const char *plugin_name, const char *param, const char *pass)
     if (err != 0) {
         FATAL("Failed to initialize go_quiet");
     }
-#endif
 }
 
-#ifdef GOQUIET
+void go_quiet_release()
+{
+    go_quiet_freeopt();
+}
+
 int go_quiet_get_overhead(obfs *self) {
     return 5;
 }
@@ -256,4 +257,3 @@ int go_quiet_client_decode(obfs *self, char **pencryptdata, int datalength, size
     }
     return -1;
 }
-#endif

@@ -623,6 +623,7 @@ rand_bytes(uint8_t *output, int len)
         if (mbedtls_ctr_drbg_seed(&cd_ctx, mbedtls_entropy_func, &ec,
                                   (const unsigned char *)rand_buffer, 8) != 0) {
             mbedtls_entropy_free(&ec);
+            mbedtls_ctr_drbg_free(&cd_ctx);
             FATAL("mbed TLS: Failed to initialize random generator");
         }
         rand_initialised = 1;

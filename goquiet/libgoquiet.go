@@ -7,14 +7,6 @@ import (
 	"github.com/cbeuw/GoQuiet/gqclient/TLS"
 )
 
-/*
-#include <stdlib.h>
-#include <string.h>
-
-//extern void go_quiet_setopt(char *opt, int *err);
-//extern void go_quiet_make_hello(char **data, size_t *out_len);
-//extern void go_quiet_make_reply(char **data, size_t *out_len);
-*/
 import "C"
 
 var sta *gqclient.State = nil
@@ -65,5 +57,8 @@ func go_quiet_make_hello(data **C.char, out_len *C.size_t) {
 func go_quiet_make_reply(data **C.char, out_len *C.size_t) {
 	make_c_array(TLS.ComposeReply(), data, out_len)
 }
+
+//export go_quiet_freeopt
+func go_quiet_freeopt() {}
 
 func main() {}

@@ -1,7 +1,6 @@
 #ifndef _GO_QUIET_H
 #define _GO_QUIET_H
 
-#ifdef GOQUIET
 #include "obfs.h"
 
 obfs * go_quiet_new_obfs();
@@ -12,6 +11,6 @@ int go_quiet_client_decode(obfs *self, char **pencryptdata, int datalength, size
 
 int go_quiet_get_overhead(obfs *self);
 void go_quiet_init(const char *plugin_name, const char *param, const char *pass);
-#endif
+void go_quiet_release();
 
 #endif // _GO_QUIET_H

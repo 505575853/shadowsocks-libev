@@ -792,6 +792,7 @@ with_sysroot
 enable_libtool_lock
 with_pcre
 enable_system_shared_lib
+enable_golang
 enable_applecc
 enable_ssp
 enable_assert
@@ -1443,6 +1444,7 @@ Optional Features:
   --disable-libtool-lock  avoid locking (might break parallel builds)
   --enable-system-shared-lib
                           build against shared libraries when possible
+  --enable-golang         Compile go_quiet plugin using Go
   --enable-applecc        enable Apple CommonCrypto API support
   --disable-ssp           Do not compile with -fstack-protector
   --disable-assert        turn off assertions
@@ -13562,6 +13564,18 @@ fi
 
 
 
+# Check whether --enable-golang was given.
+if test "${enable_golang+set}" = set; then :
+  enableval=$enable_golang;
+  enable_golang="yes"
+
+else
+
+  enable_golang="no"
+
+fi
+
+
 # Extract the first word of "go", so it can be a program name with args.
 set dummy go; ac_word=$2
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
@@ -13600,7 +13614,7 @@ $as_echo "no" >&6; }
 fi
 
 
- if test "x$golang" = xyes; then
+ if test "x$enable_golang" = xyes && test "x$golang" = xyes; then
   HAS_GOLANG_TRUE=
   HAS_GOLANG_FALSE='#'
 else
@@ -13608,7 +13622,9 @@ else
   HAS_GOLANG_FALSE=
 fi
 
-if test "x$golang" = xyes; then
+if test "x$enable_golang" = xyes && test "x$golang" = xyes; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: golang compilation enabled" >&5
+$as_echo "$as_me: golang compilation enabled" >&6;}
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for golang cross-compilation" >&5
 $as_echo_n "checking for golang cross-compilation... " >&6; }
   GOARCH=""

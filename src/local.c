@@ -2220,6 +2220,8 @@ main(int argc, char **argv)
         release_profile(current_profile);
     }
 
+    go_quiet_release();
+
 #ifdef __MINGW32__
     if (plugin_watcher.valid) {
         closesocket(plugin_watcher.fd);

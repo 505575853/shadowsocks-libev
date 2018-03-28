@@ -49,9 +49,19 @@ AC_PROG_MAKE_SET
 AC_LANG_SOURCE
 
 dnl Checks for golang
+AC_ARG_ENABLE(golang,
+[AS_HELP_STRING(--enable-golang, Compile go_quiet plugin using Go)],
+[
+  enable_golang="yes"
+],
+[
+  enable_golang="no"
+])
+
 AC_CHECK_PROG([golang],[go],[yes],[no])
-AM_CONDITIONAL([HAS_GOLANG], [test "x$golang" = xyes])
-if test "x$golang" = xyes; then
+AM_CONDITIONAL([HAS_GOLANG], [test "x$enable_golang" = xyes && test "x$golang" = xyes])
+if test "x$enable_golang" = xyes && test "x$golang" = xyes; then
+  AC_MSG_NOTICE([golang compilation enabled])
   AC_MSG_CHECKING(for golang cross-compilation)
   GOARCH=""
   GOCROSS=""

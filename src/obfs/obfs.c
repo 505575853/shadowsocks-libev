@@ -77,7 +77,6 @@ obfs_class * new_obfs_class(char *plugin_name)
         plugin->client_decode = http_simple_client_decode;
 
         return plugin;
-#ifdef GOQUIET
     } else if (strcmp(plugin_name, "go_quiet") == 0) {
         obfs_class * plugin = (obfs_class*)malloc(sizeof(obfs_class));
         plugin->init_data = init_data;
@@ -91,7 +90,6 @@ obfs_class * new_obfs_class(char *plugin_name)
         plugin->client_decode = go_quiet_client_decode;
 
         return plugin;
-#endif
     } else if (strcmp(plugin_name, "tls1.2_ticket_auth") == 0) {
         obfs_class * plugin = (obfs_class*)malloc(sizeof(obfs_class));
         plugin->init_data = tls12_ticket_auth_init_data;
