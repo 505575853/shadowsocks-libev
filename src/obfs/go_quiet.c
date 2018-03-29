@@ -42,8 +42,15 @@ obfs * go_quiet_new_obfs() {
 }
 
 void go_quiet_init(const char *plugin_name, const char *param, const char *pass) {
-    if (strcmp(plugin_name, "go_quiet") != 0) {
+    if (plugin_name == NULL ||
+        strcmp(plugin_name, "go_quiet") != 0) {
         return;
+    }
+    if (param == NULL) {
+        param = "";
+    }
+    if (pass == NULL) {
+        pass = "";
     }
     int err = 1;
     size_t plen = strlen(param);
@@ -56,7 +63,7 @@ void go_quiet_init(const char *plugin_name, const char *param, const char *pass)
         free(buf);
     }
     if (err != 0) {
-        FATAL("Failed to initialize go_quiet");
+        LOGE("Wrong options of go_quiet");
     }
 }
 

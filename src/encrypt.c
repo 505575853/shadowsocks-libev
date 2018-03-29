@@ -1281,6 +1281,11 @@ ss_decrypt(cipher_env_t* env, buffer_t *cipher, enc_ctx_t *ctx, size_t capacity)
         if (!ctx->init) {
             uint8_t iv[MAX_IV_LENGTH];
             iv_len      = env->enc_iv_len;
+
+            if (cipher->len <= iv_len) {
+                return -1;
+            }
+
             plain->len -= iv_len;
 
             memcpy(iv, cipher->array, iv_len);
