@@ -27,8 +27,7 @@ This is my own modified version of shadowsocksR libev (client only). It is based
 * Supported OS:
   * `docker/linux-mac` for Linux/macOS on 64-bit Intel
   * `docker/mingw` for Windows on 32/64-bit Intel
-  * `docker/mingw-arm64` for Windows on 64-bit ARM (for future-proof, tested it on QEMU):
-    ![screenshot](arm.png)
+  * `docker/mingw-arm64` for Windows on 64-bit ARM (for future-proof, tested it [on QEMU](arm.png))
 * Support to build using Docker in a simple way:
   * Type `make` in the directory on Unix-like system
   * Double-click `make.bat` on Windows
