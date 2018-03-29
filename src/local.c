@@ -67,6 +67,7 @@
 #include "http.h"
 #include "tls.h"
 #include "plugin.h"
+#include "options.h"
 #include "local.h"
 
 #ifndef LIB_ONLY
@@ -110,6 +111,7 @@ char *prefix;
 static int acl       = 0;
 static int mode = TCP_ONLY;
 static int ipv6first = 0;
+static int asplugin  = 0;
 
 static struct ev_signal sigint_watcher;
 static struct ev_signal sigterm_watcher;
@@ -364,6 +366,8 @@ server_recv_cb(EV_P_ ev_io *w, int revents)
             if (!remote->direct) {
                 server_def_t *server_env = server->server_env;
                 // SSR beg
+                if (!asplugin) {
+
                 if (server_env->protocol_plugin) {
                     obfs_class *protocol_plugin = server_env->protocol_plugin;
                     if (protocol_plugin->client_pre_encrypt) {
@@ -377,6 +381,8 @@ server_recv_cb(EV_P_ ev_io *w, int revents)
                     close_and_free_remote(EV_A_ remote);
                     close_and_free_server(EV_A_ server);
                     return;
+                }
+
                 }
 
                 if (server_env->obfs_plugin) {
@@ -572,6 +578,74 @@ server_recv_cb(EV_P_ ev_io *w, int revents)
             // all processed
             return;
         } else if (server->stage == STAGE_INIT) {
+            if (asplugin) {
+                server->stage = STAGE_STREAM;
+
+                // pick a server
+                listen_ctx_t *profile = server->listener;
+                int index = rand() % profile->server_num;
+                server_def_t *server_env = &profile->servers[index];
+                server->server_env = server_env;
+
+                remote = create_remote(profile, (struct sockaddr *) server_env->addr);
+
+                if (remote == NULL) {
+                    LOGE("invalid remote addr");
+                    close_and_free_server(EV_A_ server);
+                    return;
+                }
+
+                // expelled from eden
+                cork_dllist_remove(&server->entries);
+                cork_dllist_add(&server_env->connections, &server->entries);
+
+                // init server cipher
+                if (server_env->cipher.enc_method > TABLE) {
+                    server->e_ctx = ss_malloc(sizeof(struct enc_ctx));
+                    server->d_ctx = ss_malloc(sizeof(struct enc_ctx));
+                    enc_ctx_init(&server_env->cipher, server->e_ctx, 1);
+                    enc_ctx_init(&server_env->cipher, server->d_ctx, 0);
+                } else {
+                    server->e_ctx = NULL;
+                    server->d_ctx = NULL;
+                }
+
+                // SSR beg
+                server_info _server_info;
+                memset(&_server_info, 0, sizeof(server_info));
+                if (server_env->hostname)
+                    strcpy(_server_info.host, server_env->hostname);
+                else
+                    strcpy(_server_info.host, server_env->host);
+                _server_info.port = server_env->port;
+                _server_info.param = server_env->obfs_param;
+                _server_info.g_data = server_env->obfs_global;
+                _server_info.head_len = get_head_size(NULL, 320, 30);
+                _server_info.iv = server->e_ctx->evp.iv;
+                _server_info.iv_len = enc_get_iv_len(&server_env->cipher);
+                _server_info.key = enc_get_key(&server_env->cipher);
+                _server_info.key_len = enc_get_key_len(&server_env->cipher);
+                _server_info.tcp_mss = 1452;
+                _server_info.buffer_size = BUF_SIZE;
+                _server_info.cipher_env = &server_env->cipher;
+
+                if (server_env->obfs_plugin) {
+                    server->obfs = server_env->obfs_plugin->new_obfs();
+                    server_env->obfs_plugin->set_server_info(server->obfs, &_server_info);
+                }
+                // SSR end
+
+                if (buf->len > 0) {
+                    memcpy(remote->buf->array, buf->array, buf->len);
+                    remote->buf->len = buf->len;
+                }
+
+                server->remote = remote;
+                remote->server = server;
+
+                continue;
+            }
+
             struct method_select_response response;
             response.ver    = SVERSION;
             response.method = 0;
@@ -1106,6 +1180,8 @@ remote_recv_cb(EV_P_ ev_io *w, int revents)
                 }
             }
         }
+        if (!asplugin) {
+
         if (server->buf->len > 0) {
         int err = ss_decrypt(&server_env->cipher, server->buf, server->d_ctx, BUF_SIZE);
             if (err) {
@@ -1130,6 +1206,8 @@ remote_recv_cb(EV_P_ ev_io *w, int revents)
             }
         }
         // SSR end
+
+        }
     }
 
     int s = send(server->fd, server->buf->array, server->buf->len, 0);
@@ -1640,6 +1718,96 @@ main(int argc, char **argv)
     int use_new_profile = 0;
     jconf_t *conf = NULL;
 
+    char *ss_remote_host = getenv("SS_REMOTE_HOST");
+    char *ss_remote_port = getenv("SS_REMOTE_PORT");
+    char *ss_local_host  = getenv("SS_LOCAL_HOST");
+    char *ss_local_port  = getenv("SS_LOCAL_PORT");
+    char *ss_plugin_opts = getenv("SS_PLUGIN_OPTIONS");
+
+    if (ss_remote_host != NULL) {
+        ss_remote_host = strdup(ss_remote_host);
+        char *delim = "|";
+        char *p = strtok(ss_remote_host, delim);
+        do {
+            remote_addr[remote_num].host = p;
+            remote_addr[remote_num++].port = NULL;
+        } while ((p = strtok(NULL, delim)));
+    }
+
+    if (ss_remote_port != NULL) {
+        remote_port = ss_remote_port;
+    }
+
+    if (ss_local_host != NULL) {
+        local_addr = ss_local_host;
+    }
+
+    if (ss_local_port != NULL) {
+        local_port = ss_local_port;
+    }
+
+    if (ss_plugin_opts != NULL) {
+        LOG_PREFIX = "[obfs] ";
+        asplugin = 1;
+        method = "none";
+        protocol = "origin";
+        protocol_param = "";
+        ss_plugin_opts = strdup(ss_plugin_opts);
+        options_t opts;
+        int opt_num = parse_options(ss_plugin_opts,
+                strlen(ss_plugin_opts), &opts);
+        for (i = 0; i < opt_num; i++) {
+            char *key = opts.keys[i];
+            char *value = opts.values[i];
+            if (key == NULL) continue;
+            size_t key_len = strlen(key);
+            if (key_len == 0) continue;
+            if (key_len == 1) {
+                char c = key[0];
+                switch (c) {
+                    case 't':
+                        timeout = value;
+                        break;
+                    case 'c':
+                        conf_path = value;
+                        break;
+                    case 'i':
+                        iface = value;
+                        break;
+                    case 'a':
+                        user = value;
+                        break;
+                    case 'v':
+                        verbose = 1;
+                        break;
+#ifdef ANDROID
+                    case 'V':
+                        vpn = 1;
+                        break;
+#endif
+                    case '6':
+                        ipv6first = 1;
+                        break;
+                    }
+            } else {
+                if (strcmp(key, "fast-open") == 0) {
+                    fast_open = 1;
+                } else if (strcmp(key, "obfs") == 0) {
+                    obfs = value;
+                } else if (strcmp(key, "param") == 0) {
+                    obfs_param = value;
+                } else if (strcmp(key, "key") == 0) {
+                    password = value;
+#ifdef __linux__
+                } else if (strcmp(key, "mptcp") == 0) {
+                    mptcp = 1;
+                    LOGI("enable multipath TCP");
+#endif
+                }
+            }
+        }
+    }
+
     ss_addr_t tunnel_addr = { .host = NULL, .port = NULL };
     char *tunnel_addr_str = NULL;
 
@@ -1796,7 +1964,7 @@ main(int argc, char **argv)
     }
 
     if (argc == 1) {
-        if (conf_path == NULL) {
+        if (conf_path == NULL && ss_plugin_opts == NULL) {
             conf_path = DEFAULT_CONF_PATH;
         }
     }

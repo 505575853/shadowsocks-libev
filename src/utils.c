@@ -55,6 +55,8 @@ FILE *logfile;
 int use_syslog = 0;
 #endif
 
+char *LOG_PREFIX = "";
+
 #ifndef __MINGW32__
 void
 ERROR(const char *s)

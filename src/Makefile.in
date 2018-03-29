@@ -135,8 +135,8 @@ am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(bindir)" \
 	"$(DESTDIR)$(includedir)"
 PROGRAMS = $(bin_PROGRAMS)
 am__ss_local_SOURCES_DIST = utils.c jconf.c json.c encrypt.c \
-	udprelay.c cache.c acl.c netutils.c local.c plugin.c http.c \
-	tls.c rule.c libgoquiet.c sds.c win32.c
+	udprelay.c cache.c acl.c netutils.c local.c plugin.c options.c \
+	http.c tls.c rule.c libgoquiet.c sds.c win32.c
 @HAS_GOLANG_FALSE@am__objects_1 = ss_local-libgoquiet.$(OBJEXT) \
 @HAS_GOLANG_FALSE@	ss_local-sds.$(OBJEXT)
 am__objects_2 = ss_local-http.$(OBJEXT) ss_local-tls.$(OBJEXT) \
@@ -147,7 +147,8 @@ am_ss_local_OBJECTS = ss_local-utils.$(OBJEXT) \
 	ss_local-encrypt.$(OBJEXT) ss_local-udprelay.$(OBJEXT) \
 	ss_local-cache.$(OBJEXT) ss_local-acl.$(OBJEXT) \
 	ss_local-netutils.$(OBJEXT) ss_local-local.$(OBJEXT) \
-	ss_local-plugin.$(OBJEXT) $(am__objects_2) $(am__objects_3)
+	ss_local-plugin.$(OBJEXT) ss_local-options.$(OBJEXT) \
+	$(am__objects_2) $(am__objects_3)
 ss_local_OBJECTS = $(am_ss_local_OBJECTS)
 am__DEPENDENCIES_1 =
 am__DEPENDENCIES_2 = $(top_builddir)/libipset/libipset.la \
@@ -233,12 +234,13 @@ am__depfiles_remade = ./$(DEPDIR)/ss_local-acl.Po \
 	./$(DEPDIR)/ss_local-json.Po \
 	./$(DEPDIR)/ss_local-libgoquiet.Po \
 	./$(DEPDIR)/ss_local-local.Po ./$(DEPDIR)/ss_local-netutils.Po \
-	./$(DEPDIR)/ss_local-plugin.Po ./$(DEPDIR)/ss_local-rule.Po \
-	./$(DEPDIR)/ss_local-sds.Po ./$(DEPDIR)/ss_local-tls.Po \
-	./$(DEPDIR)/ss_local-udprelay.Po ./$(DEPDIR)/ss_local-utils.Po \
-	./$(DEPDIR)/ss_local-win32.Po ./$(DEPDIR)/ss_redir-cache.Po \
-	./$(DEPDIR)/ss_redir-encrypt.Po ./$(DEPDIR)/ss_redir-http.Po \
-	./$(DEPDIR)/ss_redir-jconf.Po ./$(DEPDIR)/ss_redir-json.Po \
+	./$(DEPDIR)/ss_local-options.Po ./$(DEPDIR)/ss_local-plugin.Po \
+	./$(DEPDIR)/ss_local-rule.Po ./$(DEPDIR)/ss_local-sds.Po \
+	./$(DEPDIR)/ss_local-tls.Po ./$(DEPDIR)/ss_local-udprelay.Po \
+	./$(DEPDIR)/ss_local-utils.Po ./$(DEPDIR)/ss_local-win32.Po \
+	./$(DEPDIR)/ss_redir-cache.Po ./$(DEPDIR)/ss_redir-encrypt.Po \
+	./$(DEPDIR)/ss_redir-http.Po ./$(DEPDIR)/ss_redir-jconf.Po \
+	./$(DEPDIR)/ss_redir-json.Po \
 	./$(DEPDIR)/ss_redir-libgoquiet.Po \
 	./$(DEPDIR)/ss_redir-netutils.Po ./$(DEPDIR)/ss_redir-redir.Po \
 	./$(DEPDIR)/ss_redir-rule.Po ./$(DEPDIR)/ss_redir-sds.Po \
@@ -434,7 +436,8 @@ SS_COMMON_LIBS = $(top_builddir)/libipset/libipset.la \
 #bin_PROGRAMS += ss-server ss-manager
 sni_src = http.c tls.c rule.c $(am__append_5)
 ss_local_SOURCES = utils.c jconf.c json.c encrypt.c udprelay.c cache.c \
-	acl.c netutils.c local.c plugin.c $(sni_src) $(am__append_8)
+	acl.c netutils.c local.c plugin.c options.c $(sni_src) \
+	$(am__append_8)
 
 #ss_tunnel_SOURCES = utils.c \
 #                    jconf.c \
@@ -628,6 +631,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ss_local-libgoquiet.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ss_local-local.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ss_local-netutils.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ss_local-options.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ss_local-plugin.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ss_local-rule.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ss_local-sds.Po@am__quote@ # am--include-marker
@@ -818,6 +822,20 @@ ss_local-plugin.obj: plugin.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='plugin.c' object='ss_local-plugin.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ss_local_CFLAGS) $(CFLAGS) -c -o ss_local-plugin.obj `if test -f 'plugin.c'; then $(CYGPATH_W) 'plugin.c'; else $(CYGPATH_W) '$(srcdir)/plugin.c'; fi`
+
+ss_local-options.o: options.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ss_local_CFLAGS) $(CFLAGS) -MT ss_local-options.o -MD -MP -MF $(DEPDIR)/ss_local-options.Tpo -c -o ss_local-options.o `test -f 'options.c' || echo '$(srcdir)/'`options.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/ss_local-options.Tpo $(DEPDIR)/ss_local-options.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='options.c' object='ss_local-options.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ss_local_CFLAGS) $(CFLAGS) -c -o ss_local-options.o `test -f 'options.c' || echo '$(srcdir)/'`options.c
+
+ss_local-options.obj: options.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ss_local_CFLAGS) $(CFLAGS) -MT ss_local-options.obj -MD -MP -MF $(DEPDIR)/ss_local-options.Tpo -c -o ss_local-options.obj `if test -f 'options.c'; then $(CYGPATH_W) 'options.c'; else $(CYGPATH_W) '$(srcdir)/options.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/ss_local-options.Tpo $(DEPDIR)/ss_local-options.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='options.c' object='ss_local-options.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ss_local_CFLAGS) $(CFLAGS) -c -o ss_local-options.obj `if test -f 'options.c'; then $(CYGPATH_W) 'options.c'; else $(CYGPATH_W) '$(srcdir)/options.c'; fi`
 
 ss_local-http.o: http.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ss_local_CFLAGS) $(CFLAGS) -MT ss_local-http.o -MD -MP -MF $(DEPDIR)/ss_local-http.Tpo -c -o ss_local-http.o `test -f 'http.c' || echo '$(srcdir)/'`http.c
@@ -1248,6 +1266,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/ss_local-libgoquiet.Po
 	-rm -f ./$(DEPDIR)/ss_local-local.Po
 	-rm -f ./$(DEPDIR)/ss_local-netutils.Po
+	-rm -f ./$(DEPDIR)/ss_local-options.Po
 	-rm -f ./$(DEPDIR)/ss_local-plugin.Po
 	-rm -f ./$(DEPDIR)/ss_local-rule.Po
 	-rm -f ./$(DEPDIR)/ss_local-sds.Po
@@ -1322,6 +1341,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/ss_local-libgoquiet.Po
 	-rm -f ./$(DEPDIR)/ss_local-local.Po
 	-rm -f ./$(DEPDIR)/ss_local-netutils.Po
+	-rm -f ./$(DEPDIR)/ss_local-options.Po
 	-rm -f ./$(DEPDIR)/ss_local-plugin.Po
 	-rm -f ./$(DEPDIR)/ss_local-rule.Po
 	-rm -f ./$(DEPDIR)/ss_local-sds.Po

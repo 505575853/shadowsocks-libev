@@ -115,6 +115,8 @@ extern FILE *logfile;
 
 #define USE_SYSLOG(ident)
 
+extern char *LOG_PREFIX;
+
 #define LOGI(format, ...)                                    \
     do {                                                     \
         time_t now = time(NULL);                             \
@@ -123,7 +125,7 @@ extern FILE *logfile;
         ss_color_info();                                     \
         fprintf(stdout, " %s INFO: ", timestr);              \
         ss_color_reset();                                    \
-        fprintf(stdout, format "\n", ## __VA_ARGS__);        \
+        fprintf(stdout, "%s" format "\n", LOG_PREFIX, ## __VA_ARGS__);        \
     }                                                        \
     while (0)
 
@@ -135,7 +137,7 @@ extern FILE *logfile;
         ss_color_error();                                     \
         fprintf(stdout, " %s ERROR: ", timestr);              \
         ss_color_reset();                                     \
-        fprintf(stdout, format "\n", ## __VA_ARGS__);         \
+        fprintf(stdout, "%s" format "\n", LOG_PREFIX, ## __VA_ARGS__);         \
     }                                                         \
     while (0)
 
@@ -151,6 +153,7 @@ extern int use_tty;
 
 #define HAS_SYSLOG
 extern int use_syslog;
+extern char *LOG_PREFIX;
 
 #define TIME_FORMAT "%F %T"
 
@@ -169,11 +172,11 @@ extern int use_syslog;
             char timestr[20];                                                    \
             strftime(timestr, 20, TIME_FORMAT, localtime(&now));                 \
             if (use_tty) {                                                       \
-                fprintf(stderr, "\e[01;32m %s INFO: \e[0m" format "\n", timestr, \
-                        ## __VA_ARGS__);                                         \
+                fprintf(stderr, "\e[01;32m %s INFO: \e[0m%s" format "\n", timestr, \
+                        LOG_PREFIX, ## __VA_ARGS__);                                         \
             } else {                                                             \
-                fprintf(stderr, " %s INFO: " format "\n", timestr,               \
-                        ## __VA_ARGS__);                                         \
+                fprintf(stderr, " %s INFO: %s" format "\n", timestr,               \
+                        LOG_PREFIX, ## __VA_ARGS__);                                         \
             }                                                                    \
         }                                                                        \
     }                                                                            \
@@ -188,11 +191,11 @@ extern int use_syslog;
             char timestr[20];                                                     \
             strftime(timestr, 20, TIME_FORMAT, localtime(&now));                  \
             if (use_tty) {                                                        \
-                fprintf(stderr, "\e[01;35m %s ERROR: \e[0m" format "\n", timestr, \
-                        ## __VA_ARGS__);                                          \
+                fprintf(stderr, "\e[01;35m %s ERROR: \e[0m%s" format "\n", timestr, \
+                        LOG_PREFIX, ## __VA_ARGS__);                                          \
             } else {                                                              \
-                fprintf(stderr, " %s ERROR: " format "\n", timestr,               \
-                        ## __VA_ARGS__);                                          \
+                fprintf(stderr, " %s ERROR: %s" format "\n", timestr,               \
+                        LOG_PREFIX, ## __VA_ARGS__);                                          \
             }                                                                     \
         } }                                                                       \
     while (0)
