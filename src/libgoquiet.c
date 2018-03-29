@@ -16,7 +16,6 @@
 #ifdef __MINGW32__
 #include <windows.h>
 #define POW10_7                 10000000
-#define POW10_9                 1000000000
 
 /* Number of 100ns-seconds between the beginning of the Windows epoch
  * (Jan. 1, 1601) and the Unix epoch (Jan. 1, 1970)
@@ -46,7 +45,7 @@
 } while(0)
 #define make_sds(len) sdsgrowzero(sdsempty(), len)
 #define makeNullBytes(len) make_sds(len)
-#define make_bytes(bytes...) sdsnewlen(MKBYTE{bytes}, (sizeof(MKBYTE{bytes})))
+#define make_bytes(bytes...) sdsnewlen((uint8_t[]){bytes}, (sizeof((uint8_t[]){bytes})))
 #define append(a, b) a = sdscatsds((a), (b))
 #define appendf(a, b) do { \
     a = sdscatsds((a), (b)); \
