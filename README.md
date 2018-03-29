@@ -2,7 +2,7 @@
 
 _Who will use this any more?_
 
-## Disclaimer
+## Disclaimers
 
 This is my own modified version of shadowsocksR libev (client only). It is based on the [last official commit][last commit] of the original repo. This version is by no mean a continuation of the original project, nor do I have any connection to it. It only contains some experimental code for my own use. I do not accept any pull requests in this repo. Please contribute to the [upstream project][upstream].
 
@@ -27,7 +27,7 @@ This is my own modified version of shadowsocksR libev (client only). It is based
 * Supported OS:
   * `docker/linux-mac` for Linux/macOS on 64-bit Intel
   * `docker/mingw` for Windows on 32/64-bit Intel
-  * `docker/mingw-arm64` for Windows on 64-bit ARM (for future-proof, tested it [on QEMU](arm.png))
+  * `docker/mingw-arm64` for Windows on 64-bit ARM (for future-proof, [tested on QEMU](arm.png))
 * Support to build using Docker in a simple way:
   * Type `make` in the directory on Unix-like system
   * Double-click `make.bat` on Windows
