@@ -71,7 +71,7 @@ typedef struct _State {
     sds Browser;
 } State;
 
-State sta;
+static State sta;
 
 // BtoInt converts a byte slice into int in Big Endian order
 // Uint methods from binary package can be used, but they are messy
