@@ -4,7 +4,7 @@ _Who will use this any more?_
 
 ## Disclaimers
 
-This is my own modified version of shadowsocksR libev (client only). It is based on the [last official commit][last commit] of the original repo. This version is by no mean a continuation of the original project, nor do I have any connection to it. It only contains some experimental code for my own use. I do not accept any pull requests in this repo. Please contribute to the [upstream project][upstream].
+This is my own modified version of shadowsocksR libev (client only). It is based on the [last official commit][last commit] of the original repo. This version is by no means a continuation of the original project, nor do I have any connection to it. It only contains some experimental code for my own use. I do not accept any pull requests in this repo. Please contribute to the [upstream project][upstream].
 
 ## Extra Features
 
@@ -41,7 +41,7 @@ This is my own modified version of shadowsocksR libev (client only). It is based
 * Usage:
     * `obfs` set to `go_quiet`
     * `obfs_param` set to the the server name you want to expose in TLS handshake (same as the original [`ServerName` option][gq-config] of GoQuiet)
-    * Note that [`Key` option][gq-config] of GoQuiet client is the same as `password` and cannot be changed at the moment.
+    * Note that [`Key` option][gq-config] of GoQuiet client is __the same__ as `password` option in SSR and cannot be changed at the moment.
 * Support to build using either the [C version][gq-c] (rewritten by myself, by default), or the original [Go version][gq-go] (enable by `--enable-golang` when running `configure`)
 
 ### Use other SIP003 plugins
