@@ -46,6 +46,8 @@
 #define PORTSTRLEN 16
 #define SS_ADDRSTRLEN (INET6_ADDRSTRLEN + PORTSTRLEN + 1)
 
+extern char *LOG_PREFIX;
+
 #ifdef ANDROID
 
 #include <android/log.h>
@@ -115,8 +117,6 @@ extern FILE *logfile;
 
 #define USE_SYSLOG(ident)
 
-extern char *LOG_PREFIX;
-
 #define LOGI(format, ...)                                    \
     do {                                                     \
         time_t now = time(NULL);                             \
@@ -153,7 +153,6 @@ extern int use_tty;
 
 #define HAS_SYSLOG
 extern int use_syslog;
-extern char *LOG_PREFIX;
 
 #define TIME_FORMAT "%F %T"
 
