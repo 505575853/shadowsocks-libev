@@ -43,6 +43,10 @@
 
 /* Hard coded defines for TCP fast open on macOS */
 #ifdef __APPLE__
+#ifndef TCP_FASTOPEN
+#define TCP_FASTOPEN        0x105   /* Enable/Disable TCP Fastopen on this socket */
+#endif
+
 #ifndef CONNECT_RESUME_ON_READ_WRITE
 #define CONNECT_RESUME_ON_READ_WRITE    0x1 /* resume connect() on read/write */
 #endif
