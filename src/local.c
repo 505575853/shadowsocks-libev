@@ -435,8 +435,10 @@ server_recv_cb(EV_P_ ev_io *w, int revents)
                     ev_io_server_recv(EV_A_ server, remote);
                     ev_timer_start(EV_A_ & remote->send_ctx->watcher);
                 } else {
-#ifdef TCP_FASTOPEN
-#ifdef __APPLE__
+#if defined(MSG_FASTOPEN) && !defined(TCP_FASTOPEN_CONNECT)
+                    int s = sendto(remote->fd, remote->buf->array, remote->buf->len, MSG_FASTOPEN,
+                                   (struct sockaddr *)&(remote->direct_addr.addr), remote->direct_addr.addr_len);
+#elif defined(CONNECT_DATA_IDEMPOTENT)
                     ((struct sockaddr_in *)&(remote->direct_addr.addr))->sin_len = sizeof(struct sockaddr_in);
                     sa_endpoints_t endpoints;
                     memset((char *)&endpoints, 0, sizeof(endpoints));
@@ -449,8 +451,7 @@ server_recv_cb(EV_P_ ev_io *w, int revents)
                     if (s == 0) {
                         s = send(remote->fd, remote->buf->array, remote->buf->len, 0);
                     }
-#else
-#ifdef TCP_FASTOPEN_WINSOCK
+#elif defined(TCP_FASTOPEN_WINSOCK)
                     DWORD s = -1;
                     DWORD err = 0;
                     do {
@@ -495,10 +496,20 @@ server_recv_cb(EV_P_ ev_io *w, int revents)
                     if (err) {
                         SetLastError(err);
                     }
+#elif defined(TCP_FASTOPEN_CONNECT)
+                    int optval = 1;
+                    if(setsockopt(remote->fd, IPPROTO_TCP, TCP_FASTOPEN_CONNECT,
+                                (void *)&optval, sizeof(optval)) < 0)
+                        FATAL("failed to set TCP_FASTOPEN_CONNECT");
+                    int s = connect(remote->fd, (struct sockaddr *)&(remote->direct_addr.addr),
+                                    remote->direct_addr.addr_len);
+                    if (s == 0) {
+                        s = send(remote->fd, remote->buf->array, remote->buf->len, 0);
+                    }
 #else
-                    int s = sendto(remote->fd, remote->buf->array, remote->buf->len, MSG_FASTOPEN,
-                                   (struct sockaddr *)&(remote->direct_addr.addr), remote->direct_addr.addr_len);
-#endif
+                    #pragma message("fast open not supported in this build")
+                    int s = -1;
+                    errno = EOPNOTSUPP;
 #endif
                     if (s == -1) {
                         if (errno == CONNECT_IN_PROGRESS) {
@@ -507,43 +518,26 @@ server_recv_cb(EV_P_ ev_io *w, int revents)
                             ev_io_server_recv(EV_A_ server, remote);
                             return;
                         } else {
-                            ERROR("sendto");
-                            if (errno == ENOTCONN || errno == EOPNOTSUPP) {
+                            if (errno == EOPNOTSUPP || errno == EPROTONOSUPPORT ||
+                                errno == ENOPROTOOPT) {
                                 LOGE("fast open is not supported on this platform");
                                 // just turn it off
                                 fast_open = 0;
+                            } else {
+                                ERROR("fast_open_connect");
                             }
                             close_and_free_remote(EV_A_ remote);
                             close_and_free_server(EV_A_ server);
                             return;
                         }
-                    } else if (s < (int)(remote->buf->len)) {
+                    } else {
                         remote->buf->len -= s;
                         remote->buf->idx  = s;
 
                         ev_io_server_recv(EV_A_ server, remote);
                         ev_timer_start(EV_A_ & remote->send_ctx->watcher);
                         return;
-                    } else {
-                        // Just connected
-                        remote->buf->idx = 0;
-                        remote->buf->len = 0;
-#ifdef __APPLE__
-                        ev_io_server_recv(EV_A_ server, remote);
-                        ev_timer_start(EV_A_ & remote->send_ctx->watcher);
-#else
-                        remote->send_ctx->connected = 1;
-                        ev_timer_stop(EV_A_ & remote->send_ctx->watcher);
-                        ev_timer_start(EV_A_ & remote->recv_ctx->watcher);
-                        ev_io_start(EV_A_ & remote->recv_ctx->io);
-                        return;
-#endif
                     }
-#else
-                    // if TCP_FASTOPEN is not defined, fast_open will always be 0
-                    LOGE("can't come here");
-                    exit(1);
-#endif
                 }
             } else {
                 if (r > 0 && remote->buf->len == 0) {
@@ -1233,6 +1227,7 @@ remote_recv_cb(EV_P_ ev_io *w, int revents)
     if (!remote->recv_ctx->connected) {
         int opt = 0;
         setsockopt(server->fd, SOL_TCP, TCP_NODELAY, &opt, sizeof(opt));
+        opt = 0;
         setsockopt(remote->fd, SOL_TCP, TCP_NODELAY, &opt, sizeof(opt));
     }
     remote->recv_ctx->connected = 1;
