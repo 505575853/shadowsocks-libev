@@ -162,7 +162,10 @@ am_libmbedcrypto_la_OBJECTS = library/libmbedcrypto_la-aes.lo \
 	library/libmbedcrypto_la-timing.lo \
 	library/libmbedcrypto_la-version.lo \
 	library/libmbedcrypto_la-version_features.lo \
-	library/libmbedcrypto_la-xtea.lo
+	library/libmbedcrypto_la-xtea.lo \
+	library/libmbedcrypto_la-md5asm.lo \
+	library/libmbedcrypto_la-sha1asm.lo \
+	library/libmbedcrypto_la-sha256asm.lo
 libmbedcrypto_la_OBJECTS = $(am_libmbedcrypto_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -222,6 +225,7 @@ am__depfiles_remade = library/$(DEPDIR)/libmbedcrypto_la-aes.Plo \
 	library/$(DEPDIR)/libmbedcrypto_la-md2.Plo \
 	library/$(DEPDIR)/libmbedcrypto_la-md4.Plo \
 	library/$(DEPDIR)/libmbedcrypto_la-md5.Plo \
+	library/$(DEPDIR)/libmbedcrypto_la-md5asm.Plo \
 	library/$(DEPDIR)/libmbedcrypto_la-md_wrap.Plo \
 	library/$(DEPDIR)/libmbedcrypto_la-memory_buffer_alloc.Plo \
 	library/$(DEPDIR)/libmbedcrypto_la-oid.Plo \
@@ -238,7 +242,9 @@ am__depfiles_remade = library/$(DEPDIR)/libmbedcrypto_la-aes.Plo \
 	library/$(DEPDIR)/libmbedcrypto_la-rsa.Plo \
 	library/$(DEPDIR)/libmbedcrypto_la-rsa_internal.Plo \
 	library/$(DEPDIR)/libmbedcrypto_la-sha1.Plo \
+	library/$(DEPDIR)/libmbedcrypto_la-sha1asm.Plo \
 	library/$(DEPDIR)/libmbedcrypto_la-sha256.Plo \
+	library/$(DEPDIR)/libmbedcrypto_la-sha256asm.Plo \
 	library/$(DEPDIR)/libmbedcrypto_la-sha512.Plo \
 	library/$(DEPDIR)/libmbedcrypto_la-threading.Plo \
 	library/$(DEPDIR)/libmbedcrypto_la-timing.Plo \
@@ -451,7 +457,8 @@ libmbedcrypto_la_SOURCES = library/aes.c library/aesni.c library/arc4.c \
 		library/ripemd160.c library/rsa_internal.c library/rsa.c  		\
 		library/sha1.c library/sha256.c library/sha512.c \
 		library/threading.c library/timing.c library/version.c \
-		library/version_features.c library/xtea.c
+		library/version_features.c library/xtea.c \
+		library/md5asm.S library/sha1asm.S library/sha256asm.S
 
 libmbedcrypto_la_CPPFLAGS = -I$(top_srcdir)/mbedtls/include -D_FILE_OFFSET_BITS=64
 libmbedcrypto_la_CFLAGS = -O2 -Wall -W -Wdeclaration-after-statement \
@@ -622,6 +629,12 @@ library/libmbedcrypto_la-version_features.lo: library/$(am__dirstamp) \
 	library/$(DEPDIR)/$(am__dirstamp)
 library/libmbedcrypto_la-xtea.lo: library/$(am__dirstamp) \
 	library/$(DEPDIR)/$(am__dirstamp)
+library/libmbedcrypto_la-md5asm.lo: library/$(am__dirstamp) \
+	library/$(DEPDIR)/$(am__dirstamp)
+library/libmbedcrypto_la-sha1asm.lo: library/$(am__dirstamp) \
+	library/$(DEPDIR)/$(am__dirstamp)
+library/libmbedcrypto_la-sha256asm.lo: library/$(am__dirstamp) \
+	library/$(DEPDIR)/$(am__dirstamp)
 
 libmbedcrypto.la: $(libmbedcrypto_la_OBJECTS) $(libmbedcrypto_la_DEPENDENCIES) $(EXTRA_libmbedcrypto_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(libmbedcrypto_la_LINK)  $(libmbedcrypto_la_OBJECTS) $(libmbedcrypto_la_LIBADD) $(LIBS)
@@ -669,6 +682,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@library/$(DEPDIR)/libmbedcrypto_la-md2.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@library/$(DEPDIR)/libmbedcrypto_la-md4.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@library/$(DEPDIR)/libmbedcrypto_la-md5.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@library/$(DEPDIR)/libmbedcrypto_la-md5asm.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@library/$(DEPDIR)/libmbedcrypto_la-md_wrap.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@library/$(DEPDIR)/libmbedcrypto_la-memory_buffer_alloc.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@library/$(DEPDIR)/libmbedcrypto_la-oid.Plo@am__quote@ # am--include-marker
@@ -685,7 +699,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@library/$(DEPDIR)/libmbedcrypto_la-rsa.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@library/$(DEPDIR)/libmbedcrypto_la-rsa_internal.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@library/$(DEPDIR)/libmbedcrypto_la-sha1.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@library/$(DEPDIR)/libmbedcrypto_la-sha1asm.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@library/$(DEPDIR)/libmbedcrypto_la-sha256.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@library/$(DEPDIR)/libmbedcrypto_la-sha256asm.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@library/$(DEPDIR)/libmbedcrypto_la-sha512.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@library/$(DEPDIR)/libmbedcrypto_la-threading.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@library/$(DEPDIR)/libmbedcrypto_la-timing.Plo@am__quote@ # am--include-marker
@@ -736,6 +752,27 @@ library/libmbedcrypto_la-aesasm_hard.lo: library/aesasm_hard.S
 @AMDEP_TRUE@@am__fastdepCCAS_FALSE@	$(AM_V_CPPAS)source='library/aesasm_hard.S' object='library/libmbedcrypto_la-aesasm_hard.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCCAS_FALSE@	DEPDIR=$(DEPDIR) $(CCASDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCCAS_FALSE@	$(AM_V_CPPAS@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CCAS) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmbedcrypto_la_CPPFLAGS) $(CPPFLAGS) $(AM_CCASFLAGS) $(CCASFLAGS) -c -o library/libmbedcrypto_la-aesasm_hard.lo `test -f 'library/aesasm_hard.S' || echo '$(srcdir)/'`library/aesasm_hard.S
+
+library/libmbedcrypto_la-md5asm.lo: library/md5asm.S
+@am__fastdepCCAS_TRUE@	$(AM_V_CPPAS)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CCAS) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmbedcrypto_la_CPPFLAGS) $(CPPFLAGS) $(AM_CCASFLAGS) $(CCASFLAGS) -MT library/libmbedcrypto_la-md5asm.lo -MD -MP -MF library/$(DEPDIR)/libmbedcrypto_la-md5asm.Tpo -c -o library/libmbedcrypto_la-md5asm.lo `test -f 'library/md5asm.S' || echo '$(srcdir)/'`library/md5asm.S
+@am__fastdepCCAS_TRUE@	$(AM_V_at)$(am__mv) library/$(DEPDIR)/libmbedcrypto_la-md5asm.Tpo library/$(DEPDIR)/libmbedcrypto_la-md5asm.Plo
+@AMDEP_TRUE@@am__fastdepCCAS_FALSE@	$(AM_V_CPPAS)source='library/md5asm.S' object='library/libmbedcrypto_la-md5asm.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCCAS_FALSE@	DEPDIR=$(DEPDIR) $(CCASDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCCAS_FALSE@	$(AM_V_CPPAS@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CCAS) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmbedcrypto_la_CPPFLAGS) $(CPPFLAGS) $(AM_CCASFLAGS) $(CCASFLAGS) -c -o library/libmbedcrypto_la-md5asm.lo `test -f 'library/md5asm.S' || echo '$(srcdir)/'`library/md5asm.S
+
+library/libmbedcrypto_la-sha1asm.lo: library/sha1asm.S
+@am__fastdepCCAS_TRUE@	$(AM_V_CPPAS)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CCAS) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmbedcrypto_la_CPPFLAGS) $(CPPFLAGS) $(AM_CCASFLAGS) $(CCASFLAGS) -MT library/libmbedcrypto_la-sha1asm.lo -MD -MP -MF library/$(DEPDIR)/libmbedcrypto_la-sha1asm.Tpo -c -o library/libmbedcrypto_la-sha1asm.lo `test -f 'library/sha1asm.S' || echo '$(srcdir)/'`library/sha1asm.S
+@am__fastdepCCAS_TRUE@	$(AM_V_at)$(am__mv) library/$(DEPDIR)/libmbedcrypto_la-sha1asm.Tpo library/$(DEPDIR)/libmbedcrypto_la-sha1asm.Plo
+@AMDEP_TRUE@@am__fastdepCCAS_FALSE@	$(AM_V_CPPAS)source='library/sha1asm.S' object='library/libmbedcrypto_la-sha1asm.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCCAS_FALSE@	DEPDIR=$(DEPDIR) $(CCASDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCCAS_FALSE@	$(AM_V_CPPAS@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CCAS) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmbedcrypto_la_CPPFLAGS) $(CPPFLAGS) $(AM_CCASFLAGS) $(CCASFLAGS) -c -o library/libmbedcrypto_la-sha1asm.lo `test -f 'library/sha1asm.S' || echo '$(srcdir)/'`library/sha1asm.S
+
+library/libmbedcrypto_la-sha256asm.lo: library/sha256asm.S
+@am__fastdepCCAS_TRUE@	$(AM_V_CPPAS)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CCAS) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmbedcrypto_la_CPPFLAGS) $(CPPFLAGS) $(AM_CCASFLAGS) $(CCASFLAGS) -MT library/libmbedcrypto_la-sha256asm.lo -MD -MP -MF library/$(DEPDIR)/libmbedcrypto_la-sha256asm.Tpo -c -o library/libmbedcrypto_la-sha256asm.lo `test -f 'library/sha256asm.S' || echo '$(srcdir)/'`library/sha256asm.S
+@am__fastdepCCAS_TRUE@	$(AM_V_at)$(am__mv) library/$(DEPDIR)/libmbedcrypto_la-sha256asm.Tpo library/$(DEPDIR)/libmbedcrypto_la-sha256asm.Plo
+@AMDEP_TRUE@@am__fastdepCCAS_FALSE@	$(AM_V_CPPAS)source='library/sha256asm.S' object='library/libmbedcrypto_la-sha256asm.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCCAS_FALSE@	DEPDIR=$(DEPDIR) $(CCASDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCCAS_FALSE@	$(AM_V_CPPAS@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CCAS) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmbedcrypto_la_CPPFLAGS) $(CPPFLAGS) $(AM_CCASFLAGS) $(CCASFLAGS) -c -o library/libmbedcrypto_la-sha256asm.lo `test -f 'library/sha256asm.S' || echo '$(srcdir)/'`library/sha256asm.S
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -1322,6 +1359,7 @@ distclean: distclean-am
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-md2.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-md4.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-md5.Plo
+	-rm -f library/$(DEPDIR)/libmbedcrypto_la-md5asm.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-md_wrap.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-memory_buffer_alloc.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-oid.Plo
@@ -1338,7 +1376,9 @@ distclean: distclean-am
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-rsa.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-rsa_internal.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-sha1.Plo
+	-rm -f library/$(DEPDIR)/libmbedcrypto_la-sha1asm.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-sha256.Plo
+	-rm -f library/$(DEPDIR)/libmbedcrypto_la-sha256asm.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-sha512.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-threading.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-timing.Plo
@@ -1425,6 +1465,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-md2.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-md4.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-md5.Plo
+	-rm -f library/$(DEPDIR)/libmbedcrypto_la-md5asm.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-md_wrap.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-memory_buffer_alloc.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-oid.Plo
@@ -1441,7 +1482,9 @@ maintainer-clean: maintainer-clean-am
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-rsa.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-rsa_internal.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-sha1.Plo
+	-rm -f library/$(DEPDIR)/libmbedcrypto_la-sha1asm.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-sha256.Plo
+	-rm -f library/$(DEPDIR)/libmbedcrypto_la-sha256asm.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-sha512.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-threading.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-timing.Plo
