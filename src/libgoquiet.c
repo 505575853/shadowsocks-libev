@@ -140,7 +140,7 @@ static void random_bytes(uint8_t *output, int len) {
         mbedtls_platform_entropy_poll(&olen, rand_buffer, 8, &olen);
         mbedtls_entropy_init(&ec);
         mbedtls_hmac_drbg_init(&cd_ctx);
-        if (mbedtls_hmac_drbg_seed(&cd_ctx, mbedtls_md_info_from_type(MBEDTLS_MD_SHA1),
+        if (mbedtls_hmac_drbg_seed(&cd_ctx, mbedtls_md_info_from_type(MBEDTLS_MD_MD5),
                                    mbedtls_entropy_func, &ec,
                                    (const unsigned char *)rand_buffer, 8) != 0) {
             mbedtls_entropy_free(&ec);
@@ -179,7 +179,7 @@ static sds PsudoRandBytes(int len, int64_t seed) {
     uint8_t *output = (uint8_t *)ret;
     rand_buffer.num = seed;
     mbedtls_hmac_drbg_init(&cd_ctx);
-    if (mbedtls_hmac_drbg_seed_buf(&cd_ctx, mbedtls_md_info_from_type(MBEDTLS_MD_SHA1),
+    if (mbedtls_hmac_drbg_seed_buf(&cd_ctx, mbedtls_md_info_from_type(MBEDTLS_MD_MD5),
                                    (const unsigned char *)rand_buffer.buf, 8) != 0) {
         mbedtls_hmac_drbg_free(&cd_ctx);
         fallback_rand(output, len);

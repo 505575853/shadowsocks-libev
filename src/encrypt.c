@@ -39,7 +39,7 @@
 #include <polarssl/sha1.h>
 #include <polarssl/aes.h>
 #include <polarssl/entropy.h>
-#include <polarssl/ctr_drbg.h>
+#include <polarssl/hmac_drbg.h>
 #include <polarssl/version.h>
 #define CIPHER_UNSUPPORTED "unsupported"
 
@@ -60,7 +60,7 @@
 #include <mbedtls/md5.h>
 #include <mbedtls/entropy.h>
 #include <mbedtls/entropy_poll.h>
-#include <mbedtls/ctr_drbg.h>
+#include <mbedtls/hmac_drbg.h>
 #include <mbedtls/version.h>
 #include <mbedtls/aes.h>
 #include <mbedtls/aesasm.h>
@@ -612,25 +612,26 @@ rand_bytes(uint8_t *output, int len)
     return RAND_bytes(output, len);
 #elif defined(USE_CRYPTO_MBEDTLS)
     static mbedtls_entropy_context ec = {};
-    static mbedtls_ctr_drbg_context cd_ctx = {};
+    static mbedtls_hmac_drbg_context cd_ctx = {};
     static unsigned char rand_initialised = 0;
     if (!rand_initialised) {
         size_t olen;
         uint8_t rand_buffer[8];
         mbedtls_platform_entropy_poll(&olen, rand_buffer, 8, &olen);
         mbedtls_entropy_init(&ec);
-        mbedtls_ctr_drbg_init(&cd_ctx);
-        if (mbedtls_ctr_drbg_seed(&cd_ctx, mbedtls_entropy_func, &ec,
-                                  (const unsigned char *)rand_buffer, 8) != 0) {
+        mbedtls_hmac_drbg_init(&cd_ctx);
+        if (mbedtls_hmac_drbg_seed(&cd_ctx, mbedtls_md_info_from_type(MBEDTLS_MD_MD5),
+                                   mbedtls_entropy_func, &ec,
+                                   (const unsigned char *)rand_buffer, 8) != 0) {
             mbedtls_entropy_free(&ec);
-            mbedtls_ctr_drbg_free(&cd_ctx);
+            mbedtls_hmac_drbg_free(&cd_ctx);
             FATAL("mbed TLS: Failed to initialize random generator");
         }
         rand_initialised = 1;
     }
     while (len > 0) {
-        const size_t blen = min(len, MBEDTLS_CTR_DRBG_MAX_REQUEST);
-        if (mbedtls_ctr_drbg_random(&cd_ctx, output, blen) != 0) {
+        const size_t blen = min(len, MBEDTLS_HMAC_DRBG_MAX_REQUEST);
+        if (mbedtls_hmac_drbg_random(&cd_ctx, output, blen) != 0) {
             return 0;
         }
         output += blen;
