@@ -13,6 +13,7 @@ void * auth_simple_init_data();
 obfs * auth_simple_new_obfs();
 obfs * auth_aes128_md5_new_obfs();
 obfs * auth_aes128_sha1_new_obfs();
+obfs * auth_aes128_fast_new_obfs();
 void auth_simple_dispose(obfs *self);
 
 //int auth_simple_client_pre_encrypt(obfs *self, char **pplaindata, int datalength, size_t* capacity);

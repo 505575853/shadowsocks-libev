@@ -6,6 +6,8 @@
 #include "base64.h"
 #include "encrypt.h"
 
+#include "siphash.c"
+
 static int auth_simple_pack_unit_size = 2000;
 typedef int (*hmac_with_key_func)(char *auth, char *msg, int msg_len, uint8_t *auth_key, int key_len);
 typedef int (*hash_func)(char *auth, char *msg, int msg_len);
@@ -80,6 +82,17 @@ obfs * auth_aes128_sha1_new_obfs() {
     ((auth_simple_local_data*)self->l_data)->hash = ss_sha1_hash_func;
     ((auth_simple_local_data*)self->l_data)->hash_len = 20;
     ((auth_simple_local_data*)self->l_data)->salt = "auth_aes128_sha1";
+    return self;
+}
+
+obfs * auth_aes128_fast_new_obfs() {
+    obfs * self = new_obfs();
+    self->l_data = malloc(sizeof(auth_simple_local_data));
+    auth_simple_local_data_init((auth_simple_local_data*)self->l_data);
+    ((auth_simple_local_data*)self->l_data)->hmac = ss_fast_hash_with_key;
+    ((auth_simple_local_data*)self->l_data)->hash = ss_sha1_hash_func;
+    ((auth_simple_local_data*)self->l_data)->hash_len = 20;
+    ((auth_simple_local_data*)self->l_data)->salt = "auth_aes128_fast";
     return self;
 }
 
