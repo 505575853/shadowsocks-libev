@@ -696,6 +696,18 @@ close_and_free_remote(EV_P_ remote_t *remote)
     }
 }
 
+static void
+free_connections(struct ev_loop *loop)
+{
+    struct cork_dllist_item *curr, *next;
+    cork_dllist_foreach_void(&all_connections, curr, next) {
+        server_t *server = cork_container_of(curr, server_t, entries_all);
+        remote_t *remote = server->remote;
+        close_and_free_remote(loop, remote);
+        close_and_free_server(loop, server);
+    }
+}
+
 static server_t *
 new_server(int fd, listen_ctx_t* profile) {
     server_t *server = ss_malloc(sizeof(server_t));
@@ -1044,10 +1056,10 @@ init_obfs(server_def_t *serv, char *protocol, char *protocol_param, char *obfs, 
     serv->obfs_plugin = new_obfs_class(obfs);
 
     if (serv->obfs_plugin) {
-        serv->obfs_global = serv->obfs_plugin->init_data();
+        serv->obfs_global = serv->obfs_plugin->init_data(&serv->cipher);
     }
     if (serv->protocol_plugin) {
-        serv->protocol_global = serv->protocol_plugin->init_data();
+        serv->protocol_global = serv->protocol_plugin->init_data(&serv->cipher);
     }
 }
 
@@ -1471,7 +1483,21 @@ main(int argc, char **argv)
     ev_run(loop, 0);
 
     // TODO: release?
+    if (verbose) {
+        LOGI("closed gracefully");
+    }
+
     go_quiet_release();
+
+    if (mode != TCP_ONLY) {
+        free_udprelay(); // udp relay use some data from profile, so we need to release udp first
+    }
+
+    if (mode != UDP_ONLY) {
+        ev_io_stop(loop, &listen_ctx->io);
+        free_connections(loop); // after this, all inactive profile should be released already, so we only need to release the current_profile
+        release_profile(current_profile);
+    }
 
     return 0;
 }

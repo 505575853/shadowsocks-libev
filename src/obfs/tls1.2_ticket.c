@@ -27,7 +27,7 @@ void tls12_ticket_auth_local_data_init(tls12_ticket_auth_local_data* local) {
     local->recv_buffer_size = 0;
 }
 
-void * tls12_ticket_auth_init_data() {
+void * tls12_ticket_auth_init_data(void *data) {
     tls12_ticket_auth_global_data *global = (tls12_ticket_auth_global_data*)malloc(sizeof(tls12_ticket_auth_global_data));
     rand_bytes(global->local_client_id, 32);
     return global;

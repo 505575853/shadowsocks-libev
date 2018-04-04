@@ -1669,10 +1669,10 @@ init_obfs(server_def_t *serv, char *protocol, char *protocol_param, char *obfs, 
     serv->obfs_plugin = new_obfs_class(obfs);
 
     if (serv->obfs_plugin) {
-        serv->obfs_global = serv->obfs_plugin->init_data();
+        serv->obfs_global = serv->obfs_plugin->init_data(&serv->cipher);
     }
     if (serv->protocol_plugin) {
-        serv->protocol_global = serv->protocol_plugin->init_data();
+        serv->protocol_global = serv->protocol_plugin->init_data(&serv->cipher);
     }
 }
 

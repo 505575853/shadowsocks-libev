@@ -9,7 +9,7 @@
 
 #include "obfs.h"
 
-void * auth_simple_init_data();
+void * auth_simple_init_data(void *data);
 obfs * auth_simple_new_obfs();
 obfs * auth_aes128_md5_new_obfs();
 obfs * auth_aes128_sha1_new_obfs();

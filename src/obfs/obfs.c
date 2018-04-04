@@ -15,7 +15,7 @@ int rand_bytes(uint8_t *output, int len);
 
 #include "encrypt.h"
 
-void * init_data() {
+void * init_data(void *data) {
     return malloc(1);
 }
 

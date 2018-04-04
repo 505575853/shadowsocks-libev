@@ -37,7 +37,7 @@ typedef struct {
 }obfs;
 
 typedef struct {
-    void * (*init_data)();
+    void * (*init_data)(void *data);
     obfs * (*new_obfs)();
     int  (*get_overhead)(obfs *self);
     void (*get_server_info)(obfs *self, server_info *server);

@@ -95,7 +95,7 @@ void auth_chain_local_data_init(auth_chain_local_data* local) {
     local->cipher_server_ctx = 0;
 }
 
-void * auth_chain_a_init_data() {
+void * auth_chain_a_init_data(void *data) {
     auth_chain_global_data *global = (auth_chain_global_data*)malloc(sizeof(auth_chain_global_data));
     rand_bytes(global->local_client_id, 4);
     rand_bytes((uint8_t*)&global->connection_id, 4);

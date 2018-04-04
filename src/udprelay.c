@@ -1411,7 +1411,7 @@ init_udprelay(const char *server_host, const char *server_port,
     server_ctx->protocol_plugin = new_obfs_class((char *)protocol);
     if (server_ctx->protocol_plugin) {
         server_ctx->protocol = server_ctx->protocol_plugin->new_obfs();
-        server_ctx->protocol_global = server_ctx->protocol_plugin->init_data();
+        server_ctx->protocol_global = server_ctx->protocol_plugin->init_data(cipher_env);
     }
 
     server_info _server_info;

@@ -10,11 +10,12 @@
 
 static int auth_simple_pack_unit_size = 2000;
 typedef int (*hmac_with_key_func)(char *auth, char *msg, int msg_len, uint8_t *auth_key, int key_len);
-typedef int (*hash_func)(char *auth, char *msg, int msg_len);
+typedef int (*hash_func)(void *self, char *auth, char *msg, int msg_len);
 
 typedef struct auth_simple_global_data {
     uint8_t local_client_id[8];
     uint32_t connection_id;
+    uint8_t fast_hash_key[FAST_HASH_KEY_SIZE];
 }auth_simple_global_data;
 
 typedef struct auth_simple_local_data {
@@ -33,6 +34,12 @@ typedef struct auth_simple_local_data {
     int last_data_len;
 }auth_simple_local_data;
 
+static int ss_fast_hash_func(void *self, char *auth, char *msg, int msg_len)
+{
+    auth_simple_global_data *global = (auth_simple_global_data *)(((obfs *)self)->server.g_data);
+    return ss_fast_hash_with_key(auth, msg, msg_len, global->fast_hash_key, FAST_HASH_KEY_SIZE);
+}
+
 void auth_simple_local_data_init(auth_simple_local_data* local) {
     local->has_sent_header = 0;
     local->recv_buffer = (char*)malloc(RECV_BUF_LEN);
@@ -48,11 +55,19 @@ void auth_simple_local_data_init(auth_simple_local_data* local) {
     local->salt = "";
 }
 
-void * auth_simple_init_data() {
+void * auth_simple_init_data(void *data) {
+    cipher_env_t *cipher = (cipher_env_t *)data;
     auth_simple_global_data *global = (auth_simple_global_data*)malloc(sizeof(auth_simple_global_data));
     rand_bytes(global->local_client_id, 8);
     rand_bytes((uint8_t*)&global->connection_id, 4);
     global->connection_id &= 0xFFFFFF;
+    uint8_t *cipher_key = enc_get_key(cipher);
+    int cipher_len = enc_get_key_len(cipher);
+    memset(global->fast_hash_key, 0, FAST_HASH_KEY_SIZE);
+    if (cipher_len > FAST_HASH_KEY_SIZE) {
+        cipher_len = FAST_HASH_KEY_SIZE;
+    }
+    memcpy(global->fast_hash_key, cipher_key, cipher_len);
     return global;
 }
 
@@ -91,7 +106,7 @@ obfs * auth_aes128_fast_new_obfs() {
     auth_simple_local_data_init((auth_simple_local_data*)self->l_data);
     ((auth_simple_local_data*)self->l_data)->hmac = ss_fast_hash_with_key;
     ((auth_simple_local_data*)self->l_data)->hash = ss_fast_hash_func;
-    ((auth_simple_local_data*)self->l_data)->hash_len = 8;
+    ((auth_simple_local_data*)self->l_data)->hash_len = FAST_HASH_LEN;
     ((auth_simple_local_data*)self->l_data)->salt = "auth_aes128_fast";
     return self;
 }
@@ -717,7 +732,7 @@ int auth_aes128_sha1_pack_data(char *data, int datalength, int fulldatalength, c
     return out_size;
 }
 
-int auth_aes128_sha1_pack_auth_data(auth_simple_global_data *global, server_info *server, auth_simple_local_data *local, char *data, int datalength, char *outdata) {
+int auth_aes128_sha1_pack_auth_data(obfs *self, auth_simple_global_data *global, server_info *server, auth_simple_local_data *local, char *data, int datalength, char *outdata) {
     unsigned int rand_len = (datalength > 400 ? (xorshift128plus() & 0x1FF) : (xorshift128plus() & 0x3FF));
     int data_offset = (int)rand_len + 16 + 4 + 4 + 7;
     int out_size = data_offset + datalength + 4;
@@ -766,7 +781,7 @@ int auth_aes128_sha1_pack_auth_data(auth_simple_global_data *global, server_info
                     memintcopy_lt(local->uid, (uint32_t)uid_long);
 
                     char hash[21] = {0};
-                    local->hash(hash, key_str, (int)strlen(key_str));
+                    local->hash(self, hash, key_str, (int)strlen(key_str));
 
                     local->user_key_len = local->hash_len;
                     local->user_key = (uint8_t*)malloc((size_t)local->user_key_len);
@@ -837,7 +852,7 @@ int auth_aes128_sha1_client_pre_encrypt(obfs *self, char **pplaindata, int datal
         int head_size = 1200;
         if (head_size > datalength)
             head_size = datalength;
-        pack_len = auth_aes128_sha1_pack_auth_data((auth_simple_global_data *)self->server.g_data, &self->server, local, data, head_size, buffer);
+        pack_len = auth_aes128_sha1_pack_auth_data(self, (auth_simple_global_data *)self->server.g_data, &self->server, local, data, head_size, buffer);
         buffer += pack_len;
         data += head_size;
         len -= head_size;
@@ -966,7 +981,7 @@ int auth_aes128_sha1_client_udp_pre_encrypt(obfs *self, char **pplaindata, int d
                 memintcopy_lt(local->uid, (uint32_t)uid_long);
 
                 char hash[21] = {0};
-                local->hash(hash, key_str, (int)strlen(key_str));
+                local->hash(self, hash, key_str, (int)strlen(key_str));
 
                 local->user_key_len = local->hash_len;
                 local->user_key = (uint8_t*)malloc((size_t)local->user_key_len);

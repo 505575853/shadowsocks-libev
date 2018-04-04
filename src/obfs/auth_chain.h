@@ -9,7 +9,7 @@
 
 #include "obfs.h"
 
-void * auth_chain_a_init_data();
+void * auth_chain_a_init_data(void *data);
 obfs * auth_chain_a_new_obfs();
 void auth_chain_a_dispose(obfs *self);
 

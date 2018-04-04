@@ -117,34 +117,32 @@ static uint64_t siphash(const uint8_t *src, unsigned long src_sz, uint8_t key[16
 #undef HALF_ROUND
 #undef DOUBLE_ROUND
 
+#define FAST_HASH_KEY_SIZE 16
+#define FAST_HASH_LEN 8
+
 static int ss_fast_hash_with_key(char *auth, char *msg, int msg_len, uint8_t *auth_key, int key_len)
 {
     union {
-        uint8_t bytes[8];
+        uint8_t bytes[FAST_HASH_LEN];
         uint64_t num;
     } hash; // 64-bit output
-    uint8_t key[16] = {0}; // 128-bit key
+    uint8_t key[FAST_HASH_KEY_SIZE] = {0}; // 128-bit key
 
-    if (key_len != 16) {
+    if (key_len != FAST_HASH_KEY_SIZE) {
         uint8_t* in_key = auth_key;
-        if (key_len < 16) {
+        if (key_len < FAST_HASH_KEY_SIZE) {
             memcpy(key, auth_key, key_len); // padding with zero
             in_key = key;
         }
         hash.num = siphash(auth_key, key_len, in_key);
-        memcpy(key, hash.bytes, 8);
-        memcpy(key + 8, hash.bytes, 8);
+        memcpy(key, hash.bytes, FAST_HASH_LEN);
+        memcpy(key + FAST_HASH_LEN, hash.bytes, FAST_HASH_LEN);
     }
 
     hash.num = siphash((uint8_t *)msg, msg_len, key);
-    memcpy(auth, hash.bytes, 8);
+    memcpy(auth, hash.bytes, FAST_HASH_LEN);
 
     return 0;
-}
-
-static int ss_fast_hash_func(char *auth, char *msg, int msg_len)
-{
-    return ss_fast_hash_with_key(auth, msg, msg_len, (uint8_t *)msg, msg_len);
 }
 
 #ifdef SIPHASH_TEST

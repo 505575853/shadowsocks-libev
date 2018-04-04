@@ -9,7 +9,7 @@
 
 #include "obfs.h"
 
-void * tls12_ticket_auth_init_data();
+void * tls12_ticket_auth_init_data(void *data);
 obfs * tls12_ticket_auth_new_obfs();
 void tls12_ticket_auth_dispose(obfs *self);
 
