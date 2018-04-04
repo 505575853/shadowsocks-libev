@@ -61,9 +61,9 @@ This is my own modified version of shadowsocksR libev (client only). It is based
 
         --plugin "ssr-local" --plugin-opts "obfs=go_quiet;param=bing.com;key=pass"
 
-## New protocol
+### New protocol
 
-* `auth_aes128_fast`: similar to `auth_aes128_*`, but using a simple and fast [SipHash-1-2][siphash] to replace HMAC-MD5/SHA1. The speed is at least 2x faster than MD5 or SHA-1 hash. Note that the round is [halved][redis-siphash] for better throughput while normal use is SipHash-2-4.
+* `auth_aes128_fast`: similar to `auth_aes128_*`, but using a simple and fast [SipHash-1-2][siphash] to replace HMAC-MD5/SHA1. The speed is at least __2x faster__ than MD5 or SHA-1 hash. Note that the round is [halved][redis-siphash] for better throughput while normal use is SipHash-2-4.
 
 ## Downloads?
 
