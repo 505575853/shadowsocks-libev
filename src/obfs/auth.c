@@ -90,8 +90,8 @@ obfs * auth_aes128_fast_new_obfs() {
     self->l_data = malloc(sizeof(auth_simple_local_data));
     auth_simple_local_data_init((auth_simple_local_data*)self->l_data);
     ((auth_simple_local_data*)self->l_data)->hmac = ss_fast_hash_with_key;
-    ((auth_simple_local_data*)self->l_data)->hash = ss_sha1_hash_func;
-    ((auth_simple_local_data*)self->l_data)->hash_len = 20;
+    ((auth_simple_local_data*)self->l_data)->hash = ss_fast_hash_func;
+    ((auth_simple_local_data*)self->l_data)->hash_len = 8;
     ((auth_simple_local_data*)self->l_data)->salt = "auth_aes128_fast";
     return self;
 }

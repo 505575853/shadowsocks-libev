@@ -125,10 +125,13 @@ static int ss_fast_hash_with_key(char *auth, char *msg, int msg_len, uint8_t *au
     } hash; // 64-bit output
     uint8_t key[16] = {0}; // 128-bit key
 
-    if (key_len <= 16) {
-        memcpy(key, auth_key, key_len); // padding with zero
-    } else {
-        hash.num = siphash(auth_key, key_len, auth_key);
+    if (key_len != 16) {
+        uint8_t* in_key = auth_key;
+        if (key_len < 16) {
+            memcpy(key, auth_key, key_len); // padding with zero
+            in_key = key;
+        }
+        hash.num = siphash(auth_key, key_len, in_key);
         memcpy(key, hash.bytes, 8);
         memcpy(key + 8, hash.bytes, 8);
     }
@@ -137,6 +140,11 @@ static int ss_fast_hash_with_key(char *auth, char *msg, int msg_len, uint8_t *au
     memcpy(auth, hash.bytes, 8);
 
     return 0;
+}
+
+static int ss_fast_hash_func(char *auth, char *msg, int msg_len)
+{
+    return ss_fast_hash_with_key(auth, msg, msg_len, (uint8_t *)msg, msg_len);
 }
 
 #ifdef SIPHASH_TEST
@@ -172,10 +180,12 @@ void print_hash(uint8_t bytes[8])
 int main(void)
 {
     uint8_t hash[8];
-    HASH_TEST(hash, "0123456789ABCDEF", "a", a0bab0e7c9a90159);
-    HASH_TEST(hash, "0123456789ABCDEF", "b", 04de93c34a931ff1);
-    HASH_TEST(hash, "0123456789AB", "a", 4ba0be4e9e25067e);
+    HASH_TEST(hash, "0123456789ABCDEFG", "a", fc70b99def0b2f5e);
+    HASH_TEST(hash, "0123456789ABCDEFG", "b", 391201c9f952f870);
+    HASH_TEST(hash, "0123456789AB", "a", 9ab9a95298e6c35e);
+    HASH_TEST(hash, "0123456789AB\x00", "a", e7c2c44bcc1a49e7);
     HASH_TEST(hash, "0123456789ABCDEFGHIJ", "a", e64d5548fe10da6c);
+    HASH_TEST(hash, "0123456789ABCDEFGHIK", "a", 14e13ccb701005f9);
     return 0;
 }
 
