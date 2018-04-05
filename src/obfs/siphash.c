@@ -68,7 +68,7 @@
     d = ROTATE(d, t) ^ c;           \
     a = ROTATE(a, 32);
 
-#define DOUBLE_ROUND(v0,v1,v2,v3)       \
+#define SIP_ROUND(v0,v1,v2,v3)       \
     HALF_ROUND(v0,v1,v2,v3,13,16);      \
     HALF_ROUND(v2,v1,v0,v3,17,21);
 
@@ -89,7 +89,7 @@ static uint64_t siphash(const uint8_t *src, unsigned long src_sz, uint8_t key[16
         uint64_t mi = _le64toh(*in);
         in += 1; src_sz -= 8;
         v3 ^= mi;
-        DOUBLE_ROUND(v0,v1,v2,v3);
+        SIP_ROUND(v0,v1,v2,v3);
         v0 ^= mi;
     }
 
@@ -106,16 +106,17 @@ static uint64_t siphash(const uint8_t *src, unsigned long src_sz, uint8_t key[16
     b |= _le64toh(t);
 
     v3 ^= b;
-    DOUBLE_ROUND(v0,v1,v2,v3);
+    SIP_ROUND(v0,v1,v2,v3);
     v0 ^= b; v2 ^= 0xff;
-    DOUBLE_ROUND(v0,v1,v2,v3);
-    DOUBLE_ROUND(v0,v1,v2,v3);
+    SIP_ROUND(v0,v1,v2,v3);
+    SIP_ROUND(v0,v1,v2,v3);
+    SIP_ROUND(v0,v1,v2,v3);
     return (v0 ^ v1) ^ (v2 ^ v3);
 }
 
 #undef ROTATE
 #undef HALF_ROUND
-#undef DOUBLE_ROUND
+#undef SIP_ROUND
 
 #define FAST_HASH_KEY_SIZE 16
 #define FAST_HASH_LEN 8
@@ -128,13 +129,10 @@ static int ss_fast_hash_with_key(char *auth, char *msg, int msg_len, uint8_t *au
     } hash; // 64-bit output
     uint8_t key[FAST_HASH_KEY_SIZE] = {0}; // 128-bit key
 
+    memcpy(key, auth_key,
+           key_len < FAST_HASH_KEY_SIZE ? key_len : FAST_HASH_KEY_SIZE);
     if (key_len != FAST_HASH_KEY_SIZE) {
-        uint8_t* in_key = auth_key;
-        if (key_len < FAST_HASH_KEY_SIZE) {
-            memcpy(key, auth_key, key_len); // padding with zero
-            in_key = key;
-        }
-        hash.num = siphash(auth_key, key_len, in_key);
+        hash.num = siphash(auth_key, key_len, key);
         memcpy(key, hash.bytes, FAST_HASH_LEN);
         memcpy(key + FAST_HASH_LEN, hash.bytes, FAST_HASH_LEN);
     }
@@ -149,41 +147,47 @@ static int ss_fast_hash_with_key(char *auth, char *msg, int msg_len, uint8_t *au
 
 #include <stdio.h>
 
-void print_hash(uint8_t bytes[8])
+static int hex_ord(char x)
 {
-    for (int i = 0; i < 8; i++) {
-        printf("%02x", bytes[i]);
+    if (x >= '0' && x <= '9') {
+        return x - '0';
     }
+    if (x >= 'a' && x <= 'f') {
+        return x - 'a' + 10;
+    }
+    return x - 'A' + 10;
 }
 
-#ifdef __APPLE__
-#include <libkern/OSByteOrder.h>
-#define htobe64(x) OSSwapHostToBigInt64(x)
-#elif defined(_WIN32)
-#include <winsock2.h>
-#define htobe64(x) htonll(x)
-#endif
+static int print_hash(uint8_t bytes[8], const char *result)
+{
+    int ret = 1;
+    for (int i = 0; i < 8; i++) {
+        printf("%02x", bytes[i]);
+        ret &= (bytes[i] == hex_ord(result[i * 2]) * 16 + hex_ord(result[i * 2 + 1]));
+    }
+    return ret;
+}
 
-#define HASH_TEST(h,k,m,r) do {\
+#define HASH_TEST(k,m,r) do {\
+    uint8_t h[8]; \
     ss_fast_hash_with_key((char *)h, (char *)m, sizeof(m) - 1, (uint8_t *)k, sizeof(k) - 1); \
-    print_hash(h); \
-    uint64_t a = htobe64(0x ## r ## ULL); \
-    if (memcmp(h, (uint8_t *) &a, 8) == 0) { \
+    if (print_hash(h, r)) { \
         puts(": OK"); \
     } else { \
-        puts(": FAILED"); \
+        printf(": FAILED <-- %s\n", r); \
     } \
 } while(0);
 
 int main(void)
 {
-    uint8_t hash[8];
-    HASH_TEST(hash, "0123456789ABCDEFG", "a", fc70b99def0b2f5e);
-    HASH_TEST(hash, "0123456789ABCDEFG", "b", 391201c9f952f870);
-    HASH_TEST(hash, "0123456789AB", "a", 9ab9a95298e6c35e);
-    HASH_TEST(hash, "0123456789AB\x00", "a", e7c2c44bcc1a49e7);
-    HASH_TEST(hash, "0123456789ABCDEFGHIJ", "a", e64d5548fe10da6c);
-    HASH_TEST(hash, "0123456789ABCDEFGHIK", "a", 14e13ccb701005f9);
+    HASH_TEST("0123456789ABCDEF", "a", "6962dc810c7ddbc8")
+    HASH_TEST("0123456789ABCDEF", "b", "2ca0e922eb19841d")
+    HASH_TEST("0102030405060708", "c", "1f0be1380647ff32")
+    HASH_TEST("0102030405060708", "d", "6399ed76dc57bd18")
+    HASH_TEST("0123456789AB", "a", "eb7c225a7e606982")
+    HASH_TEST("0123456789AB\x00", "a", "76afa8a2243f1b7d")
+    HASH_TEST("0123456789ABCDEFGHIJ", "a", "0f691f65634add99")
+    HASH_TEST("0123456789ABCDEFGHIK", "a", "9f979a8531f712d4")
     return 0;
 }
 

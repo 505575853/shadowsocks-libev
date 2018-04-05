@@ -63,7 +63,7 @@ This is my own modified version of shadowsocksR libev (client only). It is based
 
 ### New protocol
 
-* `auth_aes128_fast`: similar to `auth_aes128_*`, but using a simple and fast [SipHash-1-2][siphash] to replace HMAC-MD5/SHA1. The speed is at least __2x faster__ than MD5 or SHA-1 hash. Note that the round is [halved][redis-siphash] for better throughput while normal use is SipHash-2-4.
+* `auth_aes128_fast`: similar to `auth_aes128_*`, but using a simple and fast [SipHash-1-3][siphash] to replace HMAC-MD5/SHA1. The speed is at least __2x faster__ than MD5 or SHA-1 hash. Note that the round is [reduced][rust-siphash] for better throughput while normal use is SipHash-2-4.
 
 ## Downloads?
 
@@ -90,5 +90,5 @@ All rights reserved by original authors
 [gq-c]: https://github.com/linusyang92/shadowsocks-libev/blob/ssr/src/libgoquiet.c
 [gq-go]: https://github.com/linusyang92/shadowsocks-libev/tree/ssr/goquiet
 [siphash]: https://en.wikipedia.org/wiki/SipHash
-[redis-siphash]: https://github.com/antirez/redis/blob/0285c2714b6f1f4517d2ac3bc34177f874205a8b/src/siphash.c#L22
+[rust-siphash]: https://github.com/rust-lang/rust/issues/29754
 
