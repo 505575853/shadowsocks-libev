@@ -5,57 +5,83 @@
 #include "encrypt.h"
 #include <mbedtls/entropy_poll.h>
 
-// Fast PRNG based on SipHash
+// Fast PRNG based on SipHash and PCG32
 
 uint64_t siphash(const uint8_t *src, unsigned long src_sz, uint8_t key[16]);
 
 int fast_rand_seed(uint8_t *output, int len, uint64_t *seed) {
-#define UPDATE(k,v) do { \
-    k.num[0] = siphash(v.bytes, 8, k.bytes); \
-    k.num[1] = siphash(v.bytes, 8, k.bytes); \
-    v.num = siphash(v.bytes, 8, k.bytes); \
-} while(0)
-
-    static union {
-        uint64_t num[2];
-        uint8_t bytes[16];
-    } k = { .bytes = {0} };
-
-    static union {
-        uint64_t num;
-        uint8_t bytes[8];
-    } v = { .num = 0x0101010101010101ULL };
-
+    static uint64_t s[2] = {0};
     static int inited = 0;
     if (!inited) {
         size_t olen = 0;
-        mbedtls_platform_entropy_poll(&olen, k.bytes, 16, &olen);
+        mbedtls_platform_entropy_poll(&olen, (uint8_t *)s, 16, &olen);
         if (olen == 0) {
-            k.num[0] = time(NULL);
+            uint32_t seed = (uint32_t)time(NULL);
+            s[0] = seed | 0x100000000L;
+            s[1] = ((uint64_t)seed << 32) | 0x1;
         }
-        UPDATE(k, v);
         inited = 1;
     }
 
     if (seed) {
-        uint64_t buf[2] = {v.num, *seed};
-        k.num[0] = siphash((uint8_t *)buf, 16, k.bytes);
-        k.num[1] = siphash((uint8_t *)buf, 16, k.bytes);
-        v.num = siphash(v.bytes, 8, k.bytes);
+        uint64_t buf[3] = {s[0], s[1], *seed};
+        s[0] = siphash((uint8_t *)buf, sizeof(buf), (uint8_t *)s);
+        s[1] = siphash((uint8_t *)buf, sizeof(buf), (uint8_t *)s);
     }
 
     while (len > 0) {
-        const int blen = min(len, 8);
-        v.num = siphash(v.bytes, 8, k.bytes);
-        memcpy(output, v.bytes, blen);
+        uint32_t rd;
+        const int blen = min(len, sizeof(rd));
+        uint64_t *state = &s[0];
+        uint64_t *inc = &s[1];
+
+        // *Really* minimal PCG32 code / (c) 2014 M.E. O'Neill / pcg-random.org
+        // Licensed under Apache License 2.0 (NO WARRANTY, etc. see website)
+        uint64_t oldstate = *state;
+        // Advance internal state
+        *state = oldstate * 6364136223846793005ULL + (*inc|1);
+        // Calculate output function (XSH RR), uses old state for max ILP
+        uint32_t xorshifted = ((oldstate >> 18u) ^ oldstate) >> 27u;
+        uint32_t rot = oldstate >> 59u;
+        rd = (xorshifted >> rot) | (xorshifted << ((-rot) & 31));
+
+        memcpy(output, (uint8_t *)&rd, blen);
         output += blen;
         len    -= blen;
     }
-    UPDATE(k, v);
     return 1;
-
-#undef UPDATE
 }
+
+#ifdef PRNG_TEST
+
+#include <TestU01.h>
+
+uint32_t mygen() {
+    uint32_t ret = 0;
+    fast_rand_seed((uint8_t *)&ret, 4, NULL);
+    return ret;
+}
+
+int main() {
+    // Create TestU01 PRNG object for our generator
+    unif01_Gen* gen = unif01_CreateExternGenBits("SipHash", mygen);
+
+    // Run the tests.
+#ifdef PRNG_LARGE
+    bbattery_BigCrush(gen);
+#elif defined(PRNG_BIG)
+    bbattery_Crush(gen);
+#else
+    bbattery_SmallCrush(gen);
+#endif
+
+    // Clean up.
+    unif01_DeleteExternGenBits(gen);
+
+    return 0;
+}
+
+#else
 
 int get_head_size(char *plaindata, int size, int def_size) {
     if (plaindata == NULL || size < 2)
@@ -115,4 +141,6 @@ void memintcopy_lt(void *mem, uint32_t val) {
     ((uint8_t *)mem)[2] = (uint8_t)(val >> 16);
     ((uint8_t *)mem)[3] = (uint8_t)(val >> 24);
 }
+
+#endif
 

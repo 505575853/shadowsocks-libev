@@ -73,7 +73,10 @@
     HALF_ROUND(v2,v1,v0,v3,17,21);
 
 
-static uint64_t siphash(const uint8_t *src, unsigned long src_sz, uint8_t key[16]) {
+#ifndef PRNG_TEST
+static
+#endif
+uint64_t siphash(const uint8_t *src, unsigned long src_sz, uint8_t key[16]) {
     const uint64_t *_key = (uint64_t *)key;
     uint64_t k0 = _le64toh(_key[0]);
     uint64_t k1 = _le64toh(_key[1]);
