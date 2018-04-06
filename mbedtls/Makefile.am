@@ -27,3 +27,11 @@ libmbedcrypto_la_CFLAGS = -O2 -Wall -W -Wdeclaration-after-statement
 if BUILD_ARM64
 libmbedcrypto_la_CFLAGS += -march=armv8-a+crypto -mcpu=cortex-a53
 endif
+
+if BUILD_AMD64
+libmbedcrypto_la_CFLAGS += -maes -mssse3
+endif
+
+if BUILD_X86
+libmbedcrypto_la_CFLAGS += -maes -mssse3
+endif
