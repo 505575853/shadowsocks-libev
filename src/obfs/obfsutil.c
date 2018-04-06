@@ -3,6 +3,59 @@
 
 #include "obfsutil.h"
 #include "encrypt.h"
+#include <mbedtls/entropy_poll.h>
+
+// Fast PRNG based on SipHash
+
+uint64_t siphash(const uint8_t *src, unsigned long src_sz, uint8_t key[16]);
+
+int fast_rand_seed(uint8_t *output, int len, uint64_t *seed) {
+#define UPDATE(k,v) do { \
+    k.num[0] = siphash(v.bytes, 8, k.bytes); \
+    k.num[1] = siphash(v.bytes, 8, k.bytes); \
+    v.num = siphash(v.bytes, 8, k.bytes); \
+} while(0)
+
+    static union {
+        uint64_t num[2];
+        uint8_t bytes[16];
+    } k = { .bytes = {0} };
+
+    static union {
+        uint64_t num;
+        uint8_t bytes[8];
+    } v = { .num = 0x0101010101010101ULL };
+
+    static int inited = 0;
+    if (!inited) {
+        size_t olen = 0;
+        mbedtls_platform_entropy_poll(&olen, k.bytes, 16, &olen);
+        if (olen == 0) {
+            k.num[0] = time(NULL);
+        }
+        UPDATE(k, v);
+        inited = 1;
+    }
+
+    if (seed) {
+        uint64_t buf[2] = {v.num, *seed};
+        k.num[0] = siphash((uint8_t *)buf, 16, k.bytes);
+        k.num[1] = siphash((uint8_t *)buf, 16, k.bytes);
+        v.num = siphash(v.bytes, 8, k.bytes);
+    }
+
+    while (len > 0) {
+        const int blen = min(len, 8);
+        v.num = siphash(v.bytes, 8, k.bytes);
+        memcpy(output, v.bytes, blen);
+        output += blen;
+        len    -= blen;
+    }
+    UPDATE(k, v);
+    return 1;
+
+#undef UPDATE
+}
 
 int get_head_size(char *plaindata, int size, int def_size) {
     if (plaindata == NULL || size < 2)

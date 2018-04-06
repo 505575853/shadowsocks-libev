@@ -197,6 +197,9 @@ typedef struct enc_ctx {
 void bytes_to_key_with_size(const char *pass, size_t len, uint8_t *md, size_t md_size);
 
 int rand_bytes(uint8_t *output, int len);
+int fast_rand(uint8_t *output, int len);
+int fast_rand_seed(uint8_t *output, int len, uint64_t *seed);
+
 
 int ss_encrypt_all(cipher_env_t* env, buffer_t *plaintext, size_t capacity);
 int ss_decrypt_all(cipher_env_t* env, buffer_t *ciphertext, size_t capacity);

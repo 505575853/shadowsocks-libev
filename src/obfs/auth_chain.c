@@ -185,7 +185,7 @@ int auth_chain_a_pack_data(char *data, int datalength, char *outdata, auth_chain
 
     {
         uint8_t rnd_data[rand_len];
-        rand_bytes(rnd_data, (int)rand_len);
+        fast_rand(rnd_data, (int)rand_len);
         if (datalength > 0) {
             int start_pos = get_rand_start_pos(rand_len, &local->random_client);
             size_t out_len;
@@ -217,8 +217,8 @@ int auth_chain_a_pack_auth_data(auth_chain_global_data *global, server_info *ser
 
     ++global->connection_id;
     if (global->connection_id > 0xFF000000) {
-        rand_bytes(global->local_client_id, 8);
-        rand_bytes((uint8_t*)&global->connection_id, 4);
+        fast_rand(global->local_client_id, 8);
+        fast_rand((uint8_t*)&global->connection_id, 4);
         global->connection_id &= 0xFFFFFF;
     }
 
@@ -240,7 +240,7 @@ int auth_chain_a_pack_auth_data(auth_chain_global_data *global, server_info *ser
 
     // first 12 bytes
     {
-        rand_bytes((uint8_t*)outdata, 4);
+        fast_rand((uint8_t*)outdata, 4);
         ss_md5_hmac_with_key((char*)local->last_client_hash, (char*)outdata, 4, key, key_len);
         memcpy(outdata + 4, local->last_client_hash, 8);
     }
@@ -265,7 +265,7 @@ int auth_chain_a_pack_auth_data(auth_chain_global_data *global, server_info *ser
                 }
             }
             if (local->user_key == NULL) {
-                rand_bytes((uint8_t*)local->uid, 4);
+                fast_rand((uint8_t*)local->uid, 4);
 
                 local->user_key_len = (int)server->key_len;
                 local->user_key = (uint8_t*)malloc((size_t)local->user_key_len);
@@ -458,7 +458,7 @@ int auth_chain_a_client_udp_pre_encrypt(obfs *self, char **pplaindata, int datal
             }
         }
         if (local->user_key == NULL) {
-            rand_bytes((uint8_t *)local->uid, 4);
+            fast_rand((uint8_t *)local->uid, 4);
 
             local->user_key_len = (int)self->server.key_len;
             local->user_key = (uint8_t*)malloc((size_t)local->user_key_len);
@@ -471,7 +471,7 @@ int auth_chain_a_client_udp_pre_encrypt(obfs *self, char **pplaindata, int datal
     ss_md5_hmac_with_key((char*)hash, auth_data, 3, server->key, server->key_len);
     int rand_len = udp_get_rand_len(&local->random_client, hash);
     uint8_t rnd_data[rand_len];
-    rand_bytes(rnd_data, (int)rand_len);
+    fast_rand(rnd_data, (int)rand_len);
     int outlength = datalength + rand_len + 8;
 
     char password[256] = {0};

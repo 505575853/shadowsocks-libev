@@ -65,7 +65,7 @@ int tls12_ticket_pack_auth_data(tls12_ticket_auth_global_data *global, server_in
     outdata[1] = (char)(t >> 16);
     outdata[2] = (char)(t >> 8);
     outdata[3] = (char)t;
-    rand_bytes((uint8_t*)outdata + 4, 18);
+    fast_rand((uint8_t*)outdata + 4, 18);
 
     uint8_t *key = (uint8_t*)malloc(server->key_len + 32);
     char hash[SHA1_BYTES];
@@ -223,7 +223,7 @@ int tls12_ticket_auth_client_encode(obfs *self, char **pencryptdata, int datalen
         unsigned ticket_len = (unsigned)(xorshift128plus() % (uint64_t)164) * 2 + 64;
         tls_data[tls_data_len - 1] = (uint8_t)(ticket_len & 0xff);
         tls_data[tls_data_len - 2] = (uint8_t)(ticket_len >> 8);
-        rand_bytes(tls_data + tls_data_len, ticket_len);
+        fast_rand(tls_data + tls_data_len, ticket_len);
         tls_data_len += ticket_len;
         memcpy(tls_data + tls_data_len, tls_data3, tls_data3_len);
         tls_data_len += tls_data3_len;
@@ -271,7 +271,7 @@ int tls12_ticket_auth_client_encode(obfs *self, char **pencryptdata, int datalen
         pdata += 6;
         memcpy(pdata, "\x16\x03\x03\x00\x20", 5);
         pdata += 5;
-        rand_bytes((uint8_t*)pdata, 22);
+        fast_rand((uint8_t*)pdata, 22);
         pdata += 22;
 
         uint8_t *key = (uint8_t*)malloc(self->server.key_len + 32);

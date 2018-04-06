@@ -149,8 +149,8 @@ int auth_simple_pack_auth_data(auth_simple_global_data *global, char *data, int 
     outdata[2] = (char)(rand_len);
     ++global->connection_id;
     if (global->connection_id > 0xFF000000) {
-        rand_bytes(global->local_client_id, 8);
-        rand_bytes((uint8_t*)&global->connection_id, 4);
+        fast_rand(global->local_client_id, 8);
+        fast_rand((uint8_t*)&global->connection_id, 4);
         global->connection_id &= 0xFFFFFF;
     }
     time_t t = time(NULL);
@@ -264,8 +264,8 @@ int auth_sha1_pack_auth_data(auth_simple_global_data *global, server_info *serve
     outdata[6] = (char)rand_len;
     ++global->connection_id;
     if (global->connection_id > 0xFF000000) {
-        rand_bytes(global->local_client_id, 8);
-        rand_bytes((uint8_t*)&global->connection_id, 4);
+        fast_rand(global->local_client_id, 8);
+        fast_rand((uint8_t*)&global->connection_id, 4);
         global->connection_id &= 0xFFFFFF;
     }
     time_t t = time(NULL);
@@ -404,8 +404,8 @@ int auth_sha1_v2_pack_auth_data(auth_simple_global_data *global, server_info *se
     }
     ++global->connection_id;
     if (global->connection_id > 0xFF000000) {
-        rand_bytes(global->local_client_id, 8);
-        rand_bytes((uint8_t*)&global->connection_id, 4);
+        fast_rand(global->local_client_id, 8);
+        fast_rand((uint8_t*)&global->connection_id, 4);
         global->connection_id &= 0xFFFFFF;
     }
     memmove(outdata + data_offset, global->local_client_id, 8);
@@ -560,8 +560,8 @@ int auth_sha1_v4_pack_auth_data(auth_simple_global_data *global, server_info *se
     }
     ++global->connection_id;
     if (global->connection_id > 0xFF000000) {
-        rand_bytes(global->local_client_id, 8);
-        rand_bytes((uint8_t*)&global->connection_id, 4);
+        fast_rand(global->local_client_id, 8);
+        fast_rand((uint8_t*)&global->connection_id, 4);
         global->connection_id &= 0xFFFFFF;
     }
     time_t t = time(NULL);
@@ -700,7 +700,7 @@ int auth_aes128_sha1_pack_data(char *data, int datalength, int fulldatalength, c
 
     {
         uint8_t rnd_data[rand_len];
-        rand_bytes(rnd_data, (int)rand_len);
+        fast_rand(rnd_data, (int)rand_len);
         memcpy(outdata + 4, rnd_data, rand_len);
     }
 
@@ -748,14 +748,14 @@ int auth_aes128_sha1_pack_auth_data(obfs *self, auth_simple_global_data *global,
 
     {
         uint8_t rnd_data[rand_len];
-        rand_bytes(rnd_data, (int)rand_len);
+        fast_rand(rnd_data, (int)rand_len);
         memcpy(outdata + data_offset - rand_len, rnd_data, rand_len);
     }
 
     ++global->connection_id;
     if (global->connection_id > 0xFF000000) {
-        rand_bytes(global->local_client_id, 8);
-        rand_bytes((uint8_t*)&global->connection_id, 4);
+        fast_rand(global->local_client_id, 8);
+        fast_rand((uint8_t*)&global->connection_id, 4);
         global->connection_id &= 0xFFFFFF;
     }
     time_t t = time(NULL);
@@ -789,7 +789,7 @@ int auth_aes128_sha1_pack_auth_data(obfs *self, auth_simple_global_data *global,
                 }
             }
             if (local->user_key == NULL) {
-                rand_bytes((uint8_t *)local->uid, 4);
+                fast_rand((uint8_t *)local->uid, 4);
 
                 local->user_key_len = (int)server->key_len;
                 local->user_key = (uint8_t*)malloc((size_t)local->user_key_len);
@@ -821,7 +821,7 @@ int auth_aes128_sha1_pack_auth_data(obfs *self, auth_simple_global_data *global,
     }
 
     {
-        rand_bytes((uint8_t*)outdata, 1);
+        fast_rand((uint8_t*)outdata, 1);
         char hash[20];
         local->hmac(hash, (char *)outdata, 1, key, key_len);
         memcpy(outdata + 1, hash, 6);
@@ -989,7 +989,7 @@ int auth_aes128_sha1_client_udp_pre_encrypt(obfs *self, char **pplaindata, int d
             }
         }
         if (local->user_key == NULL) {
-            rand_bytes((uint8_t *)local->uid, 4);
+            fast_rand((uint8_t *)local->uid, 4);
 
             local->user_key_len = (int)self->server.key_len;
             local->user_key = (uint8_t*)malloc((size_t)local->user_key_len);

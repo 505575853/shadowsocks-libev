@@ -605,40 +605,40 @@ bytes_to_key(const cipher_t *cipher, const digest_type_t *md,
 #endif
 }
 
-int
-rand_bytes(uint8_t *output, int len)
-{
-#if defined(USE_CRYPTO_OPENSSL)
-    return RAND_bytes(output, len);
-#elif defined(USE_CRYPTO_MBEDTLS)
-    static mbedtls_entropy_context ec = {};
+int fast_rand(uint8_t *output, int len) {
+    return fast_rand_seed(output, len, NULL);
+}
+
+int rand_bytes(uint8_t *output, int len) {
     static mbedtls_hmac_drbg_context cd_ctx = {};
     static unsigned char rand_initialised = 0;
     if (!rand_initialised) {
-        size_t olen;
+        size_t olen = 0;
         uint8_t rand_buffer[8];
         mbedtls_platform_entropy_poll(&olen, rand_buffer, 8, &olen);
-        mbedtls_entropy_init(&ec);
+        if (olen == 0) {
+            uint64_t *rand = (uint64_t *)rand_buffer;
+            *rand = time(NULL);
+        }
         mbedtls_hmac_drbg_init(&cd_ctx);
-        if (mbedtls_hmac_drbg_seed(&cd_ctx, mbedtls_md_info_from_type(MBEDTLS_MD_MD5),
-                                   mbedtls_entropy_func, &ec,
-                                   (const unsigned char *)rand_buffer, 8) != 0) {
-            mbedtls_entropy_free(&ec);
+        if (mbedtls_hmac_drbg_seed_buf(&cd_ctx, mbedtls_md_info_from_type(MBEDTLS_MD_MD5),
+                                       (const unsigned char *)rand_buffer, 8) != 0) {
             mbedtls_hmac_drbg_free(&cd_ctx);
-            FATAL("mbed TLS: Failed to initialize random generator");
+            fast_rand(output, len);
+            return 1;
         }
         rand_initialised = 1;
     }
     while (len > 0) {
         const size_t blen = min(len, MBEDTLS_HMAC_DRBG_MAX_REQUEST);
         if (mbedtls_hmac_drbg_random(&cd_ctx, output, blen) != 0) {
-            return 0;
+            fast_rand(output, len);
+            return 1;
         }
         output += blen;
         len    -= blen;
     }
     return 1;
-#endif
 }
 
 const cipher_kt_t *

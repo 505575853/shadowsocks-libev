@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "obfs.h"
 
+int fast_rand(uint8_t *output, int len);
 int rand_bytes(uint8_t *output, int len);
 
 #include "obfsutil.h"
