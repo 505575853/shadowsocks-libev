@@ -92,6 +92,8 @@ int vpn        = 0;
 uint64_t tx    = 0;
 uint64_t rx    = 0;
 ev_tstamp last = 0;
+
+int is_remote_dns = 0;
 #endif
 
 static crypto_t *crypto;
@@ -826,6 +828,22 @@ server_recv_cb(EV_P_ ev_io *w, int revents)
             // Not bypass
             if (remote == NULL) {
                 remote = create_remote(server->listener, NULL);
+
+                if (sni_detected
+#ifdef __ANDROID__
+                        && acl && !is_remote_dns
+#endif
+                        ) {
+                    // Reconstruct address buffer
+                    abuf->len               = 0;
+                    abuf->data[abuf->len++] = 3;
+                    abuf->data[abuf->len++] = ret;
+                    memcpy(abuf->data + abuf->len, host, ret);
+                    abuf->len += ret;
+                    dst_port  = htons(dst_port);
+                    memcpy(abuf->data + abuf->len, &dst_port, 2);
+                    abuf->len += 2;
+                }
             }
 
             if (remote == NULL) {
@@ -1429,7 +1447,7 @@ main(int argc, char **argv)
     USE_TTY();
 
 #ifdef __ANDROID__
-    while ((c = getopt_long(argc, argv, "f:s:p:l:k:t:m:i:c:b:a:n:huUvV6A",
+    while ((c = getopt_long(argc, argv, "f:s:p:l:k:t:m:i:c:b:a:n:huUvV6AD",
                             long_options, NULL)) != -1) {
 #else
     while ((c = getopt_long(argc, argv, "f:s:p:l:k:t:m:i:c:b:a:n:huUv6A",
@@ -1527,6 +1545,9 @@ main(int argc, char **argv)
             ipv6first = 1;
             break;
 #ifdef __ANDROID__
+        case 'D':
+            is_remote_dns = 1;
+            break;
         case 'V':
             vpn = 1;
             break;
