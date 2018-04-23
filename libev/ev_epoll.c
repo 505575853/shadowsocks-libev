@@ -239,13 +239,16 @@ epoll_poll (EV_P_ ev_tstamp timeout)
     }
 }
 
-int inline_size
+inline_size
+int
 epoll_init (EV_P_ int flags)
 {
 #ifdef EPOLL_CLOEXEC
+#if !defined __ANDROID__ || __ANDROID_API__ >= 21
   backend_fd = epoll_create1 (EPOLL_CLOEXEC);
 
   if (backend_fd < 0 && (errno == EINVAL || errno == ENOSYS))
+#endif
 #endif
     backend_fd = epoll_create (256);
 
@@ -266,14 +269,16 @@ epoll_init (EV_P_ int flags)
   return EVBACKEND_EPOLL;
 }
 
-void inline_size
+inline_size
+void
 epoll_destroy (EV_P)
 {
   ev_free (epoll_events);
   array_free (epoll_eperm, EMPTY);
 }
 
-void inline_size
+inline_size
+void
 epoll_fork (EV_P)
 {
 #ifdef _WIN32
