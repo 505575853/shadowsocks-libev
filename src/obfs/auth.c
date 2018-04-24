@@ -8,6 +8,8 @@
 
 #include "siphash.c"
 
+#define MAX_KEY_LEN 64
+
 static int auth_simple_pack_unit_size = 2000;
 typedef int (*hmac_with_key_func)(char *auth, char *msg, int msg_len, uint8_t *auth_key, int key_len);
 typedef int (*hash_func)(void *self, char *auth, char *msg, int msg_len);
@@ -32,6 +34,8 @@ typedef struct auth_simple_local_data {
     hash_func hash;
     int hash_len;
     int last_data_len;
+    char *out_buffer;
+    int out_buffer_capacity;
 }auth_simple_local_data;
 
 static int ss_fast_hash_func(void *self, char *auth, char *msg, int msg_len)
@@ -53,6 +57,8 @@ void auth_simple_local_data_init(auth_simple_local_data* local) {
     local->hash = 0;
     local->hash_len = 0;
     local->salt = "";
+    local->out_buffer = (char*)malloc(0);
+    local->out_buffer_capacity = 0;
 }
 
 void * auth_simple_init_data(void *data) {
@@ -124,6 +130,10 @@ void auth_simple_dispose(obfs *self) {
     if (local->user_key != NULL) {
         free(local->user_key);
         local->user_key = NULL;
+    }
+    if (local->out_buffer != NULL) {
+        free(local->out_buffer);
+        local->out_buffer = NULL;
     }
     free(local);
     self->l_data = NULL;
@@ -694,7 +704,7 @@ int auth_aes128_sha1_pack_data(char *data, int datalength, int fulldatalength, c
     outdata[0] = (char)out_size;
     outdata[1] = (char)(out_size >> 8);
     uint8_t key_len = (uint8_t)(local->user_key_len + 4);
-    uint8_t *key = (uint8_t*)malloc(key_len);
+    uint8_t key[MAX_KEY_LEN];
     memcpy(key, local->user_key, local->user_key_len);
     memintcopy_lt(key + key_len - 4, local->pack_id);
 
@@ -727,7 +737,6 @@ int auth_aes128_sha1_pack_data(char *data, int datalength, int fulldatalength, c
         local->hmac(hash, outdata, out_size - 4, key, key_len);
         memcpy(outdata + out_size - 4, hash, 4);
     }
-    free(key);
 
     return out_size;
 }
@@ -741,7 +750,7 @@ int auth_aes128_sha1_pack_auth_data(obfs *self, auth_simple_global_data *global,
     char encrypt[24];
     char encrypt_data[16];
 
-    uint8_t *key = (uint8_t*)malloc(server->iv_len + server->key_len);
+    uint8_t key[MAX_KEY_LEN];
     uint8_t key_len = (uint8_t)(server->iv_len + server->key_len);
     memcpy(key, server->iv, server->iv_len);
     memcpy(key + server->iv_len, server->key, server->key_len);
@@ -835,7 +844,6 @@ int auth_aes128_sha1_pack_auth_data(obfs *self, auth_simple_global_data *global,
         local->hmac(hash, outdata, out_size - 4, local->user_key, local->user_key_len);
         memmove(outdata + out_size - 4, hash, 4);
     }
-    free(key);
 
     return out_size;
 }
@@ -880,6 +888,15 @@ int auth_aes128_sha1_client_pre_encrypt(obfs *self, char **pplaindata, int datal
 }
 
 int auth_aes128_sha1_client_post_decrypt(obfs *self, char **pplaindata, int datalength, size_t* capacity) {
+#define alloc_cap(ptr, size) do { \
+    if ((ptr ## _capacity) < (size)) { \
+        if ((ptr) != NULL) { \
+            free(ptr); \
+        } \
+        (ptr) = (char *)malloc((size) * 2); \
+        (ptr ## _capacity) = (size) * 2; \
+    }; \
+} while (0)
     char *plaindata = *pplaindata;
     auth_simple_local_data *local = (auth_simple_local_data*)self->l_data;
     //server_info *server = (server_info*)&self->server;
@@ -892,11 +909,11 @@ int auth_aes128_sha1_client_post_decrypt(obfs *self, char **pplaindata, int data
     local->recv_buffer_size += datalength;
 
     int key_len = local->user_key_len + 4;
-    uint8_t *key = (uint8_t*)malloc((size_t)key_len);
+    uint8_t key[MAX_KEY_LEN];
     memcpy(key, local->user_key, local->user_key_len);
 
-    char * out_buffer = (char*)malloc((size_t)local->recv_buffer_size);
-    char * buffer = out_buffer;
+    alloc_cap(local->out_buffer, local->recv_buffer_size);
+    char * buffer = local->out_buffer;
     char error = 0;
     while (local->recv_buffer_size > 4) {
         memintcopy_lt(key + key_len - 4, local->recv_id);
@@ -949,18 +966,17 @@ int auth_aes128_sha1_client_post_decrypt(obfs *self, char **pplaindata, int data
     }
     int len;
     if (error == 0) {
-        len = (int)(buffer - out_buffer);
+        len = (int)(buffer - local->out_buffer);
         if ((int)*capacity < len) {
             *pplaindata = (char*)realloc(*pplaindata, *capacity = (size_t)(len * 2));
             plaindata = *pplaindata;
         }
-        memmove(plaindata, out_buffer, len);
+        memmove(plaindata, local->out_buffer, len);
     } else {
         len = -1;
     }
-    free(out_buffer);
-    free(key);
     return len;
+#undef alloc_cap
 }
 
 int auth_aes128_sha1_client_udp_pre_encrypt(obfs *self, char **pplaindata, int datalength, size_t* capacity) {
@@ -1033,3 +1049,5 @@ int auth_aes128_sha1_client_udp_post_decrypt(obfs *self, char **pplaindata, int 
 
     return datalength - 4;
 }
+
+#undef MAX_KEY_LEN

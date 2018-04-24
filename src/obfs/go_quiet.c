@@ -9,6 +9,21 @@
 #define TLS_WAIT_REPLY 1
 #define TLS_ESTABLISHED 8
 #define TLS_REPLY_NUM 3
+#define realloc_cap(ptr, size) do { \
+    if ((ptr ## _capacity) < (size)) { \
+        (ptr) = (char *)realloc((ptr), (size) * 2); \
+        (ptr ## _capacity) = (size) * 2; \
+    }; \
+} while (0)
+#define alloc_cap(ptr, size) do { \
+    if ((ptr ## _capacity) < (size)) { \
+        if ((ptr) != NULL) { \
+            free(ptr); \
+        } \
+        (ptr) = (char *)malloc((size) * 2); \
+        (ptr ## _capacity) = (size) * 2; \
+    }; \
+} while (0)
 
 // Exported go functions
 extern void go_quiet_setopt(char *opt, int *err);
@@ -23,6 +38,10 @@ typedef struct go_quiet_local_data {
     int send_buffer_size;
     char *recv_buffer;
     int recv_buffer_size;
+    char *out_buffer;
+    int send_buffer_capacity;
+    int recv_buffer_capacity;
+    int out_buffer_capacity;
 }go_quiet_local_data;
 
 void go_quiet_local_data_init(go_quiet_local_data* local) {
@@ -32,6 +51,10 @@ void go_quiet_local_data_init(go_quiet_local_data* local) {
     local->send_buffer_size = 0;
     local->recv_buffer = malloc(0);
     local->recv_buffer_size = 0;
+    local->out_buffer = malloc(0);
+    local->send_buffer_capacity = 0;
+    local->recv_buffer_capacity = 0;
+    local->out_buffer_capacity = 0;
 }
 
 obfs * go_quiet_new_obfs() {
@@ -86,6 +109,10 @@ void go_quiet_dispose(obfs *self) {
         free(local->recv_buffer);
         local->recv_buffer = NULL;
     }
+    if (local->out_buffer != NULL) {
+        free(local->out_buffer);
+        local->out_buffer = NULL;
+    }
     free(local);
     dispose_obfs(self);
 }
@@ -118,7 +145,7 @@ int go_quiet_client_encode(obfs *self, char **pencryptdata, int datalength, size
             encryptdata[4] = (char)datalength;
             return datalength + 5;
         } else {
-            out_buffer = (char*)malloc((size_t)(datalength + 4096));
+            alloc_cap(local->out_buffer, datalength + 4096);
             int start = 0;
             int outlength = 0;
             int len;
@@ -126,28 +153,27 @@ int go_quiet_client_encode(obfs *self, char **pencryptdata, int datalength, size
                 len = xorshift128plus() % 4096 + 100;
                 if (len > datalength - start)
                     len = datalength - start;
-                go_quiet_pack_data(encryptdata, start, len, out_buffer, outlength);
+                go_quiet_pack_data(encryptdata, start, len, local->out_buffer, outlength);
                 outlength += len + 5;
                 start += len;
             }
             if (datalength - start > 0) {
                 len = datalength - start;
-                go_quiet_pack_data(encryptdata, start, len, out_buffer, outlength);
+                go_quiet_pack_data(encryptdata, start, len, local->out_buffer, outlength);
                 outlength += len + 5;
             }
             if ((int)*capacity < outlength) {
                 *pencryptdata = (char*)realloc(*pencryptdata, *capacity = (size_t)(outlength * 2));
                 encryptdata = *pencryptdata;
             }
-            memcpy(encryptdata, out_buffer, outlength);
-            free(out_buffer);
+            memcpy(encryptdata, local->out_buffer, outlength);
             return outlength;
         }
     }
 
     if (datalength > 0) {
         if (datalength < 1024) {
-            local->send_buffer = (char*)realloc(local->send_buffer, (size_t)(local->send_buffer_size + datalength + 5));
+            realloc_cap(local->send_buffer, (size_t)(local->send_buffer_size + datalength + 5));
             go_quiet_pack_data(encryptdata, 0, datalength, local->send_buffer, local->send_buffer_size);
             local->send_buffer_size += datalength + 5;
         } else {
@@ -172,7 +198,7 @@ int go_quiet_client_encode(obfs *self, char **pencryptdata, int datalength, size
                 *pencryptdata = (char*)realloc(*pencryptdata, *capacity = (size_t)(outlength * 2));
                 encryptdata = *pencryptdata;
             }
-            local->send_buffer = (char*)realloc(local->send_buffer, (size_t)(local->send_buffer_size + outlength));
+            realloc_cap(local->send_buffer, (size_t)(local->send_buffer_size + outlength));
             memcpy(local->send_buffer + local->send_buffer_size, out_buffer, outlength);
             local->send_buffer_size += outlength;
             free(out_buffer);
@@ -220,42 +246,50 @@ int go_quiet_client_decode(obfs *self, char **pencryptdata, int datalength, size
     *needsendback = 0;
     if (local->handshake_status == TLS_ESTABLISHED) {
         local->recv_buffer_size += datalength;
-        local->recv_buffer = (char*)realloc(local->recv_buffer, (size_t)local->recv_buffer_size);
+        realloc_cap(local->recv_buffer, (size_t)local->recv_buffer_size);
         memcpy(local->recv_buffer + local->recv_buffer_size - datalength, encryptdata, datalength);
         datalength = 0;
+        char *recv_buffer = local->recv_buffer;
         while (local->recv_buffer_size > 5) {
-            if (local->recv_buffer[0] != 0x17)
+            if (recv_buffer[0] != 0x17)
                 return -1;
-            int size = ((int)(unsigned char)local->recv_buffer[3] << 8) + (unsigned char)local->recv_buffer[4];
+            int size = ((int)(unsigned char)recv_buffer[3] << 8) + (unsigned char)recv_buffer[4];
             if (size + 5 > local->recv_buffer_size)
                 break;
             if ((int)*capacity < datalength + size) {
                 *pencryptdata = (char*)realloc(*pencryptdata, *capacity = (size_t)((datalength + size) * 2));
                 encryptdata = *pencryptdata;
             }
-            memcpy(encryptdata + datalength, local->recv_buffer + 5, size);
+            memcpy(encryptdata + datalength, recv_buffer + 5, size);
             datalength += size;
             local->recv_buffer_size -= 5 + size;
-            memmove(local->recv_buffer, local->recv_buffer + 5 + size, local->recv_buffer_size);
+            recv_buffer += 5 + size;
+        }
+        if (local->recv_buffer_size > 0) {
+            memmove(local->recv_buffer, recv_buffer, local->recv_buffer_size);
         }
         return datalength;
     }
     if (local->handshake_status == TLS_WAIT_REPLY) {
         local->recv_buffer_size += datalength;
-        local->recv_buffer = (char*)realloc(local->recv_buffer, (size_t)local->recv_buffer_size);
+        realloc_cap(local->recv_buffer, (size_t)local->recv_buffer_size);
         memcpy(local->recv_buffer + local->recv_buffer_size - datalength, encryptdata, datalength);
         datalength = 0;
+        char *recv_buffer = local->recv_buffer;
         while (local->recv_buffer_size > 5) {
-            int magic = local->recv_buffer[0];
+            int magic = recv_buffer[0];
             if (!(magic == 0x14 || magic == 0x16))
                 return -1;
-            int size = ((int)(unsigned char)local->recv_buffer[3] << 8) + (unsigned char)local->recv_buffer[4];
+            int size = ((int)(unsigned char)recv_buffer[3] << 8) + (unsigned char)recv_buffer[4];
             if (size + 5 > local->recv_buffer_size)
                 break;
             local->server_replied++;
             datalength += size;
             local->recv_buffer_size -= 5 + size;
-            memmove(local->recv_buffer, local->recv_buffer + 5 + size, local->recv_buffer_size);
+            recv_buffer += 5 + size;
+        }
+        if (local->recv_buffer_size > 0) {
+            memmove(local->recv_buffer, recv_buffer, local->recv_buffer_size);
         }
         if (local->server_replied == TLS_REPLY_NUM) {
             *needsendback = 1;
@@ -264,3 +298,6 @@ int go_quiet_client_decode(obfs *self, char **pencryptdata, int datalength, size
     }
     return -1;
 }
+
+#undef realloc_cap
+#undef alloc_cap

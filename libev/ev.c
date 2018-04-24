@@ -65,7 +65,7 @@
 #  define EV_USE_CLOCK_SYSCALL 0
 # endif
 
-# if HAVE_CLOCK_GETTIME
+# if HAVE_CLOCK_GETTIME && !defined(__APPLE__)
 #  ifndef EV_USE_MONOTONIC
 #   define EV_USE_MONOTONIC 1
 #  endif
