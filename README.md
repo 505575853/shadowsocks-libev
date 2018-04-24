@@ -72,7 +72,7 @@ This is my own modified version of shadowsocksR libev (client only). It is based
 * CPU: 2.3 GHz Intel Core i5 6300HQ
 * OS: macOS 10.13.3 (Darwin 17.4.0)
 * Both client and server run locally __on the same machine__. So the actual transfer speed should be doubled for running client only.
-* The speed is tested using iperf 3.3 tunneled through the client running 10 seconds. The command is `iperf3 -p <port> -c <ip>`. The result is a truncated mean of 5 tests.
+* The speed is tested using iperf 3.3 tunneled through the client running 10 seconds. The command is `iperf3 -p <port> -c <ip> -R` which measures the *download speed*. The result is a truncated mean of 5 tests.
 * All programs are compiled against the same external libraries, including my customized [mbedtls][my-mbedtls] and [libev][my-libev]:
   * [AES-CTR mode][ctr-acc] is accelerated using AES-NI and SSE instructions and well-optimized by unrolling loops.
   * AES-GCM mode is hardware-accelerated via AES-NI by default in mbedtls (but not extremely optimized).
@@ -81,31 +81,31 @@ This is my own modified version of shadowsocksR libev (client only). It is based
 
 ### Result
 
-* ss-libev (client & server version: v3.1.3, commit `a4c9059`)
+* ss-libev (ss-tunnel & server version: v3.1.3, commit `eb53d54`)
 
 Crypto|Crypto Type|Speed|% of `aes-256-ctr`
 ------|-----------|-----|----------
-rc4-md5 | Stream | 950 Mbits/sec | 75%
-aes-128-cfb | Stream | 866 Mbits/sec| 69%
-chacha20 | Stream | 1.16 Gbits/sec| 92%
-aes-256-ctr | Stream | 1.26 Gbits/sec| 100%
-aes-128-gcm | AEAD | 591 Mbits/sec| 47%
-chacha20-ietf-poly1305 | AEAD | 984 Mbits/sec| 78%
+rc4-md5 | Stream | 988 Mbits/sec | 65%
+aes-128-cfb | Stream | 894 Mbits/sec| 59%
+chacha20 | Stream | 1.42 Gbits/sec| 93%
+aes-256-ctr | Stream | 1.52 Gbits/sec| 100%
+aes-128-gcm | AEAD | 564 Mbits/sec| 37%
+chacha20-ietf-poly1305 | AEAD | 984 Mbits/sec| 65%
 
-* This repo (client version: commit `00c9ffa`; server is the last SSR python commit compiled using [nuitka][nuitka] v0.5.29.3; GoQuiet server version `464a11e` is compiled using Go 1.10)
+* This repo (client version: commit `7b60d2c`; server is the last SSR python commit compiled using [nuitka][nuitka] v0.5.29.3; GoQuiet server version `464a11e` is compiled using Go 1.10)
 
 Crypto|Protocol|Obfuscation|Speed|% of `aes-256-ctr`
 ------|--------|-----------|-----|----------
-none | `plain` | `plain` | 1.42 Gbits/sec | 107%
-rc4-md5 | `plain` | `plain` | 1.05 Gbits/sec | 79%
-aes-128-cfb | `plain` | `plain` | 947 Mbits/sec | 72%
-aes-256-ctr | `plain` | `plain` | 1.32 Gbits/sec | 100%
-aes-256-ctr | `auth_aes128_fast` | `plain` | 942 Mbits/sec | 71%
-aes-256-ctr | `auth_sha1_v4` | `plain` | 927 Mbits/sec | 70%
-aes-256-ctr | `auth_aes128_md5` | `plain` | 261 Mbits/sec | 20%
-none | `auth_chain_a` | `plain` | 243 Mbits/sec | 18%
-aes-256-ctr | `auth_aes128_fast` | `go_quiet` | 668 Mbits/sec | 51%
-aes-256-ctr | `auth_aes128_fast` | `tls1.2_ticket_auth` | 789 Mbits/sec | 60%
+none | `plain` | `plain` | 1.90 Gbits/sec | 122%
+rc4-md5 | `plain` | `plain` | 1.00 Gbits/sec | 64%
+aes-128-cfb | `plain` | `plain` | 925 Mbits/sec | 59%
+aes-256-ctr | `plain` | `plain` | 1.56 Gbits/sec | 100%
+aes-256-ctr | `auth_aes128_fast` | `plain` | 1.41 Gbits/sec | 90%
+aes-256-ctr | `auth_sha1_v4` | `plain` | 1.23 Gbits/sec | 79%
+aes-256-ctr | `auth_aes128_md5` | `plain` | 697 Mbits/sec | 45%
+none | `auth_chain_a` | `plain` | 295 Mbits/sec | 19%
+aes-256-ctr | `auth_aes128_fast` | `go_quiet` | 1.25 Gbits/sec | 80%
+aes-256-ctr | `auth_aes128_fast` | `tls1.2_ticket_auth` | 951 Mbits/sec | 61%
 
 ## Downloads?
 
