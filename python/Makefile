@@ -21,6 +21,9 @@ pack:
 	find yogurt -iname '*.pyc' -delete
 	zip -ur windows/python27.zip yogurt server.py
 
+git:
+	git archive -o python.tar.gz --prefix=python/ HEAD
+
 ss-server: server.exe siphashc/siphashc.so
 	mv server.exe $@
 	mv siphashc/siphashc.so .
@@ -31,4 +34,4 @@ clean:
 	rm -Rf winselect/wepoll.lib winselect/build
 	rm -f windows/python27.zip
 
-.PHONY: clean all nuitka pack
+.PHONY: clean all nuitka pack git

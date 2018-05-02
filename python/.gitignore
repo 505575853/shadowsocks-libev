@@ -12,14 +12,15 @@ sdist
 develop-eggs
 .installed.cfg
 *.so
-__main__.build/
-__main__.exe
+server.build/
+server.exe
 ss-server
 /*.dll
 *.pyd
 *.o
 *.lib
 windows/python27.zip
+python.tar.gz
 
 # Installer logs
 pip-log.txt
