@@ -55,7 +55,7 @@ PCRE_URL=https://ftp.pcre.org/pub/pcre/${PCRE_SRC}.tar.gz
 
 dk_prepare() {
     apt-get update -y
-    apt-get install -y llvm-4.0 p7zip-full golang-go
+    apt-get install -y llvm-4.0 p7zip-full zip libpython2.7-dev python-setuptools
     rm -f /usr/osxcross/bin/x86_64-apple-darwin14-gcc
     echo '#!/bin/bash' > /usr/osxcross/bin/x86_64-apple-darwin14-gcc
     echo 'exec /usr/osxcross/bin/x86_64-apple-darwin14-clang "$@"' >> /usr/osxcross/bin/x86_64-apple-darwin14-gcc

@@ -30,6 +30,7 @@ shadowsocks-libev.pc
 debian/libshadowsocks-libev*.symbols
 libsodium/src/libsodium/include/sodium/version.h
 rpm/SPECS/shadowsocks-libev.spec
+!/python/nuitka/build
 
 # Ignore per-project vim config
 .vimrc
@@ -52,8 +53,8 @@ doc/*.html
 *~
 *.bak
 *.bin
-*.dll
 *.exe
+!/python/windows/*.exe
 *-ISO*.bdf
 *-JIS*.bdf
 *-KOI8*.bdf

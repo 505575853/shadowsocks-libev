@@ -45,7 +45,7 @@ PCRE_URL=https://ftp.pcre.org/pub/pcre/${PCRE_SRC}.tar.gz
 dk_prepare() {
     apt-get update -y
     apt-get install --no-install-recommends -y \
-      mingw-w64 golang-go aria2 git make ca-certificates
+      mingw-w64 aria2 git make ca-certificates zip
 }
 
 dk_download() {

@@ -1,0 +1,44 @@
+*.py[co]
+
+# Packages
+*.egg
+*.egg-info
+siphashc/dist
+siphashc/build
+winselect/build
+winselect/dist
+eggs
+sdist
+develop-eggs
+.installed.cfg
+*.so
+__main__.build/
+__main__.exe
+ss-server
+/*.dll
+*.pyd
+*.o
+*.lib
+windows/python27.zip
+
+# Installer logs
+pip-log.txt
+
+# Unit test / coverage reports
+htmlcov
+.coverage*
+.tox
+
+#Translations
+*.mo
+
+#Mr Developer
+.mr.developer.cfg
+
+.DS_Store
+.idea
+
+# Ignore user config
+user-config.json
+userapiconfig.py
+usermysql.json

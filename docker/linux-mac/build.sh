@@ -55,6 +55,9 @@ dk_build() {
     for arch in "${HOSTS[@]}"; do
         build_proj $arch
     done
+    pushd "$SRC/proj/python"
+    make ss-server
+    popd
 }
 
 dk_package() {
@@ -77,6 +80,11 @@ dk_package() {
             cp $bin "${folder}"/$name
         done
     done
+    mkdir linux-x64-server
+    pushd linux-x64-server
+    cp "$SRC/proj/python/ss-server" .
+    cp "$SRC/proj/python/siphashc.so" .
+    popd
     echo "ShadowsocksR Static Binary Release" > $BASE/pack/checksum
     echo "Build $(date +"%y%m%d"): Git-${GIT_REV}" >> $BASE/pack/checksum
     echo "SHA256 Checksum:" >> $BASE/pack/checksum

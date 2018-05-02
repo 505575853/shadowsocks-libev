@@ -49,6 +49,9 @@ dk_build() {
     for arch in i686 x86_64; do
         build_proj $arch
     done
+    pushd "$SRC/proj/python"
+    make
+    popd
 }
 
 dk_package() {
@@ -61,6 +64,9 @@ dk_package() {
         cp ${DIST}/i686/bin/ss-${bin}.exe ssr-${bin}-x86.exe
         cp ${DIST}/x86_64/bin/ss-${bin}.exe ssr-${bin}-x64.exe
     done
+    cp -r "$SRC/proj/python/windows" server
+    rm -f server/pylib.zip
+    mv server/ss-server.exe server/ssr-server.exe
     pushd "$SRC/proj"
     GIT_REV="$(git rev-parse --short HEAD)"
     popd
