@@ -4,7 +4,7 @@ _Who will use this any more?_
 
 ## Disclaimers
 
-This is my own modified version of shadowsocksR libev (client only). It is based on the [last official commit][last commit] of the original repo. This version is by no means a continuation of the original project, nor do I have any connection to it. It only contains some experimental code for my own use. I do not accept any pull requests in this repo. Please contribute to the [upstream project][upstream].
+This is my own modified version of shadowsocksR libev (client only, Python server is embeded in [`python/`](python/)). It is based on the [last official commit][last commit] of the original repo. This version is by no means a continuation of the original project, nor do I have any connection to it. It only contains some experimental code for my own use. I do not accept any pull requests in this repo. Please contribute to the [upstream project][upstream].
 
 ## Extra Features
 
@@ -92,7 +92,7 @@ aes-256-ctr | Stream | 1.52 Gbits/sec| 100%
 aes-128-gcm | AEAD | 564 Mbits/sec| 37%
 chacha20-ietf-poly1305 | AEAD | 984 Mbits/sec| 65%
 
-* This repo (client version: commit `7b60d2c`; server is the last SSR python commit compiled using [nuitka][nuitka] v0.5.29.3; GoQuiet server version `464a11e` is compiled using Go 1.10)
+* This repo (client version: commit `7b60d2c`; python server is compiled using [nuitka][nuitka]; GoQuiet server version `464a11e` is compiled using Go 1.10)
 
 Crypto|Protocol|Obfuscation|Speed|% of `aes-256-ctr`
 ------|--------|-----------|-----|----------
