@@ -58,6 +58,11 @@ dk_build() {
     pushd "$SRC/proj/python"
     make ss-server
     popd
+    pushd "$SRC/proj/goquiet"
+    GOPATH="$PWD" GOOS=linux GOARCH=amd64 \
+    /go/bin/go build -ldflags "-s -w -X main.version=1.1.2" \
+     -v -o gq-server ./src/github.com/cbeuw/GoQuiet/cmd/gq-server
+    popd
 }
 
 dk_package() {
@@ -84,6 +89,7 @@ dk_package() {
     pushd linux-x64-server
     cp "$SRC/proj/python/ss-server" .
     cp "$SRC/proj/python/siphashc.so" .
+    cp "$SRC/proj/goquiet/gq-server" .
     popd
     echo "ShadowsocksR Static Binary Release" > $BASE/pack/checksum
     echo "Build $(date +"%y%m%d"): Git-${GIT_REV}" >> $BASE/pack/checksum

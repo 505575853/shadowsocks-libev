@@ -61,6 +61,11 @@ dk_prepare() {
     echo 'exec /usr/osxcross/bin/x86_64-apple-darwin14-clang "$@"' >> /usr/osxcross/bin/x86_64-apple-darwin14-gcc
     chmod 755 /usr/osxcross/bin/x86_64-apple-darwin14-gcc
     ln -s /usr/lib/llvm-4.0/lib/libLTO.so /usr/lib/
+    DOWN="aria2c --file-allocation=trunc -s10 -x10 -j10 -c"
+    cd /
+    $DOWN https://dl.google.com/go/go1.9.6.linux-amd64.tar.gz -o go.tar.gz
+    tar xf go.tar.gz
+    rm -f go.tar.gz
 }
 
 dk_download() {
