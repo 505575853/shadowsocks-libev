@@ -187,6 +187,10 @@ case $host in
     os_arch=arm64
     AC_MSG_RESULT(arm64)
     ;;
+  arm-*)
+    os_arch=arm
+    AC_MSG_RESULT(arm)
+    ;;
   x86_64-*)
     os_arch=amd64
     AC_MSG_RESULT(Intel 64-bit)
@@ -238,6 +242,7 @@ AM_CONDITIONAL(BUILD_WINCOMPAT, test "$os_support" = "mingw")
 AM_CONDITIONAL(BUILD_ARM64, test "$os_arch" = "arm64")
 AM_CONDITIONAL(BUILD_AMD64, test "$os_arch" = "amd64")
 AM_CONDITIONAL(BUILD_X86, test "$os_arch" = "x86")
+AM_CONDITIONAL(BUILD_ARM, test "$os_arch" = "arm")
 
 dnl Checks for header files.
 AC_CHECK_HEADERS([limits.h stdint.h inttypes.h arpa/inet.h fcntl.h langinfo.h locale.h netdb.h netinet/in.h stdlib.h string.h strings.h unistd.h sys/ioctl.h])

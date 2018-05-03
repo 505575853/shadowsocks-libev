@@ -89,8 +89,9 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 @BUILD_ARM64_TRUE@am__append_1 = -march=armv8-a+crypto -mcpu=cortex-a53
-@BUILD_AMD64_TRUE@am__append_2 = -maes -mssse3
-@BUILD_X86_TRUE@am__append_3 = -maes -mssse3
+@BUILD_ARM_TRUE@am__append_2 = -march=armv7-a -mfloat-abi=softfp -mfpu=neon
+@BUILD_AMD64_TRUE@am__append_3 = -maes -mssse3 -mavx2
+@BUILD_X86_TRUE@am__append_4 = -maes -mssse3 -mavx2
 subdir = mbedtls
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ax_tls.m4 \
@@ -473,7 +474,8 @@ libmbedcrypto_la_SOURCES = library/aes.c library/aesni.c library/arc4.c \
 
 libmbedcrypto_la_CPPFLAGS = -I$(top_srcdir)/mbedtls/include -D_FILE_OFFSET_BITS=64
 libmbedcrypto_la_CFLAGS = -O2 -Wall -W -Wdeclaration-after-statement \
-	$(am__append_1) $(am__append_2) $(am__append_3)
+	$(am__append_1) $(am__append_2) $(am__append_3) \
+	$(am__append_4)
 all: all-am
 
 .SUFFIXES:
