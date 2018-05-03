@@ -65,6 +65,7 @@
 #include <mbedtls/aes.h>
 #include <mbedtls/aesasm.h>
 #define CIPHER_UNSUPPORTED "unsupported"
+#define CIPHER_DISABLED "\x00"
 
 #include <time.h>
 #ifdef _WIN32
@@ -119,14 +120,14 @@ static const char *supported_ciphers[CIPHER_NUM] = {
     "camellia-128-cfb",
     "camellia-192-cfb",
     "camellia-256-cfb",
-    "cast5-cfb",
-    "des-cfb",
-    "idea-cfb",
-    "rc2-cfb",
-    "seed-cfb",
-    "salsa20",
-    "chacha20",
-    "chacha20-ietf"
+    CIPHER_DISABLED "cast5-cfb",
+    CIPHER_DISABLED "des-cfb",
+    CIPHER_DISABLED "idea-cfb",
+    CIPHER_DISABLED "rc2-cfb",
+    "chacha20-ietf",
+    CIPHER_DISABLED "salsa20",
+    CIPHER_DISABLED "chacha20",
+    CIPHER_DISABLED "chacha20-ietf"
 };
 
 #ifdef USE_CRYPTO_POLARSSL
@@ -178,7 +179,7 @@ static const char *supported_ciphers_mbedtls[CIPHER_NUM] = {
     CIPHER_UNSUPPORTED,
     CIPHER_UNSUPPORTED,
     CIPHER_UNSUPPORTED,
-    CIPHER_UNSUPPORTED,
+    "CHACHA20",
     "salsa20",
     "chacha20",
     "chacha20-ietf"
@@ -240,11 +241,11 @@ static const CCMode supported_modes_applecc[CIPHER_NUM] = {
 #endif
 
 static const int supported_ciphers_iv_size[CIPHER_NUM] = {
-    0 ,  0,  0,  6, 16, 16, 16, 16, 16, 16, 16,  8, 16, 16, 16,  8,  8,  8,  8, 16,  8,  8, 12
+    0 ,  0,  0,  6, 16, 16, 16, 16, 16, 16, 16,  8, 16, 16, 16,  8,  8,  8,  8, 12,  8,  8, 12
 };
 
 static const int supported_ciphers_key_size[CIPHER_NUM] = {
-    16, 16, 16, 16, 16, 16, 24, 32, 16, 24, 32, 16, 16, 24, 32, 16,  8, 16, 16, 16, 32, 32, 32
+    16, 16, 16, 16, 16, 16, 24, 32, 16, 24, 32, 16, 16, 24, 32, 16,  8, 16, 16, 32, 32, 32, 32
 };
 
 /* Implementation that should never be optimized out by the compiler */

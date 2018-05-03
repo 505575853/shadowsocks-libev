@@ -293,21 +293,39 @@ usage()
     printf(
         "       -k <password>              Password of your remote server.\n");
     printf(
-        "       -m <encrypt_method>        Encrypt method: table, rc4, rc4-md5,\n");
+        "       -m <encrypt_method>        Encrypt method: none, table, rc4, rc4-md5, rc4-md5-6\n");
     printf(
-        "                                  aes-128-cfb, aes-192-cfb, aes-256-cfb,\n");
+        "                                    aes-128-cfb, aes-192-cfb, aes-256-cfb,\n");
     printf(
-        "                                  aes-128-ctr, aes-192-ctr, aes-256-ctr,\n");
+        "                                    aes-128-ctr, aes-192-ctr, aes-256-ctr,\n");
     printf(
-        "                                  bf-cfb, camellia-128-cfb, camellia-192-cfb,\n");
+        "                                    bf-cfb, camellia-128-cfb, camellia-192-cfb,\n");
     printf(
-        "                                  camellia-256-cfb, cast5-cfb, des-cfb,\n");
-    printf(
-        "                                  idea-cfb, rc2-cfb, seed-cfb, salsa20,\n");
-    printf(
-        "                                  chacha20 and chacha20-ietf.\n");
+        "                                    camellia-256-cfb and chacha20-ietf.\n");
     printf(
         "                                  The default cipher is rc4-md5.\n");
+    printf("\n");
+    printf(
+        "       -G <protocol_param>        Parameter for SSR protocol.\n");
+    printf(
+        "       -O <ssr_protocol>          SSR protocol: plain, auth_sha1 (deprecated),\n");
+    printf(
+        "                                    auth_sha1_v2 (deprecated), auth_sha1_v4,\n");
+    printf(
+        "                                    auth_aes128_md5, auth_aes128_sha1,\n");
+    printf(
+        "                                    auth_aes128_fast and auth_chain_a.\n");
+    printf(
+        "                                  The default protocol is plain (original SS).\n");
+    printf("\n");
+    printf(
+        "       -g <obfs_param>            Parameter for SSR obfuscation.\n");
+    printf(
+        "       -o <ssr_obfs>              SSR obfuscation: plain, http_simple, http_post,\n");
+    printf(
+        "                                    go_quiet, and tls1.2_ticket_auth.\n");
+    printf(
+        "                                  The default obfuscation is plain (no obfuscation).\n");
     printf("\n");
     printf(
         "       [-a <user>]                Run as another user.\n");
@@ -341,12 +359,10 @@ usage()
         "       [-6]                       Resovle hostname to IPv6 address first.\n");
 #endif
     printf("\n");
-#ifdef MODULE_TUNNEL
     printf(
         "       [-L <addr>:<port>]         Destination server address and port\n");
     printf(
         "                                  for local port forwarding.\n");
-#endif
 #ifdef MODULE_REMOTE
     printf(
         "       [-d <addr>]                Name servers for internal DNS resolver.\n");
@@ -377,6 +393,10 @@ usage()
         "       [--firewall]               Setup firewall rules for auto blocking.\n");
 #endif
 #endif
+    printf(
+        "       [--plugin <name>]          Enable SIP003 plugin. (Experimental)\n");
+    printf(
+        "       [--plugin-opts <options>]  Set SIP003 plugin options. (Experimental)\n");
     printf("\n");
     printf(
         "       [-v]                       Verbose mode.\n");
