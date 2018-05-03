@@ -20,7 +20,9 @@ libmbedcrypto_la_SOURCES = library/aes.c library/aesni.c library/arc4.c \
 		library/sha1.c library/sha256.c library/sha512.c \
 		library/threading.c library/timing.c library/version.c \
 		library/version_features.c library/xtea.c \
-		library/md5asm.S library/sha1asm.S library/sha256asm.S
+		library/md5asm.S library/sha1asm.S library/sha256asm.S \
+		library/aead_chacha20_poly1305.c \
+		library/chacha20.c library/poly1305.c
 
 libmbedcrypto_la_CPPFLAGS = -I$(top_srcdir)/mbedtls/include -D_FILE_OFFSET_BITS=64
 libmbedcrypto_la_CFLAGS = -O2 -Wall -W -Wdeclaration-after-statement

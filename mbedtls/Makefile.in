@@ -167,7 +167,10 @@ am_libmbedcrypto_la_OBJECTS = library/libmbedcrypto_la-aes.lo \
 	library/libmbedcrypto_la-xtea.lo \
 	library/libmbedcrypto_la-md5asm.lo \
 	library/libmbedcrypto_la-sha1asm.lo \
-	library/libmbedcrypto_la-sha256asm.lo
+	library/libmbedcrypto_la-sha256asm.lo \
+	library/libmbedcrypto_la-aead_chacha20_poly1305.lo \
+	library/libmbedcrypto_la-chacha20.lo \
+	library/libmbedcrypto_la-poly1305.lo
 libmbedcrypto_la_OBJECTS = $(am_libmbedcrypto_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -192,7 +195,9 @@ am__v_at_1 =
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/auto/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = library/$(DEPDIR)/libmbedcrypto_la-aes.Plo \
+am__depfiles_remade =  \
+	library/$(DEPDIR)/libmbedcrypto_la-aead_chacha20_poly1305.Plo \
+	library/$(DEPDIR)/libmbedcrypto_la-aes.Plo \
 	library/$(DEPDIR)/libmbedcrypto_la-aesarm.Plo \
 	library/$(DEPDIR)/libmbedcrypto_la-aesasm.Plo \
 	library/$(DEPDIR)/libmbedcrypto_la-aesasm_hard.Plo \
@@ -206,6 +211,7 @@ am__depfiles_remade = library/$(DEPDIR)/libmbedcrypto_la-aes.Plo \
 	library/$(DEPDIR)/libmbedcrypto_la-blowfish.Plo \
 	library/$(DEPDIR)/libmbedcrypto_la-camellia.Plo \
 	library/$(DEPDIR)/libmbedcrypto_la-ccm.Plo \
+	library/$(DEPDIR)/libmbedcrypto_la-chacha20.Plo \
 	library/$(DEPDIR)/libmbedcrypto_la-cipher.Plo \
 	library/$(DEPDIR)/libmbedcrypto_la-cipher_wrap.Plo \
 	library/$(DEPDIR)/libmbedcrypto_la-cmac.Plo \
@@ -240,6 +246,7 @@ am__depfiles_remade = library/$(DEPDIR)/libmbedcrypto_la-aes.Plo \
 	library/$(DEPDIR)/libmbedcrypto_la-pkparse.Plo \
 	library/$(DEPDIR)/libmbedcrypto_la-pkwrite.Plo \
 	library/$(DEPDIR)/libmbedcrypto_la-platform.Plo \
+	library/$(DEPDIR)/libmbedcrypto_la-poly1305.Plo \
 	library/$(DEPDIR)/libmbedcrypto_la-ripemd160.Plo \
 	library/$(DEPDIR)/libmbedcrypto_la-rsa.Plo \
 	library/$(DEPDIR)/libmbedcrypto_la-rsa_internal.Plo \
@@ -460,7 +467,9 @@ libmbedcrypto_la_SOURCES = library/aes.c library/aesni.c library/arc4.c \
 		library/sha1.c library/sha256.c library/sha512.c \
 		library/threading.c library/timing.c library/version.c \
 		library/version_features.c library/xtea.c \
-		library/md5asm.S library/sha1asm.S library/sha256asm.S
+		library/md5asm.S library/sha1asm.S library/sha256asm.S \
+		library/aead_chacha20_poly1305.c \
+		library/chacha20.c library/poly1305.c
 
 libmbedcrypto_la_CPPFLAGS = -I$(top_srcdir)/mbedtls/include -D_FILE_OFFSET_BITS=64
 libmbedcrypto_la_CFLAGS = -O2 -Wall -W -Wdeclaration-after-statement \
@@ -637,6 +646,12 @@ library/libmbedcrypto_la-sha1asm.lo: library/$(am__dirstamp) \
 	library/$(DEPDIR)/$(am__dirstamp)
 library/libmbedcrypto_la-sha256asm.lo: library/$(am__dirstamp) \
 	library/$(DEPDIR)/$(am__dirstamp)
+library/libmbedcrypto_la-aead_chacha20_poly1305.lo:  \
+	library/$(am__dirstamp) library/$(DEPDIR)/$(am__dirstamp)
+library/libmbedcrypto_la-chacha20.lo: library/$(am__dirstamp) \
+	library/$(DEPDIR)/$(am__dirstamp)
+library/libmbedcrypto_la-poly1305.lo: library/$(am__dirstamp) \
+	library/$(DEPDIR)/$(am__dirstamp)
 
 libmbedcrypto.la: $(libmbedcrypto_la_OBJECTS) $(libmbedcrypto_la_DEPENDENCIES) $(EXTRA_libmbedcrypto_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(libmbedcrypto_la_LINK)  $(libmbedcrypto_la_OBJECTS) $(libmbedcrypto_la_LIBADD) $(LIBS)
@@ -649,6 +664,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@library/$(DEPDIR)/libmbedcrypto_la-aead_chacha20_poly1305.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@library/$(DEPDIR)/libmbedcrypto_la-aes.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@library/$(DEPDIR)/libmbedcrypto_la-aesarm.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@library/$(DEPDIR)/libmbedcrypto_la-aesasm.Plo@am__quote@ # am--include-marker
@@ -663,6 +679,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@library/$(DEPDIR)/libmbedcrypto_la-blowfish.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@library/$(DEPDIR)/libmbedcrypto_la-camellia.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@library/$(DEPDIR)/libmbedcrypto_la-ccm.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@library/$(DEPDIR)/libmbedcrypto_la-chacha20.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@library/$(DEPDIR)/libmbedcrypto_la-cipher.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@library/$(DEPDIR)/libmbedcrypto_la-cipher_wrap.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@library/$(DEPDIR)/libmbedcrypto_la-cmac.Plo@am__quote@ # am--include-marker
@@ -697,6 +714,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@library/$(DEPDIR)/libmbedcrypto_la-pkparse.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@library/$(DEPDIR)/libmbedcrypto_la-pkwrite.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@library/$(DEPDIR)/libmbedcrypto_la-platform.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@library/$(DEPDIR)/libmbedcrypto_la-poly1305.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@library/$(DEPDIR)/libmbedcrypto_la-ripemd160.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@library/$(DEPDIR)/libmbedcrypto_la-rsa.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@library/$(DEPDIR)/libmbedcrypto_la-rsa_internal.Plo@am__quote@ # am--include-marker
@@ -1192,6 +1210,27 @@ library/libmbedcrypto_la-xtea.lo: library/xtea.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmbedcrypto_la_CPPFLAGS) $(CPPFLAGS) $(libmbedcrypto_la_CFLAGS) $(CFLAGS) -c -o library/libmbedcrypto_la-xtea.lo `test -f 'library/xtea.c' || echo '$(srcdir)/'`library/xtea.c
 
+library/libmbedcrypto_la-aead_chacha20_poly1305.lo: library/aead_chacha20_poly1305.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmbedcrypto_la_CPPFLAGS) $(CPPFLAGS) $(libmbedcrypto_la_CFLAGS) $(CFLAGS) -MT library/libmbedcrypto_la-aead_chacha20_poly1305.lo -MD -MP -MF library/$(DEPDIR)/libmbedcrypto_la-aead_chacha20_poly1305.Tpo -c -o library/libmbedcrypto_la-aead_chacha20_poly1305.lo `test -f 'library/aead_chacha20_poly1305.c' || echo '$(srcdir)/'`library/aead_chacha20_poly1305.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) library/$(DEPDIR)/libmbedcrypto_la-aead_chacha20_poly1305.Tpo library/$(DEPDIR)/libmbedcrypto_la-aead_chacha20_poly1305.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='library/aead_chacha20_poly1305.c' object='library/libmbedcrypto_la-aead_chacha20_poly1305.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmbedcrypto_la_CPPFLAGS) $(CPPFLAGS) $(libmbedcrypto_la_CFLAGS) $(CFLAGS) -c -o library/libmbedcrypto_la-aead_chacha20_poly1305.lo `test -f 'library/aead_chacha20_poly1305.c' || echo '$(srcdir)/'`library/aead_chacha20_poly1305.c
+
+library/libmbedcrypto_la-chacha20.lo: library/chacha20.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmbedcrypto_la_CPPFLAGS) $(CPPFLAGS) $(libmbedcrypto_la_CFLAGS) $(CFLAGS) -MT library/libmbedcrypto_la-chacha20.lo -MD -MP -MF library/$(DEPDIR)/libmbedcrypto_la-chacha20.Tpo -c -o library/libmbedcrypto_la-chacha20.lo `test -f 'library/chacha20.c' || echo '$(srcdir)/'`library/chacha20.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) library/$(DEPDIR)/libmbedcrypto_la-chacha20.Tpo library/$(DEPDIR)/libmbedcrypto_la-chacha20.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='library/chacha20.c' object='library/libmbedcrypto_la-chacha20.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmbedcrypto_la_CPPFLAGS) $(CPPFLAGS) $(libmbedcrypto_la_CFLAGS) $(CFLAGS) -c -o library/libmbedcrypto_la-chacha20.lo `test -f 'library/chacha20.c' || echo '$(srcdir)/'`library/chacha20.c
+
+library/libmbedcrypto_la-poly1305.lo: library/poly1305.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmbedcrypto_la_CPPFLAGS) $(CPPFLAGS) $(libmbedcrypto_la_CFLAGS) $(CFLAGS) -MT library/libmbedcrypto_la-poly1305.lo -MD -MP -MF library/$(DEPDIR)/libmbedcrypto_la-poly1305.Tpo -c -o library/libmbedcrypto_la-poly1305.lo `test -f 'library/poly1305.c' || echo '$(srcdir)/'`library/poly1305.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) library/$(DEPDIR)/libmbedcrypto_la-poly1305.Tpo library/$(DEPDIR)/libmbedcrypto_la-poly1305.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='library/poly1305.c' object='library/libmbedcrypto_la-poly1305.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmbedcrypto_la_CPPFLAGS) $(CPPFLAGS) $(libmbedcrypto_la_CFLAGS) $(CFLAGS) -c -o library/libmbedcrypto_la-poly1305.lo `test -f 'library/poly1305.c' || echo '$(srcdir)/'`library/poly1305.c
+
 mostlyclean-libtool:
 	-rm -f *.lo
 
@@ -1326,7 +1365,8 @@ clean-am: clean-generic clean-libtool clean-noinstLTLIBRARIES \
 	mostlyclean-am
 
 distclean: distclean-am
-		-rm -f library/$(DEPDIR)/libmbedcrypto_la-aes.Plo
+		-rm -f library/$(DEPDIR)/libmbedcrypto_la-aead_chacha20_poly1305.Plo
+	-rm -f library/$(DEPDIR)/libmbedcrypto_la-aes.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-aesarm.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-aesasm.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-aesasm_hard.Plo
@@ -1340,6 +1380,7 @@ distclean: distclean-am
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-blowfish.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-camellia.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-ccm.Plo
+	-rm -f library/$(DEPDIR)/libmbedcrypto_la-chacha20.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-cipher.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-cipher_wrap.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-cmac.Plo
@@ -1374,6 +1415,7 @@ distclean: distclean-am
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-pkparse.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-pkwrite.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-platform.Plo
+	-rm -f library/$(DEPDIR)/libmbedcrypto_la-poly1305.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-ripemd160.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-rsa.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-rsa_internal.Plo
@@ -1432,7 +1474,8 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-		-rm -f library/$(DEPDIR)/libmbedcrypto_la-aes.Plo
+		-rm -f library/$(DEPDIR)/libmbedcrypto_la-aead_chacha20_poly1305.Plo
+	-rm -f library/$(DEPDIR)/libmbedcrypto_la-aes.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-aesarm.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-aesasm.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-aesasm_hard.Plo
@@ -1446,6 +1489,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-blowfish.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-camellia.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-ccm.Plo
+	-rm -f library/$(DEPDIR)/libmbedcrypto_la-chacha20.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-cipher.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-cipher_wrap.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-cmac.Plo
@@ -1480,6 +1524,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-pkparse.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-pkwrite.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-platform.Plo
+	-rm -f library/$(DEPDIR)/libmbedcrypto_la-poly1305.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-ripemd160.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-rsa.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-rsa_internal.Plo

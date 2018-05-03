@@ -41,6 +41,10 @@
 
 #include <stdio.h>
 
+#if defined(MBEDTLS_AEAD_CHACHA20_POLY1305_C)
+#include "mbedtls/aead_chacha20_poly1305.h"
+#endif
+
 #if defined(MBEDTLS_AES_C)
 #include "mbedtls/aes.h"
 #endif
@@ -67,6 +71,10 @@
 
 #if defined(MBEDTLS_CCM_C)
 #include "mbedtls/ccm.h"
+#endif
+
+#if defined(MBEDTLS_CHACHA20_C)
+#include "mbedtls/chacha20.h"
 #endif
 
 #if defined(MBEDTLS_CIPHER_C)
@@ -151,6 +159,10 @@
 
 #if defined(MBEDTLS_RIPEMD160_C)
 #include "mbedtls/ripemd160.h"
+#endif
+
+#if defined(MBEDTLS_POLY1305_C)
+#include "mbedtls/poly1305.h"
 #endif
 
 #if defined(MBEDTLS_RSA_C)
@@ -565,6 +577,13 @@ void mbedtls_strerror( int ret, char *buf, size_t buflen )
     // Low level error codes
     //
     // BEGIN generated code
+#if defined(MBEDTLS_AEAD_CHACHA20_POLY1305_C)
+    if( use_ret == -(MBEDTLS_ERR_AEAD_CHACHA20_POLY1305_BAD_INPUT_DATA) )
+        mbedtls_snprintf( buf, buflen, "AEAD_CHACHA20_POLY1305 - Invalid input parameter(s)" );
+    if( use_ret == -(MBEDTLS_ERR_AEAD_CHACHA20_POLY1305_BAD_STATE) )
+        mbedtls_snprintf( buf, buflen, "AEAD_CHACHA20_POLY1305 - The requested operation is not permitted in the current state" );
+#endif /* MBEDTLS_AEAD_CHACHA20_POLY1305_C */
+
 #if defined(MBEDTLS_AES_C)
     if( use_ret == -(MBEDTLS_ERR_AES_INVALID_KEY_LENGTH) )
         mbedtls_snprintf( buf, buflen, "AES - Invalid key length" );
@@ -655,6 +674,11 @@ void mbedtls_strerror( int ret, char *buf, size_t buflen )
     if( use_ret == -(MBEDTLS_ERR_CMAC_HW_ACCEL_FAILED) )
         mbedtls_snprintf( buf, buflen, "CMAC - CMAC hardware accelerator failed" );
 #endif /* MBEDTLS_CMAC_C */
+
+#if defined(MBEDTLS_CHACHA20_C)
+    if( use_ret == -(MBEDTLS_ERR_CHACHA20_BAD_INPUT_DATA) )
+        mbedtls_snprintf( buf, buflen, "CHACHA20 - Invalid input parameter(s)" );
+#endif /* MBEDTLS_CHACHA20_C */
 
 #if defined(MBEDTLS_CTR_DRBG_C)
     if( use_ret == -(MBEDTLS_ERR_CTR_DRBG_ENTROPY_SOURCE_FAILED) )
@@ -778,6 +802,11 @@ void mbedtls_strerror( int ret, char *buf, size_t buflen )
     if( use_ret == -(MBEDTLS_ERR_SHA512_HW_ACCEL_FAILED) )
         mbedtls_snprintf( buf, buflen, "SHA512 - SHA-512 hardware accelerator failed" );
 #endif /* MBEDTLS_SHA512_C */
+
+#if defined(MBEDTLS_POLY1305_C)
+    if( use_ret == -(MBEDTLS_ERR_POLY1305_BAD_INPUT_DATA) )
+        mbedtls_snprintf( buf, buflen, "POLY1305 - Invalid input parameter(s)" );
+#endif /* MBEDTLS_POLY1305_C */
 
 #if defined(MBEDTLS_THREADING_C)
     if( use_ret == -(MBEDTLS_ERR_THREADING_FEATURE_UNAVAILABLE) )
