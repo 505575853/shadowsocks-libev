@@ -90,8 +90,8 @@ build_triplet = @build@
 host_triplet = @host@
 @BUILD_ARM64_TRUE@am__append_1 = -march=armv8-a+crypto -mcpu=cortex-a53
 @BUILD_ARM_TRUE@am__append_2 = -march=armv7-a -mfloat-abi=softfp -mfpu=neon
-@BUILD_AMD64_TRUE@am__append_3 = -maes -mssse3 -mavx2
-@BUILD_X86_TRUE@am__append_4 = -maes -mssse3 -mavx2
+@BUILD_AMD64_TRUE@am__append_3 = -maes -mssse3
+@BUILD_X86_TRUE@am__append_4 = -maes -mssse3
 subdir = mbedtls
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ax_tls.m4 \

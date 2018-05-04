@@ -35,9 +35,9 @@ libmbedcrypto_la_CFLAGS += -march=armv7-a -mfloat-abi=softfp -mfpu=neon
 endif
 
 if BUILD_AMD64
-libmbedcrypto_la_CFLAGS += -maes -mssse3 -mavx2
+libmbedcrypto_la_CFLAGS += -maes -mssse3
 endif
 
 if BUILD_X86
-libmbedcrypto_la_CFLAGS += -maes -mssse3 -mavx2
+libmbedcrypto_la_CFLAGS += -maes -mssse3
 endif
