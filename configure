@@ -639,6 +639,8 @@ LTLIBOBJS
 LIBOBJS
 BUILD_ARM_FALSE
 BUILD_ARM_TRUE
+BUILD_ARMHF_FALSE
+BUILD_ARMHF_TRUE
 BUILD_X86_FALSE
 BUILD_X86_TRUE
 BUILD_AMD64_FALSE
@@ -14283,6 +14285,11 @@ $as_echo "arm64" >&6; }
     { $as_echo "$as_me:${as_lineno-$LINENO}: result: arm64" >&5
 $as_echo "arm64" >&6; }
     ;;
+  arm-*hf)
+    os_arch=armhf
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: armhf" >&5
+$as_echo "armhf" >&6; }
+    ;;
   arm-*)
     os_arch=arm
     { $as_echo "$as_me:${as_lineno-$LINENO}: result: arm" >&5
@@ -14436,6 +14443,14 @@ fi
 else
   BUILD_X86_TRUE='#'
   BUILD_X86_FALSE=
+fi
+
+ if test "$os_arch" = "armhf"; then
+  BUILD_ARMHF_TRUE=
+  BUILD_ARMHF_FALSE='#'
+else
+  BUILD_ARMHF_TRUE='#'
+  BUILD_ARMHF_FALSE=
 fi
 
  if test "$os_arch" = "arm"; then
@@ -15914,6 +15929,10 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${BUILD_X86_TRUE}" && test -z "${BUILD_X86_FALSE}"; then
   as_fn_error $? "conditional \"BUILD_X86\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${BUILD_ARMHF_TRUE}" && test -z "${BUILD_ARMHF_FALSE}"; then
+  as_fn_error $? "conditional \"BUILD_ARMHF\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${BUILD_ARM_TRUE}" && test -z "${BUILD_ARM_FALSE}"; then

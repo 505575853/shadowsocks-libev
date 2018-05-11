@@ -256,19 +256,41 @@ ss_realloc(void *ptr, size_t new_size)
     return new;
 }
 
+#if defined(__i386__) || defined(__amd64__)
+int mbedtls_chacha20_support_avx2();
+int mbedtls_chacha20_support_ssse3();
+#endif
+
 void
 usage()
 {
     const char *HARD_ACC = "";
+#if defined(__aarch64__) || \
+    (defined(__arm__) && __ARM_NEON__)
+    const char *CHACHA_SIMD = " [NEON ChaCha20]";
+#else
+    const char *CHACHA_SIMD = "";
+#endif
     printf("\n");
     int hard_aes = ss_support_armv8();
+    int has_avx = 0;
+    int has_ssse3 = 0;
+#if defined(__i386__) || defined(__amd64__)
+    has_avx = mbedtls_chacha20_support_avx2();
+    has_ssse3 = mbedtls_chacha20_support_ssse3();
+#endif
     if (hard_aes == 1) {
-        HARD_ACC = " (Assembly AES)";
+        HARD_ACC = " [Assembly AES]";
     }
     if (hard_aes == 2) {
-        HARD_ACC = " (Hardware AES)";
+        HARD_ACC = " [Hardware AES]";
     }
-    printf("shadowsocks-libev %s with %s%s\n\n", VERSION, USING_CRYPTO, HARD_ACC);
+    if (has_avx) {
+        CHACHA_SIMD = " [AVX2 ChaCha20]";
+    } else if (has_ssse3) {
+        CHACHA_SIMD = " [SSSE3 ChaCha20]";
+    }
+    printf("shadowsocks-libev %s with %s%s%s\n\n", VERSION, USING_CRYPTO, HARD_ACC, CHACHA_SIMD);
     printf(
         "  maintained by Max Lv <max.c.lv@gmail.com> and Linus Yang <laokongzi@gmail.com>\n\n");
     printf("  usage:\n\n");

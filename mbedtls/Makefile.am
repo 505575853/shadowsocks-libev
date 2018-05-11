@@ -1,6 +1,6 @@
-noinst_LTLIBRARIES = libmbedcrypto.la
+noinst_LTLIBRARIES = libmbedcrypto.la libmbedcrypto_simd.la libmbedcrypto_avx.la
 libmbedcrypto_la_SOURCES = library/aes.c library/aesni.c library/arc4.c \
-		library/aesarm.c library/aesasm.S library/aesasm_wrap.c \
+		library/aesasm.S library/aesasm_wrap.c \
 		library/aesasm_hard.S				\
 		library/asn1parse.c library/asn1write.c library/base64.c \
 		library/bignum.c library/blowfish.c library/camellia.c \
@@ -24,20 +24,44 @@ libmbedcrypto_la_SOURCES = library/aes.c library/aesni.c library/arc4.c \
 		library/aead_chacha20_poly1305.c \
 		library/chacha20.c library/poly1305.c
 
+libmbedcrypto_simd_la_SOURCES = library/aesarm.c library/aesctr.c \
+		library/chacha20_vec.c library/sha1_armv8.c library/sha256_armv8.c
+
+libmbedcrypto_avx_la_SOURCES = library/chacha20_avx.c
+
 libmbedcrypto_la_CPPFLAGS = -I$(top_srcdir)/mbedtls/include -D_FILE_OFFSET_BITS=64
+libmbedcrypto_simd_la_CPPFLAGS = $(libmbedcrypto_la_CPPFLAGS)
+libmbedcrypto_avx_la_CPPFLAGS = $(libmbedcrypto_la_CPPFLAGS)
+
 libmbedcrypto_la_CFLAGS = -O2 -Wall -W -Wdeclaration-after-statement
+libmbedcrypto_simd_la_CFLAGS = $(libmbedcrypto_la_CFLAGS)
+
 if BUILD_ARM64
-libmbedcrypto_la_CFLAGS += -march=armv8-a+crypto -mcpu=cortex-a53
+libmbedcrypto_simd_la_CFLAGS += -march=armv8-a+crypto -mcpu=cortex-a53
 endif
 
 if BUILD_ARM
-libmbedcrypto_la_CFLAGS += -march=armv7-a -mfloat-abi=softfp -mfpu=neon
+libmbedcrypto_simd_la_CFLAGS += -march=armv7-a -mfloat-abi=softfp -mfpu=neon
+endif
+
+if BUILD_ARMHF
+libmbedcrypto_simd_la_CFLAGS += -march=armv7-a -mfloat-abi=hard -mfpu=neon
 endif
 
 if BUILD_AMD64
-libmbedcrypto_la_CFLAGS += -maes -mssse3
+libmbedcrypto_simd_la_CFLAGS += -maes -mssse3
 endif
 
 if BUILD_X86
-libmbedcrypto_la_CFLAGS += -maes -mssse3
+libmbedcrypto_simd_la_CFLAGS += -maes -mssse3
+endif
+
+libmbedcrypto_avx_la_CFLAGS = $(libmbedcrypto_simd_la_CFLAGS)
+
+if BUILD_AMD64
+libmbedcrypto_avx_la_CFLAGS += -mavx2
+endif
+
+if BUILD_X86
+libmbedcrypto_avx_la_CFLAGS += -mavx2
 endif

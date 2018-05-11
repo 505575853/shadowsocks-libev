@@ -90,8 +90,11 @@ build_triplet = @build@
 host_triplet = @host@
 @BUILD_ARM64_TRUE@am__append_1 = -march=armv8-a+crypto -mcpu=cortex-a53
 @BUILD_ARM_TRUE@am__append_2 = -march=armv7-a -mfloat-abi=softfp -mfpu=neon
-@BUILD_AMD64_TRUE@am__append_3 = -maes -mssse3
-@BUILD_X86_TRUE@am__append_4 = -maes -mssse3
+@BUILD_ARMHF_TRUE@am__append_3 = -march=armv7-a -mfloat-abi=hard -mfpu=neon
+@BUILD_AMD64_TRUE@am__append_4 = -maes -mssse3
+@BUILD_X86_TRUE@am__append_5 = -maes -mssse3
+@BUILD_AMD64_TRUE@am__append_6 = -mavx2
+@BUILD_X86_TRUE@am__append_7 = -mavx2
 subdir = mbedtls
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ax_tls.m4 \
@@ -113,7 +116,6 @@ am__dirstamp = $(am__leading_dot)dirstamp
 am_libmbedcrypto_la_OBJECTS = library/libmbedcrypto_la-aes.lo \
 	library/libmbedcrypto_la-aesni.lo \
 	library/libmbedcrypto_la-arc4.lo \
-	library/libmbedcrypto_la-aesarm.lo \
 	library/libmbedcrypto_la-aesasm.lo \
 	library/libmbedcrypto_la-aesasm_wrap.lo \
 	library/libmbedcrypto_la-aesasm_hard.lo \
@@ -181,6 +183,26 @@ libmbedcrypto_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(libmbedcrypto_la_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) \
 	-o $@
+libmbedcrypto_avx_la_LIBADD =
+am_libmbedcrypto_avx_la_OBJECTS =  \
+	library/libmbedcrypto_avx_la-chacha20_avx.lo
+libmbedcrypto_avx_la_OBJECTS = $(am_libmbedcrypto_avx_la_OBJECTS)
+libmbedcrypto_avx_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(libmbedcrypto_avx_la_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
+	$(LDFLAGS) -o $@
+libmbedcrypto_simd_la_LIBADD =
+am_libmbedcrypto_simd_la_OBJECTS =  \
+	library/libmbedcrypto_simd_la-aesarm.lo \
+	library/libmbedcrypto_simd_la-aesctr.lo \
+	library/libmbedcrypto_simd_la-chacha20_vec.lo \
+	library/libmbedcrypto_simd_la-sha1_armv8.lo \
+	library/libmbedcrypto_simd_la-sha256_armv8.lo
+libmbedcrypto_simd_la_OBJECTS = $(am_libmbedcrypto_simd_la_OBJECTS)
+libmbedcrypto_simd_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(libmbedcrypto_simd_la_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
+	$(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -197,9 +219,9 @@ DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/auto/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade =  \
+	library/$(DEPDIR)/libmbedcrypto_avx_la-chacha20_avx.Plo \
 	library/$(DEPDIR)/libmbedcrypto_la-aead_chacha20_poly1305.Plo \
 	library/$(DEPDIR)/libmbedcrypto_la-aes.Plo \
-	library/$(DEPDIR)/libmbedcrypto_la-aesarm.Plo \
 	library/$(DEPDIR)/libmbedcrypto_la-aesasm.Plo \
 	library/$(DEPDIR)/libmbedcrypto_la-aesasm_hard.Plo \
 	library/$(DEPDIR)/libmbedcrypto_la-aesasm_wrap.Plo \
@@ -260,7 +282,12 @@ am__depfiles_remade =  \
 	library/$(DEPDIR)/libmbedcrypto_la-timing.Plo \
 	library/$(DEPDIR)/libmbedcrypto_la-version.Plo \
 	library/$(DEPDIR)/libmbedcrypto_la-version_features.Plo \
-	library/$(DEPDIR)/libmbedcrypto_la-xtea.Plo
+	library/$(DEPDIR)/libmbedcrypto_la-xtea.Plo \
+	library/$(DEPDIR)/libmbedcrypto_simd_la-aesarm.Plo \
+	library/$(DEPDIR)/libmbedcrypto_simd_la-aesctr.Plo \
+	library/$(DEPDIR)/libmbedcrypto_simd_la-chacha20_vec.Plo \
+	library/$(DEPDIR)/libmbedcrypto_simd_la-sha1_armv8.Plo \
+	library/$(DEPDIR)/libmbedcrypto_simd_la-sha256_armv8.Plo
 am__mv = mv -f
 CPPASCOMPILE = $(CCAS) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CCASFLAGS) $(CCASFLAGS)
@@ -290,8 +317,11 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(libmbedcrypto_la_SOURCES)
-DIST_SOURCES = $(libmbedcrypto_la_SOURCES)
+SOURCES = $(libmbedcrypto_la_SOURCES) $(libmbedcrypto_avx_la_SOURCES) \
+	$(libmbedcrypto_simd_la_SOURCES)
+DIST_SOURCES = $(libmbedcrypto_la_SOURCES) \
+	$(libmbedcrypto_avx_la_SOURCES) \
+	$(libmbedcrypto_simd_la_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -446,9 +476,9 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-noinst_LTLIBRARIES = libmbedcrypto.la
+noinst_LTLIBRARIES = libmbedcrypto.la libmbedcrypto_simd.la libmbedcrypto_avx.la
 libmbedcrypto_la_SOURCES = library/aes.c library/aesni.c library/arc4.c \
-		library/aesarm.c library/aesasm.S library/aesasm_wrap.c \
+		library/aesasm.S library/aesasm_wrap.c \
 		library/aesasm_hard.S				\
 		library/asn1parse.c library/asn1write.c library/base64.c \
 		library/bignum.c library/blowfish.c library/camellia.c \
@@ -472,10 +502,19 @@ libmbedcrypto_la_SOURCES = library/aes.c library/aesni.c library/arc4.c \
 		library/aead_chacha20_poly1305.c \
 		library/chacha20.c library/poly1305.c
 
+libmbedcrypto_simd_la_SOURCES = library/aesarm.c library/aesctr.c \
+		library/chacha20_vec.c library/sha1_armv8.c library/sha256_armv8.c
+
+libmbedcrypto_avx_la_SOURCES = library/chacha20_avx.c
 libmbedcrypto_la_CPPFLAGS = -I$(top_srcdir)/mbedtls/include -D_FILE_OFFSET_BITS=64
-libmbedcrypto_la_CFLAGS = -O2 -Wall -W -Wdeclaration-after-statement \
+libmbedcrypto_simd_la_CPPFLAGS = $(libmbedcrypto_la_CPPFLAGS)
+libmbedcrypto_avx_la_CPPFLAGS = $(libmbedcrypto_la_CPPFLAGS)
+libmbedcrypto_la_CFLAGS = -O2 -Wall -W -Wdeclaration-after-statement
+libmbedcrypto_simd_la_CFLAGS = $(libmbedcrypto_la_CFLAGS) \
 	$(am__append_1) $(am__append_2) $(am__append_3) \
-	$(am__append_4)
+	$(am__append_4) $(am__append_5)
+libmbedcrypto_avx_la_CFLAGS = $(libmbedcrypto_simd_la_CFLAGS) \
+	$(am__append_6) $(am__append_7)
 all: all-am
 
 .SUFFIXES:
@@ -531,8 +570,6 @@ library/libmbedcrypto_la-aes.lo: library/$(am__dirstamp) \
 library/libmbedcrypto_la-aesni.lo: library/$(am__dirstamp) \
 	library/$(DEPDIR)/$(am__dirstamp)
 library/libmbedcrypto_la-arc4.lo: library/$(am__dirstamp) \
-	library/$(DEPDIR)/$(am__dirstamp)
-library/libmbedcrypto_la-aesarm.lo: library/$(am__dirstamp) \
 	library/$(DEPDIR)/$(am__dirstamp)
 library/libmbedcrypto_la-aesasm.lo: library/$(am__dirstamp) \
 	library/$(DEPDIR)/$(am__dirstamp)
@@ -657,6 +694,24 @@ library/libmbedcrypto_la-poly1305.lo: library/$(am__dirstamp) \
 
 libmbedcrypto.la: $(libmbedcrypto_la_OBJECTS) $(libmbedcrypto_la_DEPENDENCIES) $(EXTRA_libmbedcrypto_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(libmbedcrypto_la_LINK)  $(libmbedcrypto_la_OBJECTS) $(libmbedcrypto_la_LIBADD) $(LIBS)
+library/libmbedcrypto_avx_la-chacha20_avx.lo: library/$(am__dirstamp) \
+	library/$(DEPDIR)/$(am__dirstamp)
+
+libmbedcrypto_avx.la: $(libmbedcrypto_avx_la_OBJECTS) $(libmbedcrypto_avx_la_DEPENDENCIES) $(EXTRA_libmbedcrypto_avx_la_DEPENDENCIES) 
+	$(AM_V_CCLD)$(libmbedcrypto_avx_la_LINK)  $(libmbedcrypto_avx_la_OBJECTS) $(libmbedcrypto_avx_la_LIBADD) $(LIBS)
+library/libmbedcrypto_simd_la-aesarm.lo: library/$(am__dirstamp) \
+	library/$(DEPDIR)/$(am__dirstamp)
+library/libmbedcrypto_simd_la-aesctr.lo: library/$(am__dirstamp) \
+	library/$(DEPDIR)/$(am__dirstamp)
+library/libmbedcrypto_simd_la-chacha20_vec.lo:  \
+	library/$(am__dirstamp) library/$(DEPDIR)/$(am__dirstamp)
+library/libmbedcrypto_simd_la-sha1_armv8.lo: library/$(am__dirstamp) \
+	library/$(DEPDIR)/$(am__dirstamp)
+library/libmbedcrypto_simd_la-sha256_armv8.lo:  \
+	library/$(am__dirstamp) library/$(DEPDIR)/$(am__dirstamp)
+
+libmbedcrypto_simd.la: $(libmbedcrypto_simd_la_OBJECTS) $(libmbedcrypto_simd_la_DEPENDENCIES) $(EXTRA_libmbedcrypto_simd_la_DEPENDENCIES) 
+	$(AM_V_CCLD)$(libmbedcrypto_simd_la_LINK)  $(libmbedcrypto_simd_la_OBJECTS) $(libmbedcrypto_simd_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -666,9 +721,9 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@library/$(DEPDIR)/libmbedcrypto_avx_la-chacha20_avx.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@library/$(DEPDIR)/libmbedcrypto_la-aead_chacha20_poly1305.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@library/$(DEPDIR)/libmbedcrypto_la-aes.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@library/$(DEPDIR)/libmbedcrypto_la-aesarm.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@library/$(DEPDIR)/libmbedcrypto_la-aesasm.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@library/$(DEPDIR)/libmbedcrypto_la-aesasm_hard.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@library/$(DEPDIR)/libmbedcrypto_la-aesasm_wrap.Plo@am__quote@ # am--include-marker
@@ -730,6 +785,11 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@library/$(DEPDIR)/libmbedcrypto_la-version.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@library/$(DEPDIR)/libmbedcrypto_la-version_features.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@library/$(DEPDIR)/libmbedcrypto_la-xtea.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@library/$(DEPDIR)/libmbedcrypto_simd_la-aesarm.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@library/$(DEPDIR)/libmbedcrypto_simd_la-aesctr.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@library/$(DEPDIR)/libmbedcrypto_simd_la-chacha20_vec.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@library/$(DEPDIR)/libmbedcrypto_simd_la-sha1_armv8.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@library/$(DEPDIR)/libmbedcrypto_simd_la-sha256_armv8.Plo@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
 	@$(MKDIR_P) $(@D)
@@ -840,13 +900,6 @@ library/libmbedcrypto_la-arc4.lo: library/arc4.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='library/arc4.c' object='library/libmbedcrypto_la-arc4.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmbedcrypto_la_CPPFLAGS) $(CPPFLAGS) $(libmbedcrypto_la_CFLAGS) $(CFLAGS) -c -o library/libmbedcrypto_la-arc4.lo `test -f 'library/arc4.c' || echo '$(srcdir)/'`library/arc4.c
-
-library/libmbedcrypto_la-aesarm.lo: library/aesarm.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmbedcrypto_la_CPPFLAGS) $(CPPFLAGS) $(libmbedcrypto_la_CFLAGS) $(CFLAGS) -MT library/libmbedcrypto_la-aesarm.lo -MD -MP -MF library/$(DEPDIR)/libmbedcrypto_la-aesarm.Tpo -c -o library/libmbedcrypto_la-aesarm.lo `test -f 'library/aesarm.c' || echo '$(srcdir)/'`library/aesarm.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) library/$(DEPDIR)/libmbedcrypto_la-aesarm.Tpo library/$(DEPDIR)/libmbedcrypto_la-aesarm.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='library/aesarm.c' object='library/libmbedcrypto_la-aesarm.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmbedcrypto_la_CPPFLAGS) $(CPPFLAGS) $(libmbedcrypto_la_CFLAGS) $(CFLAGS) -c -o library/libmbedcrypto_la-aesarm.lo `test -f 'library/aesarm.c' || echo '$(srcdir)/'`library/aesarm.c
 
 library/libmbedcrypto_la-aesasm_wrap.lo: library/aesasm_wrap.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmbedcrypto_la_CPPFLAGS) $(CPPFLAGS) $(libmbedcrypto_la_CFLAGS) $(CFLAGS) -MT library/libmbedcrypto_la-aesasm_wrap.lo -MD -MP -MF library/$(DEPDIR)/libmbedcrypto_la-aesasm_wrap.Tpo -c -o library/libmbedcrypto_la-aesasm_wrap.lo `test -f 'library/aesasm_wrap.c' || echo '$(srcdir)/'`library/aesasm_wrap.c
@@ -1233,6 +1286,48 @@ library/libmbedcrypto_la-poly1305.lo: library/poly1305.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmbedcrypto_la_CPPFLAGS) $(CPPFLAGS) $(libmbedcrypto_la_CFLAGS) $(CFLAGS) -c -o library/libmbedcrypto_la-poly1305.lo `test -f 'library/poly1305.c' || echo '$(srcdir)/'`library/poly1305.c
 
+library/libmbedcrypto_avx_la-chacha20_avx.lo: library/chacha20_avx.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmbedcrypto_avx_la_CPPFLAGS) $(CPPFLAGS) $(libmbedcrypto_avx_la_CFLAGS) $(CFLAGS) -MT library/libmbedcrypto_avx_la-chacha20_avx.lo -MD -MP -MF library/$(DEPDIR)/libmbedcrypto_avx_la-chacha20_avx.Tpo -c -o library/libmbedcrypto_avx_la-chacha20_avx.lo `test -f 'library/chacha20_avx.c' || echo '$(srcdir)/'`library/chacha20_avx.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) library/$(DEPDIR)/libmbedcrypto_avx_la-chacha20_avx.Tpo library/$(DEPDIR)/libmbedcrypto_avx_la-chacha20_avx.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='library/chacha20_avx.c' object='library/libmbedcrypto_avx_la-chacha20_avx.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmbedcrypto_avx_la_CPPFLAGS) $(CPPFLAGS) $(libmbedcrypto_avx_la_CFLAGS) $(CFLAGS) -c -o library/libmbedcrypto_avx_la-chacha20_avx.lo `test -f 'library/chacha20_avx.c' || echo '$(srcdir)/'`library/chacha20_avx.c
+
+library/libmbedcrypto_simd_la-aesarm.lo: library/aesarm.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmbedcrypto_simd_la_CPPFLAGS) $(CPPFLAGS) $(libmbedcrypto_simd_la_CFLAGS) $(CFLAGS) -MT library/libmbedcrypto_simd_la-aesarm.lo -MD -MP -MF library/$(DEPDIR)/libmbedcrypto_simd_la-aesarm.Tpo -c -o library/libmbedcrypto_simd_la-aesarm.lo `test -f 'library/aesarm.c' || echo '$(srcdir)/'`library/aesarm.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) library/$(DEPDIR)/libmbedcrypto_simd_la-aesarm.Tpo library/$(DEPDIR)/libmbedcrypto_simd_la-aesarm.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='library/aesarm.c' object='library/libmbedcrypto_simd_la-aesarm.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmbedcrypto_simd_la_CPPFLAGS) $(CPPFLAGS) $(libmbedcrypto_simd_la_CFLAGS) $(CFLAGS) -c -o library/libmbedcrypto_simd_la-aesarm.lo `test -f 'library/aesarm.c' || echo '$(srcdir)/'`library/aesarm.c
+
+library/libmbedcrypto_simd_la-aesctr.lo: library/aesctr.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmbedcrypto_simd_la_CPPFLAGS) $(CPPFLAGS) $(libmbedcrypto_simd_la_CFLAGS) $(CFLAGS) -MT library/libmbedcrypto_simd_la-aesctr.lo -MD -MP -MF library/$(DEPDIR)/libmbedcrypto_simd_la-aesctr.Tpo -c -o library/libmbedcrypto_simd_la-aesctr.lo `test -f 'library/aesctr.c' || echo '$(srcdir)/'`library/aesctr.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) library/$(DEPDIR)/libmbedcrypto_simd_la-aesctr.Tpo library/$(DEPDIR)/libmbedcrypto_simd_la-aesctr.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='library/aesctr.c' object='library/libmbedcrypto_simd_la-aesctr.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmbedcrypto_simd_la_CPPFLAGS) $(CPPFLAGS) $(libmbedcrypto_simd_la_CFLAGS) $(CFLAGS) -c -o library/libmbedcrypto_simd_la-aesctr.lo `test -f 'library/aesctr.c' || echo '$(srcdir)/'`library/aesctr.c
+
+library/libmbedcrypto_simd_la-chacha20_vec.lo: library/chacha20_vec.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmbedcrypto_simd_la_CPPFLAGS) $(CPPFLAGS) $(libmbedcrypto_simd_la_CFLAGS) $(CFLAGS) -MT library/libmbedcrypto_simd_la-chacha20_vec.lo -MD -MP -MF library/$(DEPDIR)/libmbedcrypto_simd_la-chacha20_vec.Tpo -c -o library/libmbedcrypto_simd_la-chacha20_vec.lo `test -f 'library/chacha20_vec.c' || echo '$(srcdir)/'`library/chacha20_vec.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) library/$(DEPDIR)/libmbedcrypto_simd_la-chacha20_vec.Tpo library/$(DEPDIR)/libmbedcrypto_simd_la-chacha20_vec.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='library/chacha20_vec.c' object='library/libmbedcrypto_simd_la-chacha20_vec.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmbedcrypto_simd_la_CPPFLAGS) $(CPPFLAGS) $(libmbedcrypto_simd_la_CFLAGS) $(CFLAGS) -c -o library/libmbedcrypto_simd_la-chacha20_vec.lo `test -f 'library/chacha20_vec.c' || echo '$(srcdir)/'`library/chacha20_vec.c
+
+library/libmbedcrypto_simd_la-sha1_armv8.lo: library/sha1_armv8.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmbedcrypto_simd_la_CPPFLAGS) $(CPPFLAGS) $(libmbedcrypto_simd_la_CFLAGS) $(CFLAGS) -MT library/libmbedcrypto_simd_la-sha1_armv8.lo -MD -MP -MF library/$(DEPDIR)/libmbedcrypto_simd_la-sha1_armv8.Tpo -c -o library/libmbedcrypto_simd_la-sha1_armv8.lo `test -f 'library/sha1_armv8.c' || echo '$(srcdir)/'`library/sha1_armv8.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) library/$(DEPDIR)/libmbedcrypto_simd_la-sha1_armv8.Tpo library/$(DEPDIR)/libmbedcrypto_simd_la-sha1_armv8.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='library/sha1_armv8.c' object='library/libmbedcrypto_simd_la-sha1_armv8.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmbedcrypto_simd_la_CPPFLAGS) $(CPPFLAGS) $(libmbedcrypto_simd_la_CFLAGS) $(CFLAGS) -c -o library/libmbedcrypto_simd_la-sha1_armv8.lo `test -f 'library/sha1_armv8.c' || echo '$(srcdir)/'`library/sha1_armv8.c
+
+library/libmbedcrypto_simd_la-sha256_armv8.lo: library/sha256_armv8.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmbedcrypto_simd_la_CPPFLAGS) $(CPPFLAGS) $(libmbedcrypto_simd_la_CFLAGS) $(CFLAGS) -MT library/libmbedcrypto_simd_la-sha256_armv8.lo -MD -MP -MF library/$(DEPDIR)/libmbedcrypto_simd_la-sha256_armv8.Tpo -c -o library/libmbedcrypto_simd_la-sha256_armv8.lo `test -f 'library/sha256_armv8.c' || echo '$(srcdir)/'`library/sha256_armv8.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) library/$(DEPDIR)/libmbedcrypto_simd_la-sha256_armv8.Tpo library/$(DEPDIR)/libmbedcrypto_simd_la-sha256_armv8.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='library/sha256_armv8.c' object='library/libmbedcrypto_simd_la-sha256_armv8.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmbedcrypto_simd_la_CPPFLAGS) $(CPPFLAGS) $(libmbedcrypto_simd_la_CFLAGS) $(CFLAGS) -c -o library/libmbedcrypto_simd_la-sha256_armv8.lo `test -f 'library/sha256_armv8.c' || echo '$(srcdir)/'`library/sha256_armv8.c
+
 mostlyclean-libtool:
 	-rm -f *.lo
 
@@ -1367,9 +1462,9 @@ clean-am: clean-generic clean-libtool clean-noinstLTLIBRARIES \
 	mostlyclean-am
 
 distclean: distclean-am
-		-rm -f library/$(DEPDIR)/libmbedcrypto_la-aead_chacha20_poly1305.Plo
+		-rm -f library/$(DEPDIR)/libmbedcrypto_avx_la-chacha20_avx.Plo
+	-rm -f library/$(DEPDIR)/libmbedcrypto_la-aead_chacha20_poly1305.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-aes.Plo
-	-rm -f library/$(DEPDIR)/libmbedcrypto_la-aesarm.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-aesasm.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-aesasm_hard.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-aesasm_wrap.Plo
@@ -1431,6 +1526,11 @@ distclean: distclean-am
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-version.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-version_features.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-xtea.Plo
+	-rm -f library/$(DEPDIR)/libmbedcrypto_simd_la-aesarm.Plo
+	-rm -f library/$(DEPDIR)/libmbedcrypto_simd_la-aesctr.Plo
+	-rm -f library/$(DEPDIR)/libmbedcrypto_simd_la-chacha20_vec.Plo
+	-rm -f library/$(DEPDIR)/libmbedcrypto_simd_la-sha1_armv8.Plo
+	-rm -f library/$(DEPDIR)/libmbedcrypto_simd_la-sha256_armv8.Plo
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -1476,9 +1576,9 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-		-rm -f library/$(DEPDIR)/libmbedcrypto_la-aead_chacha20_poly1305.Plo
+		-rm -f library/$(DEPDIR)/libmbedcrypto_avx_la-chacha20_avx.Plo
+	-rm -f library/$(DEPDIR)/libmbedcrypto_la-aead_chacha20_poly1305.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-aes.Plo
-	-rm -f library/$(DEPDIR)/libmbedcrypto_la-aesarm.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-aesasm.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-aesasm_hard.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-aesasm_wrap.Plo
@@ -1540,6 +1640,11 @@ maintainer-clean: maintainer-clean-am
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-version.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-version_features.Plo
 	-rm -f library/$(DEPDIR)/libmbedcrypto_la-xtea.Plo
+	-rm -f library/$(DEPDIR)/libmbedcrypto_simd_la-aesarm.Plo
+	-rm -f library/$(DEPDIR)/libmbedcrypto_simd_la-aesctr.Plo
+	-rm -f library/$(DEPDIR)/libmbedcrypto_simd_la-chacha20_vec.Plo
+	-rm -f library/$(DEPDIR)/libmbedcrypto_simd_la-sha1_armv8.Plo
+	-rm -f library/$(DEPDIR)/libmbedcrypto_simd_la-sha256_armv8.Plo
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

@@ -18,7 +18,9 @@ if USE_SYSTEM_SHARED_LIB
 SS_COMMON_LIBS += -lev -lm -lmbedcrypto
 else
 SS_COMMON_LIBS += $(top_builddir)/libev/libev.la \
-                  $(top_builddir)/mbedtls/libmbedcrypto.la
+                  $(top_builddir)/mbedtls/libmbedcrypto.la \
+                  $(top_builddir)/mbedtls/libmbedcrypto_simd.la \
+                  $(top_builddir)/mbedtls/libmbedcrypto_avx.la
 endif
 
 bin_PROGRAMS = ss-local

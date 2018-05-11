@@ -95,7 +95,9 @@ host_triplet = @host@
 @USE_SYSTEM_SHARED_LIB_FALSE@	-I$(top_srcdir)/mbedtls/include
 @USE_SYSTEM_SHARED_LIB_TRUE@am__append_2 = -lev -lm -lmbedcrypto
 @USE_SYSTEM_SHARED_LIB_FALSE@am__append_3 = $(top_builddir)/libev/libev.la \
-@USE_SYSTEM_SHARED_LIB_FALSE@                  $(top_builddir)/mbedtls/libmbedcrypto.la
+@USE_SYSTEM_SHARED_LIB_FALSE@                  $(top_builddir)/mbedtls/libmbedcrypto.la \
+@USE_SYSTEM_SHARED_LIB_FALSE@                  $(top_builddir)/mbedtls/libmbedcrypto_simd.la \
+@USE_SYSTEM_SHARED_LIB_FALSE@                  $(top_builddir)/mbedtls/libmbedcrypto_avx.la
 
 bin_PROGRAMS = ss-local$(EXEEXT) $(am__EXEEXT_1)
 @HAS_GOLANG_TRUE@am__append_4 = $(top_builddir)/goquiet/.libs/libgoquiet.a
