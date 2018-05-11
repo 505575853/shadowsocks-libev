@@ -26,14 +26,19 @@ DIST=ssr-win.tar.gz
 all: build
 
 build:
+	OLDPWD="$$PWD"; \
+		cd "$$(git rev-parse --show-toplevel)"; \
+		git archive --format=tar.gz --prefix=proj/ HEAD > $$OLDPWD/archive.tar.gz
 	docker build --force-rm -t $(IMAGE) \
-	  --build-arg REV=$(REV) \
+	  --build-arg REV="$$(git rev-parse --short HEAD)" \
 	  --build-arg REPO=$(REPO) \
 	  --build-arg REBUILD="$$(date +%Y-%m-%d-%H-%M-%S)" .
 	docker run --rm --entrypoint cat $(IMAGE) /bin.tgz > $(DIST)
 
 clean:
-	rm -f $(DIST)
+	rm -f $(DIST) archive.tar.gz
+
+distclean: clean
 	docker rmi $(IMAGE) || true
 
-.PHONY: all clean build
+.PHONY: all clean build distclean

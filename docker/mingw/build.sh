@@ -32,12 +32,9 @@ build_proj() {
 
     cd "$SRC"
     if ! [ -d proj ]; then
-        git clone ${PROJ_URL} proj
-        cd proj
-        git checkout ${PROJ_REV}
-    else
-        cd proj
+        tar xf /archive.tar.gz
     fi
+    cd proj
     ./configure --host=${host} --prefix=${prefix} \
       --with-pcre="$dep" CFLAGS="-DPCRE_STATIC"
     make clean
@@ -67,10 +64,7 @@ dk_package() {
     cp -r "$SRC/proj/python/windows" server
     rm -f server/pylib.zip
     mv server/ss-server.exe server/ssr-server.exe
-    pushd "$SRC/proj"
-    GIT_REV="$(git rev-parse --short HEAD)"
-    popd
-    echo "SHA1 checksum for build $(date +"%y%m%d")-${GIT_REV}" > checksum
+    echo "SHA1 checksum for build $(date +"%y%m%d")-${PROJ_REV}" > checksum
     for f in *.exe; do
         echo "  $f:" >> checksum
         echo "    $(sha1sum $f | cut -d ' ' -f 1)" >> checksum

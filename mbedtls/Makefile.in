@@ -513,7 +513,7 @@ libmbedcrypto_la_CFLAGS = -O2 -Wall -W -Wdeclaration-after-statement
 libmbedcrypto_simd_la_CFLAGS = $(libmbedcrypto_la_CFLAGS) \
 	$(am__append_1) $(am__append_2) $(am__append_3) \
 	$(am__append_4) $(am__append_5)
-libmbedcrypto_avx_la_CFLAGS = $(libmbedcrypto_simd_la_CFLAGS) \
+libmbedcrypto_avx_la_CFLAGS = $(libmbedcrypto_la_CFLAGS) \
 	$(am__append_6) $(am__append_7)
 all: all-am
 

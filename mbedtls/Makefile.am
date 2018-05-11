@@ -56,7 +56,7 @@ if BUILD_X86
 libmbedcrypto_simd_la_CFLAGS += -maes -mssse3
 endif
 
-libmbedcrypto_avx_la_CFLAGS = $(libmbedcrypto_simd_la_CFLAGS)
+libmbedcrypto_avx_la_CFLAGS = $(libmbedcrypto_la_CFLAGS)
 
 if BUILD_AMD64
 libmbedcrypto_avx_la_CFLAGS += -mavx2

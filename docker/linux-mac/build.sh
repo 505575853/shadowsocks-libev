@@ -36,12 +36,9 @@ build_proj() {
 
     cd "$SRC"
     if ! [ -d proj ]; then
-        git clone ${PROJ_URL} proj
-        cd proj
-        git checkout ${PROJ_REV}
-    else
-        cd proj
+        tar xf /archive.tar.gz
     fi
+    cd proj
     ./configure --host=${host} --prefix=${prefix} \
       --with-pcre="$dep" CFLAGS="${MUSL} -DPCRE_STATIC"
     make clean
@@ -66,9 +63,6 @@ dk_build() {
 }
 
 dk_package() {
-    pushd "$SRC/proj"
-    GIT_REV="$(git rev-parse --short HEAD)"
-    popd
     rm -rf "$BASE/pack"
     mkdir -p "$BASE/pack"
     cd "$BASE/pack"
@@ -92,7 +86,7 @@ dk_package() {
     cp "$SRC/proj/goquiet/gq-server" .
     popd
     echo "ShadowsocksR Static Binary Release" > $BASE/pack/checksum
-    echo "Build $(date +"%y%m%d"): Git-${GIT_REV}" >> $BASE/pack/checksum
+    echo "Build $(date +"%y%m%d"): Git-${PROJ_REV}" >> $BASE/pack/checksum
     echo "SHA256 Checksum:" >> $BASE/pack/checksum
     find . -type f | while read f; do
         echo "  $(basename $f):" >> $BASE/pack/checksum
