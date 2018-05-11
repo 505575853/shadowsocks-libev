@@ -3,7 +3,7 @@ MINGW-PREFIX = i686-w64-mingw32
 all: pack
 
 server.exe:
-	LDFLAGS="-s" python nuitka-bin.py --recurse-to=yogurt --python-version=2.7 --show-scons --remove-output --show-progress --file-reference-choice=runtime server.py
+	LDFLAGS="-s" python nuitka-bin.py --clang --recurse-to=yogurt --python-version=2.7 --show-scons --remove-output --show-progress --file-reference-choice=runtime server.py
 
 nuitka:
 	python nuitka-bin.py --standalone --python-version=2.7 --show-scons --remove-output --show-progress --file-reference-choice=runtime server.py
