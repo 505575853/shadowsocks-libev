@@ -78,6 +78,14 @@
 #define HAVE_LAUNCHD
 #endif
 #endif
+
+#else
+
+#define FATAL(m) do { \
+    LOGE("%s", m); \
+    return -1; \
+} while(0)
+
 #endif
 
 #ifndef EAGAIN
@@ -129,9 +137,7 @@ static struct plugin_watcher_t {
 
 static int fast_open = 0;
 #ifdef HAVE_SETRLIMIT
-#ifndef LIB_ONLY
 static int nofile = 0;
-#endif
 #endif
 
 static void server_recv_cb(EV_P_ ev_io *w, int revents);
@@ -498,13 +504,17 @@ server_recv_cb(EV_P_ ev_io *w, int revents)
                     }
 #elif defined(TCP_FASTOPEN_CONNECT)
                     int optval = 1;
+                    int s = -1;
                     if(setsockopt(remote->fd, IPPROTO_TCP, TCP_FASTOPEN_CONNECT,
-                                (void *)&optval, sizeof(optval)) < 0)
-                        FATAL("failed to set TCP_FASTOPEN_CONNECT");
-                    int s = connect(remote->fd, (struct sockaddr *)&(remote->direct_addr.addr),
+                                (void *)&optval, sizeof(optval)) < 0) {
+                        ERROR("failed to set TCP_FASTOPEN_CONNECT");
+                        errno = EOPNOTSUPP;
+                    } else {
+                        s = connect(remote->fd, (struct sockaddr *)&(remote->direct_addr.addr),
                                     remote->direct_addr.addr_len);
-                    if (s == 0) {
-                        s = send(remote->fd, remote->buf->array, remote->buf->len, 0);
+                        if (s == 0) {
+                            s = send(remote->fd, remote->buf->array, remote->buf->len, 0);
+                        }
                     }
 #else
                     #pragma message("fast open not supported in this build")
@@ -1617,7 +1627,7 @@ signal_cb(EV_P_ ev_signal *w, int revents)
     }
 }
 
-#if defined(__MINGW32__) && !defined(LIB_ONLY)
+#if defined(__MINGW32__)
 static void
 plugin_watcher_cb(EV_P_ ev_io *w, int revents)
 {
@@ -1679,6 +1689,10 @@ init_obfs(server_def_t *serv, char *protocol, char *protocol_param, char *obfs, 
 #ifndef LIB_ONLY
 int
 main(int argc, char **argv)
+#else
+int
+start_ss_local_server(int argc, char **argv, shadowsocks_cb cb, void *data)
+#endif
 {
     int i, c;
     int pid_flags    = 0;
@@ -2229,6 +2243,9 @@ main(int argc, char **argv)
                 storage = ss_malloc(sizeof(struct sockaddr_storage));
                 snprintf(port, sizeof(port), "%d", serv_cfg->server_udp_port);
                 if (get_sockaddr(host, port, storage, 1, ipv6first) == -1) {
+#ifdef LIB_ONLY
+                    cb(0, data);
+#endif
                     FATAL("failed to resolve the provided hostname");
                 }
                 serv->addr_udp = storage;
@@ -2271,6 +2288,9 @@ main(int argc, char **argv)
             }
             struct sockaddr_storage *storage = ss_malloc(sizeof(struct sockaddr_storage));
             if (get_sockaddr(host, port, storage, 1, ipv6first) == -1) {
+#ifdef LIB_ONLY
+                cb(0, data);
+#endif
                 FATAL("failed to resolve the provided hostname");
             }
             serv->host = ss_strdup(host);
@@ -2370,6 +2390,10 @@ main(int argc, char **argv)
 
     free_jconf(conf);
 
+#ifdef LIB_ONLY
+    cb(listen_ctx->fd, data);
+#endif
+
     // Enter the loop
     ev_run(loop, 0);
 
@@ -2403,13 +2427,3 @@ main(int argc, char **argv)
 
     return 0;
 }
-
-#else
-
-int
-start_ss_local_server(profile_t profile)
-{
-    return -1;
-}
-
-#endif

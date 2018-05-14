@@ -22,47 +22,11 @@
 #ifndef _SHADOWSOCKS_H
 #define _SHADOWSOCKS_H
 
-typedef struct {
-    /*  Required  */
-    char *remote_host;    // hostname or ip of remote server
-    char *local_addr;     // local ip to bind
-    char *method;         // encryption method
-    char *password;       // password of remote server
-    int remote_port;      // port number of remote server
-    int local_port;       // port number of local server
-    int timeout;          // connection timeout
-
-    /*  Optional, set NULL if not valid   */
-    char *acl;            // file path to acl
-    char *log;            // file path to log
-    int fast_open;        // enable tcp fast open
-    int mode;             // enable udp relay
-    int mtu;              // MTU of interface
-    int mptcp;            // enable multipath TCP
-    int verbose;          // verbose mode
-} profile_t;
-
-/* An example profile
- *
- * const profile_t EXAMPLE_PROFILE = {
- *  .remote_host = "example.com",
- *  .local_addr = "127.0.0.1",
- *  .method = "bf-cfb",
- *  .password = "barfoo!",
- *  .remote_port = 8338,
- *  .local_port = 1080,
- *  .timeout = 600;
- *  .acl = NULL,
- *  .log = NULL,
- *  .fast_open = 0,
- *  .mode = 0,
- *  .verbose = 0
- * };
- */
-
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+typedef void (*shadowsocks_cb) (int fd, void*);
 
 /*
  * Create and start a shadowsocks local server.
@@ -75,7 +39,7 @@ extern "C" {
  *
  * If failed, -1 is returned. Errors will output to the log file.
  */
-int start_ss_local_server(profile_t profile);
+int start_ss_local_server(int argc, char **argv, shadowsocks_cb cb, void *data);
 
 #ifdef __cplusplus
 }

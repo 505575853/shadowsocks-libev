@@ -23,7 +23,7 @@
  *
  * [1] http://developer.apple.com/library/mac/#documentation/Darwin/Reference/ManPages/man7/environ.7.html
  */
-#include <crt_externs.h>
+extern char ***_NSGetEnviron(void);
 #define environ  (*_NSGetEnviron())
 
 #else
