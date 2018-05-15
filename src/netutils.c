@@ -165,7 +165,8 @@ get_sockaddr(char *host, char *port,
         }
 
         if (err != 0) {
-            LOGE("getaddrinfo: %s", gai_strerror(err));
+            if (verbose)
+                LOGE("getaddrinfo: %s", gai_strerror(err));
             return -1;
         }
 

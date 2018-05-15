@@ -125,7 +125,7 @@ endif
 
 lib_LTLIBRARIES = libshadowsocks-libev.la
 libshadowsocks_libev_la_SOURCES = $(ss_local_SOURCES)
-libshadowsocks_libev_la_CFLAGS = $(ss_local_CFLAGS) -DLIB_ONLY
+libshadowsocks_libev_la_CFLAGS = $(ss_local_CFLAGS) -DLIB_ONLY -DMODULE_LOCAL
 libshadowsocks_libev_la_LDFLAGS = -version-info $(VERSION_INFO)
 libshadowsocks_libev_la_LIBADD = $(ss_local_LDADD)
 include_HEADERS = shadowsocks.h

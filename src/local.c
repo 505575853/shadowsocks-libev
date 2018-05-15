@@ -45,6 +45,7 @@
 #ifdef LIB_ONLY
 //#include <pthread.h>
 #include "shadowsocks.h"
+#include <stdio.h>
 #endif
 
 #if defined(HAVE_SYS_IOCTL_H) && defined(HAVE_NET_IF_H) && defined(__linux__)
@@ -1719,6 +1720,10 @@ start_ss_local_server(int argc, char **argv, shadowsocks_cb cb, void *data)
     char tmp_port[8];
 
     srand(time(NULL));
+
+#ifdef LIB_ONLY
+    logfile = stderr;
+#endif
 
     int remote_num = 0;
     char *hostnames[MAX_REMOTE_NUM] = {NULL};
