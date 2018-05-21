@@ -372,6 +372,23 @@ trimwhitespace(char *str)
     return str;
 }
 
+static void
+init_rules(cre2_set **set, int added, const char* rule_name)
+{
+    if (set == NULL || *set == NULL) {
+        return;
+    }
+    if (added) {
+        if (cre2_set_compile(*set) == 0) {
+            LOGE("Failed to compile rules: %s", rule_name);
+        } else {
+            return;
+        }
+    }
+    cre2_set_delete(*set);
+    *set = NULL;
+}
+
 int
 init_acl(const char *path)
 {
@@ -386,9 +403,20 @@ init_acl(const char *path)
     ipset_init(&outbound_block_list_ipv6);
 
     re2_options = cre2_opt_new();
+    if (re2_options == NULL) {
+        LOGE("Failed to allocate re2 option.");
+        return -1;
+    }
+    // Increase max memory to 16MB
+    cre2_opt_set_max_mem(re2_options, 16LL << 20);
     black_list_rules = cre2_set_new(re2_options, CRE2_UNANCHORED);
     white_list_rules = cre2_set_new(re2_options, CRE2_UNANCHORED);
     outbound_block_list_rules = cre2_set_new(re2_options, CRE2_UNANCHORED);
+
+    int black_rule_added = 0;
+    int white_rule_added = 0;
+    int outbound_rule_added = 0;
+    int *added = &black_rule_added;
 
     struct ip_set *list_ipv4  = &black_list_ipv4;
     struct ip_set *list_ipv6  = &black_list_ipv6;
@@ -423,18 +451,21 @@ init_acl(const char *path)
                 list_ipv4 = &outbound_block_list_ipv4;
                 list_ipv6 = &outbound_block_list_ipv6;
                 rules     = outbound_block_list_rules;
+                added = &outbound_rule_added;
                 continue;
             } else if (strcmp(line, "[white_list]") == 0
                        || strcmp(line, "[proxy_list]") == 0) {
                 list_ipv4 = &black_list_ipv4;
                 list_ipv6 = &black_list_ipv6;
                 rules     = black_list_rules;
+                added = &black_rule_added;
                 continue;
             } else if (strcmp(line, "[black_list]") == 0
                        || strcmp(line, "[bypass_list]") == 0) {
                 list_ipv4 = &white_list_ipv4;
                 list_ipv6 = &white_list_ipv6;
                 rules     = white_list_rules;
+                added = &white_rule_added;
                 continue;
             } else if (strcmp(line, "[reject_all]") == 0
                        || strcmp(line, "[bypass_all]") == 0) {
@@ -469,15 +500,17 @@ init_acl(const char *path)
                     }
                 }
             } else {
-                if (cre2_set_add_simple(rules, line) < 0) {
+                if (rules != NULL && cre2_set_add_simple(rules, line) < 0) {
                     LOGE("Regex compilation of \"%s\" failed:", line);
+                } else {
+                    *added = 1;
                 }
             }
         }
 
-    cre2_set_compile(black_list_rules);
-    cre2_set_compile(white_list_rules);
-    cre2_set_compile(outbound_block_list_rules);
+    init_rules(&black_list_rules, black_rule_added, "proxy_list");
+    init_rules(&white_list_rules, white_rule_added, "bypass_list");
+    init_rules(&outbound_block_list_rules, outbound_rule_added, "outbound_list");
 
     fclose(f);
 
@@ -528,7 +561,10 @@ static int
 lookup_rule(cre2_set *set, const char *name, size_t name_len)
 {
     int buf[1];
-    return cre2_set_match(set, name, name_len, buf, 0);
+    if (set != NULL && name != NULL && name_len > 0) {
+        return cre2_set_match(set, name, name_len, buf, 0);
+    }
+    return 0;
 }
 
 /*

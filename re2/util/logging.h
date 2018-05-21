@@ -15,6 +15,13 @@
 
 #include "util/util.h"
 
+#ifdef __ANDROID__
+#include <android/log.h>
+#define LOGI(...)                                                \
+    ((void)__android_log_print(ANDROID_LOG_DEBUG, "shadowsocks", \
+                               __VA_ARGS__))
+#endif
+
 // Debug-only checking.
 #define DCHECK(condition) assert(condition)
 #define DCHECK_EQ(val1, val2) assert((val1) == (val2))
@@ -63,8 +70,12 @@ class LogMessage {
   void Flush() {
     stream() << "\n";
     string s = str_.str();
+#ifndef __ANDROID__
     size_t n = s.size();
     if (fwrite(s.data(), 1, n, stderr) < n) {}  // shut up gcc
+#else
+    LOGI("%s", s.c_str());
+#endif
     flushed_ = true;
   }
   ~LogMessage() {
