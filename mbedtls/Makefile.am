@@ -33,7 +33,7 @@ libmbedcrypto_la_CPPFLAGS = -I$(top_srcdir)/mbedtls/include -D_FILE_OFFSET_BITS=
 libmbedcrypto_simd_la_CPPFLAGS = $(libmbedcrypto_la_CPPFLAGS)
 libmbedcrypto_avx_la_CPPFLAGS = $(libmbedcrypto_la_CPPFLAGS)
 
-libmbedcrypto_la_CFLAGS = -O2 -Wall -W -Wdeclaration-after-statement
+libmbedcrypto_la_CFLAGS = -O3 -Wall -W -Wdeclaration-after-statement
 libmbedcrypto_simd_la_CFLAGS = $(libmbedcrypto_la_CFLAGS)
 
 if BUILD_ARM64

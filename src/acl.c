@@ -22,8 +22,8 @@
 
 #include <ipset/ipset.h>
 #include <ctype.h>
+#include <cre2.h>
 
-#include "rule.h"
 #include "utils.h"
 #include "cache.h"
 #include "acl.h"
@@ -39,8 +39,9 @@ static struct ip_set white_list_ipv6;
 static struct ip_set black_list_ipv4;
 static struct ip_set black_list_ipv6;
 
-static struct cork_dllist black_list_rules;
-static struct cork_dllist white_list_rules;
+static cre2_options_t* re2_options = NULL;
+static cre2_set *black_list_rules = NULL;
+static cre2_set *white_list_rules = NULL;
 
 static int acl_mode = BLACK_LIST;
 
@@ -48,9 +49,15 @@ static struct cache *block_list;
 
 static struct ip_set outbound_block_list_ipv4;
 static struct ip_set outbound_block_list_ipv6;
-static struct cork_dllist outbound_block_list_rules;
+static cre2_set *outbound_block_list_rules = NULL;
 
-#ifdef __linux__
+#ifndef __linux__
+# ifdef ACL_USE_FIREWALL
+#  undef ACL_USE_FIREWALL
+# endif
+#endif
+
+#ifdef ACL_USE_FIREWALL
 
 #include <unistd.h>
 #include <stdio.h>
@@ -244,7 +251,7 @@ void
 init_block_list(int firewall)
 {
     // Initialize cache
-#ifdef __linux__
+#ifdef ACL_USE_FIREWALL
     if (firewall)
         init_firewall();
     else
@@ -258,7 +265,7 @@ init_block_list(int firewall)
 void
 free_block_list()
 {
-#ifdef __linux__
+#ifdef ACL_USE_FIREWALL
     if (mode != NO_FIREWALL_MODE)
         reset_firewall();
 #endif
@@ -311,7 +318,7 @@ update_block_list(char *addr, int err_level)
         int *count = (int *)ss_malloc(sizeof(int));
         *count = 1;
         cache_insert(block_list, addr, addr_len, count);
-#ifdef __linux__
+#ifdef ACL_USE_FIREWALL
         if (mode != NO_FIREWALL_MODE)
             set_firewall_rule(addr, 1);
 #endif
@@ -378,13 +385,14 @@ init_acl(const char *path)
     ipset_init(&outbound_block_list_ipv4);
     ipset_init(&outbound_block_list_ipv6);
 
-    cork_dllist_init(&black_list_rules);
-    cork_dllist_init(&white_list_rules);
-    cork_dllist_init(&outbound_block_list_rules);
+    re2_options = cre2_opt_new();
+    black_list_rules = cre2_set_new(re2_options, CRE2_UNANCHORED);
+    white_list_rules = cre2_set_new(re2_options, CRE2_UNANCHORED);
+    outbound_block_list_rules = cre2_set_new(re2_options, CRE2_UNANCHORED);
 
     struct ip_set *list_ipv4  = &black_list_ipv4;
     struct ip_set *list_ipv6  = &black_list_ipv6;
-    struct cork_dllist *rules = &black_list_rules;
+    cre2_set *rules = black_list_rules;
 
     FILE *f = fopen(path, "r");
     if (f == NULL) {
@@ -414,19 +422,19 @@ init_acl(const char *path)
             if (strcmp(line, "[outbound_block_list]") == 0) {
                 list_ipv4 = &outbound_block_list_ipv4;
                 list_ipv6 = &outbound_block_list_ipv6;
-                rules     = &outbound_block_list_rules;
+                rules     = outbound_block_list_rules;
                 continue;
             } else if (strcmp(line, "[white_list]") == 0
                        || strcmp(line, "[proxy_list]") == 0) {
                 list_ipv4 = &black_list_ipv4;
                 list_ipv6 = &black_list_ipv6;
-                rules     = &black_list_rules;
+                rules     = black_list_rules;
                 continue;
             } else if (strcmp(line, "[black_list]") == 0
                        || strcmp(line, "[bypass_list]") == 0) {
                 list_ipv4 = &white_list_ipv4;
                 list_ipv6 = &white_list_ipv6;
-                rules     = &white_list_rules;
+                rules     = white_list_rules;
                 continue;
             } else if (strcmp(line, "[reject_all]") == 0
                        || strcmp(line, "[bypass_all]") == 0) {
@@ -461,26 +469,26 @@ init_acl(const char *path)
                     }
                 }
             } else {
-                rule_t *rule = new_rule();
-                accept_rule_arg(rule, line);
-                init_rule(rule);
-                add_rule(rules, rule);
+                if (cre2_set_add_simple(rules, line) < 0) {
+                    LOGE("Regex compilation of \"%s\" failed:", line);
+                }
             }
         }
+
+    cre2_set_compile(black_list_rules);
+    cre2_set_compile(white_list_rules);
+    cre2_set_compile(outbound_block_list_rules);
 
     fclose(f);
 
     return 0;
 }
 
-void
-free_rules(struct cork_dllist *rules)
+static void
+free_rules(cre2_set **rules)
 {
-    struct cork_dllist_item *iter;
-    while ((iter = cork_dllist_head(rules)) != NULL) {
-        rule_t *rule = cork_container_of(iter, rule_t, entries);
-        remove_rule(rule);
-    }
+    cre2_set_delete(*rules);
+    *rules = NULL;
 }
 
 void
@@ -493,12 +501,27 @@ free_acl(void)
 
     free_rules(&black_list_rules);
     free_rules(&white_list_rules);
+
+    ipset_done(&outbound_block_list_ipv4);
+    ipset_done(&outbound_block_list_ipv6);
+    free_rules(&outbound_block_list_rules);
 }
 
 int
 get_acl_mode(void)
 {
     return acl_mode;
+}
+
+/*
+ * Return 0,  if not match.
+ * Return 1,  if match.
+ */
+static int
+lookup_rule(cre2_set *set, const char *name, size_t name_len)
+{
+    int buf[1];
+    return cre2_set_match(set, name, name_len, buf, 0);
 }
 
 /*
@@ -515,9 +538,9 @@ acl_match_host(const char *host)
 
     if (err) {
         int host_len = strlen(host);
-        if (lookup_rule(&black_list_rules, host, host_len) != NULL)
+        if (lookup_rule(black_list_rules, host, host_len))
             ret = 1;
-        else if (lookup_rule(&white_list_rules, host, host_len) != NULL)
+        else if (lookup_rule(white_list_rules, host, host_len))
             ret = -1;
         return ret;
     }
@@ -586,7 +609,7 @@ outbound_block_match_host(const char *host)
 
     if (err) {
         int host_len = strlen(host);
-        if (lookup_rule(&outbound_block_list_rules, host, host_len) != NULL)
+        if (lookup_rule(outbound_block_list_rules, host, host_len))
             ret = 1;
         return ret;
     }

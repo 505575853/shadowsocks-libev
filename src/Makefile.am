@@ -9,11 +9,12 @@ AM_CFLAGS += -I$(top_srcdir)/mbedtls/include
 endif
 AM_CFLAGS += -I$(top_srcdir)/libipset/include
 AM_CFLAGS += -I$(top_srcdir)/libcork/include
-AM_CFLAGS += $(LIBPCRE_CFLAGS)
+AM_CFLAGS += -I$(top_srcdir)/re2
 
 SS_COMMON_LIBS = $(top_builddir)/libipset/libipset.la \
                  $(top_builddir)/libcork/libcork.la \
-                 $(INET_NTOP_LIB) $(LIBPCRE_LIBS)
+                 $(top_builddir)/re2/libre2.la -lc++ \
+                 $(INET_NTOP_LIB)
 if USE_SYSTEM_SHARED_LIB
 SS_COMMON_LIBS += -lev -lm -lmbedcrypto
 else
@@ -30,8 +31,7 @@ if !BUILD_WINCOMPAT
 endif
 
 sni_src = http.c \
-          tls.c \
-          rule.c
+          tls.c
 
 if HAS_GOLANG
 SS_COMMON_LIBS += $(top_builddir)/goquiet/.libs/libgoquiet.a
@@ -51,6 +51,9 @@ ss_local_SOURCES = utils.c \
                    plugin.c \
                    options.c \
                    $(sni_src)
+
+# Dummy C++ source to cause C++ linking.
+nodist_EXTRA_ss_local_SOURCES = dummy.cxx
 
 #ss_tunnel_SOURCES = utils.c \
 #                    jconf.c \

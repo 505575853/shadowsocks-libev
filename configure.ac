@@ -20,12 +20,6 @@ AC_DISABLE_STATIC
 AC_DISABLE_SHARED
 LT_INIT([dlopen])
 
-dnl Check for pcre library
-TS_CHECK_PCRE
-if test "x${enable_pcre}" != "xyes"; then
-  AC_MSG_ERROR([Cannot find pcre library. Configure --with-pcre=DIR])
-fi
-
 dnl Checks for using shared libraries from system
 AC_ARG_ENABLE(
   [system-shared-lib],
@@ -47,6 +41,8 @@ AC_PROG_LN_S
 AC_PROG_LIBTOOL
 AC_PROG_MAKE_SET
 AC_LANG_SOURCE
+AC_PROG_CXX
+AC_PROG_CXX_C_O
 
 dnl Checks for golang
 AC_ARG_ENABLE(golang,
@@ -340,6 +336,7 @@ AC_DEFINE([HAVE_IPv6], [1], [Enable IPv6 support in libudns])
 
 AC_CONFIG_FILES([ shadowsocks-libev.pc
                  Makefile
+                 re2/Makefile
                  libcork/Makefile
                  libipset/Makefile
                  goquiet/Makefile
