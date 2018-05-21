@@ -1359,9 +1359,9 @@ inline bool DFA::InlinedSearchLoop(SearchParams* params,
   }
 
   while (p != ep) {
-    if (ExtraDebug)
-      fprintf(stderr, "@%td: %s\n",
-              p - bp, DumpState(s).c_str());
+    // if (ExtraDebug)
+    //   fprintf(stderr, "@%td: %s\n",
+    //           p - bp, DumpState(s).c_str());
 
     if (have_first_byte && s == start) {
       // In start state, only way out is to find first_byte,
@@ -1466,9 +1466,9 @@ inline bool DFA::InlinedSearchLoop(SearchParams* params,
         lastmatch = p - 1;
       else
         lastmatch = p + 1;
-      if (ExtraDebug)
-        fprintf(stderr, "match @%td! [%s]\n",
-                lastmatch - bp, DumpState(s).c_str());
+      // if (ExtraDebug)
+      //   fprintf(stderr, "match @%td! [%s]\n",
+      //           lastmatch - bp, DumpState(s).c_str());
       if (params->matches != NULL && kind_ == Prog::kManyMatch) {
         for (int i = s->ninst_ - 1; i >= 0; i--) {
           int id = s->inst_[i];
