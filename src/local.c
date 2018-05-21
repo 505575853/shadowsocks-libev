@@ -2430,5 +2430,8 @@ start_ss_local_server(int argc, char **argv, shadowsocks_cb cb, void *data)
     winsock_cleanup();
 #endif
 
+    if (acl)
+        free_acl();
+
     return 0;
 }

@@ -487,8 +487,10 @@ init_acl(const char *path)
 static void
 free_rules(cre2_set **rules)
 {
-    cre2_set_delete(*rules);
-    *rules = NULL;
+    if (rules && *rules) {
+        cre2_set_delete(*rules);
+        *rules = NULL;
+    }
 }
 
 void
@@ -505,6 +507,11 @@ free_acl(void)
     ipset_done(&outbound_block_list_ipv4);
     ipset_done(&outbound_block_list_ipv6);
     free_rules(&outbound_block_list_rules);
+
+    if (re2_options) {
+        cre2_opt_delete(re2_options);
+        re2_options = NULL;
+    }
 }
 
 int
