@@ -24,6 +24,11 @@ set -e
 
 . /prepare.sh
 
+# Project URL
+PROJ_SITE=$REPO   # Change REPO in Makefile
+PROJ_URL=https://github.com/${PROJ_SITE}/shadowsocks-libev.git
+PROJ_REV=$REV     # Change REV in Makefile
+
 build_proj() {
     arch=$1
     host=$arch-w64-mingw32
@@ -32,7 +37,14 @@ build_proj() {
 
     cd "$SRC"
     if ! [ -d proj ]; then
-        tar xf /archive.tar.gz
+        if [ -f /archive.tar.gz ]; then
+            tar xf /archive.tar.gz
+        else
+            git clone ${PROJ_URL} proj
+            pushd proj
+            git checkout ${PROJ_REV}
+            popd
+        fi
     fi
     cd proj
     ./configure --host=${host} --prefix=${prefix} \

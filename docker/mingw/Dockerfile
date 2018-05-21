@@ -20,9 +20,6 @@
 
 FROM debian:testing
 
-ARG REPO=shadowsocks
-ARG REV=master
-
 ADD prepare.sh /
 
 RUN \
@@ -37,5 +34,7 @@ RUN /bin/bash -c "source /deps.sh && dk_deps"
 
 ADD build.sh /
 ARG REBUILD=0
+ARG REPO=shadowsocks
+ARG REV=master
 COPY archive.tar.gz /
 RUN /bin/bash -c "source /build.sh && dk_build && dk_package"

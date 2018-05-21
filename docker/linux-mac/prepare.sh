@@ -39,11 +39,6 @@ declare -a HOSTS_SUFFIX=(
     macos
 )
 
-# Project URL
-PROJ_SITE=$REPO   # Change REPO in Makefile
-PROJ_REV=$REV     # Change REV in Makefile
-PROJ_URL=https://github.com/${PROJ_SITE}/shadowsocks-libev.git
-
 # Third-party libraries
 
 ## PCRE

@@ -20,10 +20,9 @@
 
 FROM linusyang/mingw-deps
 
-ARG REPO=shadowsocks
-ARG REV=master
-
 ADD build.sh /
 ARG REBUILD=0
+ARG REPO=shadowsocks
+ARG REV=master
 COPY archive.tar.gz /
 RUN /bin/bash -c "source /build.sh && dk_build && dk_package"
