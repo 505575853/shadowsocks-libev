@@ -50,7 +50,7 @@ build_proj() {
     cd proj
     ./configure --host=${host} --prefix=${prefix} CFLAGS="" CXXFLAGS=""
     make clean
-    make LDFLAGS="-all-static -L${dep}/lib"
+    make LDFLAGS="-all-static -L${dep}/lib -lssp"
     make install-strip
 }
 
