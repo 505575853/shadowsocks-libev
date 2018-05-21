@@ -38,7 +38,10 @@ build_proj() {
     [[ "$host" != *-darwin* ]] && FLAGS="-all-static ${FLAGS}"
     MUSL=""
     [[ "$host" == *-linux-musl* ]] && MUSL="-I${PREFIX}/sysheader"
+    OSXFLAGS=""
+    [[ "$host" == *-darwin* ]] && OSXFLAGS="-mmacosx-version-min=10.9"
 
+    mkdir -p "$SRC"
     cd "$SRC"
     if ! [ -d proj ]; then
         if [ -f /archive.tar.gz ]; then
@@ -52,7 +55,7 @@ build_proj() {
     fi
     cd proj
     ./configure --host=${host} --prefix=${prefix} \
-      --with-pcre="$dep" CFLAGS="${MUSL} -DPCRE_STATIC"
+      CFLAGS="${MUSL} ${OSXFLAGS}" CXXFLAGS="${OSXFLAGS}"
     make clean
     make LDFLAGS="$FLAGS"
     make install-strip

@@ -27,12 +27,6 @@ RUN \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /build
 
-RUN /bin/bash -c "source /prepare.sh && dk_download"
-
-ADD deps.sh /
-ADD pcre.patch /
-RUN /bin/bash -c "source /deps.sh && dk_deps"
-
 ADD build.sh /
 ARG REBUILD=0
 ARG REPO=shadowsocks

@@ -35,6 +35,7 @@ build_proj() {
     prefix=${DIST}/$arch
     dep=${PREFIX}/$arch
 
+    mkdir -p "$SRC"
     cd "$SRC"
     if ! [ -d proj ]; then
         if [ -f /archive.tar.gz ]; then
@@ -47,8 +48,7 @@ build_proj() {
         fi
     fi
     cd proj
-    ./configure --host=${host} --prefix=${prefix} \
-      --with-pcre="$dep" CFLAGS="-DPCRE_STATIC"
+    ./configure --host=${host} --prefix=${prefix}
     make clean
     make LDFLAGS="-all-static -L${dep}/lib"
     make install-strip

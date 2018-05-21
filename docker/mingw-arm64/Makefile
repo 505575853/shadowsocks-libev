@@ -19,7 +19,7 @@
 #
 
 REPO=linusyang92
-REV=ssr
+REV=0fe8f47
 IMAGE=ssr-build-mingw-arm64
 DIST=ssr-win-arm64.tar.gz
 
@@ -31,9 +31,9 @@ deps:
 build:
 	OLDPWD="$$PWD"; \
 		cd "$$(git rev-parse --show-toplevel)"; \
-		git archive --format=tar.gz --prefix=proj/ HEAD > $$OLDPWD/archive.tar.gz
+		git archive --format=tar.gz --prefix=proj/ $(REV) > $$OLDPWD/archive.tar.gz
 	docker build --force-rm -t $(IMAGE) \
-	  --build-arg REV="$$(git rev-parse --short HEAD)" \
+	  --build-arg REV=$(REV) \
 	  --build-arg REPO=$(REPO) \
 	  --build-arg REBUILD="$$(date +%Y-%m-%d-%H-%M-%S)" .
 	docker run --rm --entrypoint cat $(IMAGE) /bin.tgz > $(DIST)
