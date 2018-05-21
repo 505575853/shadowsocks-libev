@@ -13,7 +13,7 @@ AM_CFLAGS += -I$(top_srcdir)/re2
 
 SS_COMMON_LIBS = $(top_builddir)/libipset/libipset.la \
                  $(top_builddir)/libcork/libcork.la \
-                 $(top_builddir)/re2/libre2.la -lc++ \
+                 $(top_builddir)/re2/libre2.la \
                  $(INET_NTOP_LIB)
 if USE_SYSTEM_SHARED_LIB
 SS_COMMON_LIBS += -lev -lm -lmbedcrypto

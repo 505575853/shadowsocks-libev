@@ -25,7 +25,7 @@ libre2_la_SOURCES = \
     cre2.cpp
 
 libre2_la_CPPFLAGS = -I$(top_srcdir)/re2
-libre2_la_CXXFLAGS = -O3 -std=gnu++11 -Wall -Werror \
+libre2_la_CXXFLAGS = -O3 -std=c++11 -Wall -Werror \
     -Wno-missing-field-initializers \
     -Wno-sign-compare \
     -Wno-tautological-undefined-compare \
