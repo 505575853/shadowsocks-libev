@@ -48,13 +48,15 @@ build_proj() {
         fi
     fi
     cd proj
-    ./configure --host=${host} --prefix=${prefix}
+    ./configure --host=${host} --prefix=${prefix} CFLAGS="" CXXFLAGS=""
     make clean
     make LDFLAGS="-all-static -L${dep}/lib"
     make install-strip
 }
 
 dk_build() {
+    update-alternatives --set i686-w64-mingw32-g++ /usr/bin/i686-w64-mingw32-g++-posix
+    update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
     for arch in i686 x86_64; do
         build_proj $arch
     done
