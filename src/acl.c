@@ -500,10 +500,12 @@ init_acl(const char *path)
                     }
                 }
             } else {
-                if (rules != NULL && cre2_set_add_simple(rules, line) < 0) {
-                    LOGE("Regex compilation of \"%s\" failed:", line);
-                } else {
-                    *added = 1;
+                if (rules != NULL) {
+                    if (cre2_set_add_simple(rules, line) != -1) {
+                        *added = 1;
+                    } else {
+                        LOGE("Regex compilation of \"%s\" failed:", line);
+                    }
                 }
             }
         }
