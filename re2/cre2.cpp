@@ -703,4 +703,12 @@ cre2_set_match(cre2_set *set, const char *text, size_t text_len, int *match, siz
   return v.size();
 }
 
+int
+cre2_set_match_simple(cre2_set *set, const char *text, size_t text_len)
+{
+  RE2::Set *s = TO_RE2_SET(set);
+  re2::StringPiece data(text, static_cast<int>(text_len));
+  return s->Match(data, NULL) ? 1 : 0;
+}
+
 /* end of file */

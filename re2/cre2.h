@@ -327,6 +327,8 @@ cre2_decl int cre2_set_compile(cre2_set *set);
 cre2_decl size_t cre2_set_match(cre2_set *set, const char *text, size_t text_len,
 					 int *match, size_t match_len);
 
+cre2_decl int cre2_set_match_simple(cre2_set *set, const char *text, size_t text_len);
+
 
 /** --------------------------------------------------------------------
  ** Done.

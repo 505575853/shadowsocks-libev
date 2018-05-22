@@ -562,9 +562,8 @@ get_acl_mode(void)
 static int
 lookup_rule(cre2_set *set, const char *name, size_t name_len)
 {
-    int buf[1];
     if (set != NULL && name != NULL && name_len > 0) {
-        return cre2_set_match(set, name, name_len, buf, 0);
+        return cre2_set_match_simple(set, name, name_len);
     }
     return 0;
 }
