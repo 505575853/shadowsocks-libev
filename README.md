@@ -25,12 +25,12 @@ This is my own modified version of shadowsocksR libev (client only, Python serve
 ### Simpler build using Docker
 
 * Supported OS:
-  * `docker/linux-mac` for Linux/macOS on 64-bit Intel
-  * `docker/mingw` for Windows on 32/64-bit Intel
-  * `docker/mingw-arm64` for Windows on 64-bit ARM (for future-proof, [tested on QEMU](arm.png))
+  * Linux/macOS on 64-bit Intel
+  * Windows on 32/64-bit Intel
+  * Windows on 64-bit ARM (for future-proof, [tested on QEMU](arm.png))
 * Support to build using Docker in a simple way:
-  * Type `make` in the directory on Unix-like system
-  * Double-click `make.bat` on Windows
+  * Build all clients by `cd docker/client && make` on Unix-like system
+  * Double-click `docker\client\make.bat` on Windows
 * All generated executables are __fully portable__:
   * Statically linked with no dependency
   * Just copy the single executable file and run
@@ -107,7 +107,7 @@ none | `auth_chain_a` | `plain` | 295 Mbits/sec | 19%
 aes-256-ctr | `auth_aes128_fast` | `go_quiet` | 1.25 Gbits/sec | 80%
 aes-256-ctr | `auth_aes128_fast` | `tls1.2_ticket_auth` | 951 Mbits/sec | 61%
 
-## Downloads?
+## Downloads
 
 See [releases][releases].
 
