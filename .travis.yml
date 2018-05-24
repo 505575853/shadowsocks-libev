@@ -12,9 +12,17 @@ addons:
     packages:
     - make
     - git
+before_install:
+- if [[ -f $HOME/docker/save.tar.gz ]]; then gzip -dc $HOME/docker/save.tar.gz | docker load; fi
+install:
+- docker pull linusyang/toolchain
+- if [[ ! -f $HOME/docker/save.tar.gz ]]; then mkdir -p $HOME/docker && docker save linusyang/toolchain | gzip > $HOME/docker/save.tar.gz; fi
+cache:
+  directories:
+  - $HOME/docker
 script:
-- cd docker/client && make
-- cd docker/server && make
+- pushd docker/client && make && popd
+- pushd docker/server && make && popd
 deploy:
   provider: releases
   api_key:
