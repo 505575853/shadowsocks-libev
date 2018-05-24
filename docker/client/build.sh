@@ -127,5 +127,6 @@ dk_package() {
     sed -e 's/$/\r/' $BASE/pack/checksum > checksum.txt
     rm -f $BASE/pack/checksum
     cd ..
-    tar zcf /bin.tgz ssr-static
+    mv ssr-static ssr-client
+    tar zcf /bin.tgz ssr-client
 }
