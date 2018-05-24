@@ -1,5 +1,5 @@
 #
-# Makefile for building MinGW port
+# Dockerfile for building MinGW port
 #
 # This file is part of the shadowsocks-libev.
 #
@@ -18,27 +18,21 @@
 # <http://www.gnu.org/licenses/>.
 #
 
-REPO=linusyang92
-REV=ssr
-IMAGE=ssr-build-mingw
-DIST=ssr-win.tar.gz
+FROM debian:9.4
 
-all: build
+RUN apt-get update -y && \
+    apt-get install --no-install-recommends -y \
+      aria2 git make autoconf automake libtool ca-certificates zip p7zip-full \
+      libpython2.7-dev python-setuptools && \
+    cd / && \
+    aria2c --file-allocation=trunc -s10 -x10 -j10 -c \
+      https://dl.google.com/go/go1.9.6.linux-amd64.tar.gz -o go.tar.gz && \
+    tar xf go.tar.gz -C /opt && \
+    rm -f go.tar.gz && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /build
 
-build:
-	OLDPWD="$$PWD"; \
-		cd "$$(git rev-parse --show-toplevel)"; \
-		git archive --format=tar.gz --prefix=proj/ HEAD > $$OLDPWD/archive.tar.gz
-	docker build --force-rm -t $(IMAGE) \
-	  --build-arg REV="$$(git rev-parse --short HEAD)" \
-	  --build-arg REPO=$(REPO) \
-	  --build-arg REBUILD="$$(date +%Y-%m-%d-%H-%M-%S)" .
-	docker run --rm --entrypoint cat $(IMAGE) /bin.tgz > $(DIST)
+ADD osx-mingw.tar.gz /
+ADD cross-musl.tar.gz /
 
-clean:
-	rm -f $(DIST) archive.tar.gz
-
-distclean: clean
-	docker rmi $(IMAGE) || true
-
-.PHONY: all clean build distclean
+ENV PATH $PATH:/opt/llvm-mingw/bin:/opt/cross/bin:/opt/osxcross/bin:/opt/go/bin

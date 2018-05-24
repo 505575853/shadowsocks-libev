@@ -22,7 +22,27 @@
 # Exit on error
 set -e
 
-. /prepare.sh
+# Build options
+BASE="/build"
+SRC="$BASE/src"
+DIST="$BASE/dist"
+
+# Supported hosts
+declare -a HOSTS=(
+    x86_64-linux-musl
+    x86_64-apple-darwin15
+    i686-w64-mingw32
+    x86_64-w64-mingw32
+    aarch64-w64-mingw32
+)
+
+declare -a HOSTS_SUFFIX=(
+    linux-x64
+    macos
+    win32.exe
+    win64.exe
+    win-arm64.exe
+)
 
 # Project URL
 PROJ_SITE=$REPO   # Change REPO in Makefile
@@ -33,19 +53,27 @@ build_proj() {
     arch=$1
     host=$1
     prefix=${DIST}/$arch
-    dep=${PREFIX}/$arch
-    FLAGS="-L${dep}/lib"
-    [[ "$host" != *-darwin* ]] && FLAGS="-all-static ${FLAGS}"
-    MUSL=""
-    [[ "$host" == *-linux-musl* ]] && MUSL="-I${PREFIX}/sysheader"
-    OSXFLAGS=""
-    [[ "$host" == *-darwin* ]] && OSXFLAGS="-mmacosx-version-min=10.9"
-
+    cpu="$(nproc --all)"
+    LDFLAGS="-all-static"
+    CFLAGS=""
+    CC="clang"
+    CXX="clang++"
+    if [[ "$host" == *-darwin* ]]; then
+        LDFLAGS=""
+        CFLAGS="-mmacosx-version-min=10.9"
+    elif [[ "$host" == *-linux-musl* ]]; then
+        CFLAGS="-I${BASE}/sysheader ${CFLAGS}"
+        CC="gcc"
+        CXX="c++"
+    elif [[ "$host" == *-mingw32 ]]; then
+        LDFLAGS="${LDFLAGS} -lssp"
+    fi
     mkdir -p "$SRC"
     cd "$SRC"
     if ! [ -d proj ]; then
-        if [ -f /archive.tar.gz ]; then
-            tar xf /archive.tar.gz
+        ARC="/archive.tar.gz"
+        if [ -f "$ARC" ] && [ -s "$ARC" ]; then
+            tar xf "$ARC"
         else
             git clone ${PROJ_URL} proj
             pushd proj
@@ -54,27 +82,22 @@ build_proj() {
         fi
     fi
     cd proj
+    (>&2 echo "Building for ${host}...")
     ./configure --host=${host} --prefix=${prefix} \
-      CFLAGS="${MUSL} ${OSXFLAGS}" CXXFLAGS="${OSXFLAGS}"
-    make clean
-    make LDFLAGS="$FLAGS"
-    make install-strip
+      CFLAGS="${CFLAGS}" CXXFLAGS="${CFLAGS}" \
+      CC=${host}-${CC} CXX=${host}-${CXX} >/dev/null 2>&1
+    make clean >/dev/null 2>&1
+    make -j$cpu LDFLAGS="${LDFLAGS}"
+    make install-strip >/dev/null 2>&1
 }
 
 dk_build() {
-    mkdir -p "${PREFIX}/sysheader"
-    ln -s /usr/include/linux "${PREFIX}/sysheader/"
+    mkdir -p "${BASE}/sysheader"
+    ln -s /usr/include/linux "${BASE}/sysheader/"
+    mkdir -p /System/Library/Frameworks
     for arch in "${HOSTS[@]}"; do
         build_proj $arch
     done
-    pushd "$SRC/proj/python"
-    make ss-server
-    popd
-    pushd "$SRC/proj/goquiet"
-    GOPATH="$PWD" GOOS=linux GOARCH=amd64 \
-    /go/bin/go build -ldflags "-s -w -X main.version=1.1.2" \
-     -v -o gq-server ./src/github.com/cbeuw/GoQuiet/cmd/gq-server
-    popd
 }
 
 dk_package() {
@@ -94,12 +117,6 @@ dk_package() {
             cp $bin "${folder}"/$name
         done
     done
-    mkdir linux-x64-server
-    pushd linux-x64-server
-    cp "$SRC/proj/python/ss-server" .
-    cp "$SRC/proj/python/siphashc.so" .
-    cp "$SRC/proj/goquiet/gq-server" .
-    popd
     echo "ShadowsocksR Static Binary Release" > $BASE/pack/checksum
     echo "Build $(date +"%y%m%d"): Git-${PROJ_REV}" >> $BASE/pack/checksum
     echo "SHA256 Checksum:" >> $BASE/pack/checksum

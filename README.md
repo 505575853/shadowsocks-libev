@@ -109,7 +109,7 @@ aes-256-ctr | `auth_aes128_fast` | `tls1.2_ticket_auth` | 951 Mbits/sec | 61%
 
 ## Downloads?
 
-Sorry, no downloads. Build on your own if needed.
+See [releases][releases].
 
 ## License
 
@@ -140,3 +140,4 @@ All rights reserved by original authors
 [no-kqueue]: https://github.com/shadowsocks/libev/blob/9738503d99938dec56c66dd2022b9964cb64dfc3/ev.c#L2763
 [nayuki]: https://www.nayuki.io/page/fast-md5-hash-implementation-in-x86-assembly
 [md-asm]: https://github.com/linusyang92/mbedtls/blob/mingw/library/md5asm.S
+[releases]: https://github.com/linusyang92/shadowsocks-libev/releases

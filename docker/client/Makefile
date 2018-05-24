@@ -1,6 +1,5 @@
-#!/bin/bash
 #
-# Functions for building MinGW port in Docker
+# Makefile for building MinGW port
 #
 # This file is part of the shadowsocks-libev.
 #
@@ -19,30 +18,27 @@
 # <http://www.gnu.org/licenses/>.
 #
 
-# Exit on error
-set -e
+REPO=linusyang92
+REV=ssr
+IMAGE=ssr-build-client
+DIST=ssr-client.tar.gz
 
-. /prepare.sh
+all: build
 
-build_deps() {
-    host=$1
-    prefix=${PREFIX}/$arch
-    args="--host=${host} --prefix=${prefix} --disable-shared --enable-static"
+build:
+	OLDPWD="$$PWD"; \
+		cd "$$(git rev-parse --show-toplevel)"; \
+		git archive --format=tar.gz --prefix=proj/ HEAD > $$OLDPWD/archive.tar.gz
+	docker build --force-rm -t $(IMAGE) \
+	  --build-arg REV="$$(git rev-parse --short HEAD)" \
+	  --build-arg REPO=$(REPO) \
+	  --build-arg REBUILD="$$(date +%Y-%m-%d-%H-%M-%S)" .
+	docker run --rm --entrypoint cat $(IMAGE) /bin.tgz > $(DIST)
 
-    # pcre
-    cd "$SRC/$PCRE_SRC"
-    ./configure $args \
-      --enable-jit --disable-cpp \
-      --enable-unicode-properties
-    make clean
-    make install
-}
+clean:
+	rm -f $(DIST) archive.tar.gz
 
-dk_deps() {
-    pushd "$SRC/$PCRE_SRC"
-    patch -p0 < /pcre.patch
-    popd
-    for arch in "${HOSTS[@]}"; do
-        build_deps $arch
-    done
-}
+distclean: clean
+	docker rmi $(IMAGE) || true
+
+.PHONY: all clean build distclean

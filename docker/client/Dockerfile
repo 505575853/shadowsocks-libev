@@ -1,6 +1,5 @@
-#!/bin/bash
 #
-# Functions for building MinGW port in Docker
+# Dockerfile for building MinGW port
 #
 # This file is part of the shadowsocks-libev.
 #
@@ -19,28 +18,11 @@
 # <http://www.gnu.org/licenses/>.
 #
 
-# Exit on error
-set -e
+FROM linusyang/toolchain
 
-. /prepare.sh
-
-build_deps() {
-    arch=$1
-    host=$arch-w64-mingw32
-    prefix=${PREFIX}/$arch
-    args="--host=${host} --prefix=${prefix} --disable-shared --enable-static"
-
-    # pcre
-    cd "$SRC/$PCRE_SRC"
-    ./configure $args \
-      --enable-jit --disable-cpp \
-      --enable-unicode-properties
-    make clean
-    make install
-}
-
-dk_deps() {
-    for arch in i686 x86_64; do
-        build_deps $arch
-    done
-}
+ADD build.sh /
+ARG REBUILD=0
+ARG REPO=shadowsocks
+ARG REV=master
+COPY archive.tar.gz /
+RUN /bin/bash -c "source /build.sh && dk_build && dk_package"

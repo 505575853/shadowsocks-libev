@@ -22,24 +22,23 @@
 # Exit on error
 set -e
 
-. /prepare.sh
+# Build options
+BASE="/build"
+SRC="$BASE/src"
+DIST="$BASE/dist"
 
 # Project URL
 PROJ_SITE=$REPO   # Change REPO in Makefile
 PROJ_URL=https://github.com/${PROJ_SITE}/shadowsocks-libev.git
 PROJ_REV=$REV     # Change REV in Makefile
 
-build_proj() {
-    arch=$1
-    host=$arch-w64-mingw32
-    prefix=${DIST}/$arch
-    dep=${PREFIX}/$arch
-
+dk_build() {
     mkdir -p "$SRC"
     cd "$SRC"
     if ! [ -d proj ]; then
-        if [ -f /archive.tar.gz ]; then
-            tar xf /archive.tar.gz
+        ARC="/archive.tar.gz"
+        if [ -f "$ARC" ] && [ -s "$ARC" ]; then
+            tar xf "$ARC"
         else
             git clone ${PROJ_URL} proj
             pushd proj
@@ -47,21 +46,14 @@ build_proj() {
             popd
         fi
     fi
-    cd proj
-    ./configure --host=${host} --prefix=${prefix} CFLAGS="" CXXFLAGS=""
-    make clean
-    make LDFLAGS="-all-static -L${dep}/lib -lssp"
-    make install-strip
-}
-
-dk_build() {
-    update-alternatives --set i686-w64-mingw32-g++ /usr/bin/i686-w64-mingw32-g++-posix
-    update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
-    for arch in i686 x86_64; do
-        build_proj $arch
-    done
     pushd "$SRC/proj/python"
+    make ss-server
     make
+    popd
+    pushd "$SRC/proj/goquiet"
+    GOPATH="$PWD" GOOS=linux GOARCH=amd64 \
+    go build -ldflags "-s -w -X main.version=1.1.2" \
+     -v -o gq-server ./src/github.com/cbeuw/GoQuiet/cmd/gq-server
     popd
 }
 
@@ -69,22 +61,28 @@ dk_package() {
     rm -rf "$BASE/pack"
     mkdir -p "$BASE/pack"
     cd "$BASE/pack"
-    mkdir -p ssr-libev-${PROJ_REV}
-    cd ssr-libev-${PROJ_REV}
-    for bin in local; do
-        cp ${DIST}/i686/bin/ss-${bin}.exe ssr-${bin}-x86.exe
-        cp ${DIST}/x86_64/bin/ss-${bin}.exe ssr-${bin}-x64.exe
-    done
+    mkdir -p ssr-static
+    cd ssr-static
+    mkdir linux-x64-server
+    pushd linux-x64-server
+    cp "$SRC/proj/python/ss-server" .
+    cp "$SRC/proj/python/siphashc.so" .
+    cp "$SRC/proj/goquiet/gq-server" .
+    popd
     cp -r "$SRC/proj/python/windows" server
     rm -f server/pylib.zip
     mv server/ss-server.exe server/ssr-server.exe
-    echo "SHA1 checksum for build $(date +"%y%m%d")-${PROJ_REV}" > checksum
-    for f in *.exe; do
-        echo "  $f:" >> checksum
-        echo "    $(sha1sum $f | cut -d ' ' -f 1)" >> checksum
+    mv server win32-server
+    echo "ShadowsocksR Python Server Release" > $BASE/pack/checksum
+    echo "Build $(date +"%y%m%d"): Git-${PROJ_REV}" >> $BASE/pack/checksum
+    echo "SHA256 Checksum:" >> $BASE/pack/checksum
+    find . -type f | while read f; do
+        echo "  $(basename $f):" >> $BASE/pack/checksum
+        echo "    $(sha256sum $f | cut -d ' ' -f 1)" >> $BASE/pack/checksum
     done
-    sed -e 's/$/\r/' checksum > checksum.txt
-    rm -f checksum
+    sed -e 's/$/\r/' $BASE/pack/checksum > checksum.txt
+    rm -f $BASE/pack/checksum
     cd ..
-    tar zcf /bin.tgz ssr-libev-${PROJ_REV}
+    mv ssr-static ssr-server
+    tar zcf /bin.tgz ssr-server
 }

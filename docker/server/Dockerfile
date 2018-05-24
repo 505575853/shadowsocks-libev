@@ -18,14 +18,7 @@
 # <http://www.gnu.org/licenses/>.
 #
 
-FROM debian:testing
-
-ADD prepare.sh /
-
-RUN \
-  /bin/bash -c "source /prepare.sh && dk_prepare" && \
-  apt-get clean && \
-  rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /build
+FROM linusyang/toolchain
 
 ADD build.sh /
 ARG REBUILD=0
