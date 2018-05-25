@@ -29,7 +29,7 @@ This is my own modified version of shadowsocksR libev (client only, Python serve
   * Windows on 32/64-bit Intel
   * Windows on 64-bit ARM (for future-proof, [tested on QEMU](arm.png))
 * Support to build using Docker in a simple way:
-  * Build all clients by `cd docker/client && make` on Unix-like system
+  * Run `make -C docker/client` on Unix-like system
   * Double-click `docker\client\make.bat` on Windows
 * All generated executables are __fully portable__:
   * Statically linked with no dependency
