@@ -65,8 +65,12 @@ build_proj() {
         CFLAGS="-I${BASE}/sysheader ${CFLAGS}"
         CC="gcc"
         CXX="c++"
+    elif [[ "$host" == aarch64-w64-mingw32 ]]; then
+        LDFLAGS="${LDFLAGS} -lssp"
     elif [[ "$host" == *-mingw32 ]]; then
         LDFLAGS="${LDFLAGS} -lssp"
+        CC="gcc-posix"
+        CXX="g++-posix"
     fi
     mkdir -p "$SRC"
     cd "$SRC"

@@ -18,12 +18,12 @@
 # <http://www.gnu.org/licenses/>.
 #
 
-FROM debian:9.4
+FROM debian:testing
 
 RUN apt-get update -y && \
     apt-get install --no-install-recommends -y \
       aria2 git make autoconf automake libtool ca-certificates zip p7zip-full \
-      libpython2.7-dev python-setuptools && \
+      libpython2.7-dev python-setuptools mingw-w64 && \
     cd / && \
     aria2c --file-allocation=trunc -s10 -x10 -j10 -c \
       https://dl.google.com/go/go1.9.6.linux-amd64.tar.gz -o go.tar.gz && \
