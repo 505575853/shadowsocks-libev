@@ -93,7 +93,10 @@ build_triplet = @build@
 host_triplet = @host@
 @USE_SYSTEM_SHARED_LIB_FALSE@am__append_1 = -I$(top_srcdir)/mbedtls/include
 @USE_SYSTEM_SHARED_LIB_TRUE@am__append_2 = -lmbedcrypto
-@USE_SYSTEM_SHARED_LIB_FALSE@am__append_3 = 
+@USE_SYSTEM_SHARED_LIB_FALSE@am__append_3 = $(top_builddir)/mbedtls/libmbedcrypto.la \
+@USE_SYSTEM_SHARED_LIB_FALSE@                  $(top_builddir)/mbedtls/libmbedcrypto_simd.la \
+@USE_SYSTEM_SHARED_LIB_FALSE@                  $(top_builddir)/mbedtls/libmbedcrypto_avx.la
+
 bin_PROGRAMS = ss-local$(EXEEXT) $(am__EXEEXT_1)
 @HAS_GOLANG_TRUE@am__append_4 = $(top_builddir)/goquiet/.libs/libgoquiet.a
 @HAS_GOLANG_FALSE@am__append_5 = libgoquiet.c sds.c
@@ -154,8 +157,9 @@ am__DEPENDENCIES_1 =
 am__DEPENDENCIES_2 = $(top_builddir)/libipset/libipset.la \
 	$(top_builddir)/libcork/libcork.la \
 	$(top_builddir)/libev/libev.la \
-	$(top_builddir)/libudns/libudns.la $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__append_4)
+	$(top_builddir)/libudns/libudns.la \
+	$(top_builddir)/re2/libre2.la $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__append_3) $(am__append_4)
 am__DEPENDENCIES_3 = $(am__DEPENDENCIES_2)
 libshadowsocks_libev_la_DEPENDENCIES = $(am__DEPENDENCIES_3)
 am__libshadowsocks_libev_la_SOURCES_DIST = utils.c jconf.c json.c \
@@ -482,7 +486,8 @@ AM_CFLAGS = -O2 -Wall -Werror -Wno-deprecated-declarations \
 SS_COMMON_LIBS = $(top_builddir)/libipset/libipset.la \
 	$(top_builddir)/libcork/libcork.la \
 	$(top_builddir)/libev/libev.la \
-	$(top_builddir)/libudns/libudns.la $(am__append_2) \
+	$(top_builddir)/libudns/libudns.la \
+	$(top_builddir)/re2/libre2.la $(INET_NTOP_LIB) $(am__append_2) \
 	$(am__append_3) $(am__append_4)
 #bin_PROGRAMS += ss-tunnel
 #bin_PROGRAMS += ss-server ss-manager
@@ -1652,11 +1657,6 @@ uninstall-am: uninstall-binPROGRAMS uninstall-binSCRIPTS \
 
 .PRECIOUS: Makefile
 
-                 $(top_builddir)/re2/libre2.la \
-                 $(INET_NTOP_LIB)
-@USE_SYSTEM_SHARED_LIB_FALSE@                  $(top_builddir)/mbedtls/libmbedcrypto.la \
-@USE_SYSTEM_SHARED_LIB_FALSE@                  $(top_builddir)/mbedtls/libmbedcrypto_simd.la \
-@USE_SYSTEM_SHARED_LIB_FALSE@                  $(top_builddir)/mbedtls/libmbedcrypto_avx.la
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
