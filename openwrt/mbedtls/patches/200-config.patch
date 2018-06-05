@@ -202,16 +202,6 @@ index 9008789..b2a5b7f 100644
  
  /**
   * \def MBEDTLS_DHM_C
-@@ -2102,8 +2102,8 @@
-  * Requires: MBEDTLS_MD_C
-  *
-  * Uncomment to enable the HMAC_DRBG random number geerator.
-- */
- #define MBEDTLS_HMAC_DRBG_C
-+ */
- 
- /**
-  * \def MBEDTLS_MD_C
 @@ -2386,7 +2386,7 @@
   *
   * This module enables abstraction of common (libc) functions.

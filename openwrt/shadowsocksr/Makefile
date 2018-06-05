@@ -42,7 +42,7 @@ define Package/shadowsocksr-libev/description
 shadowsocksr-libev is a lightweight secured socks5 proxy for embedded devices and low end boxes.
 endef
 
-CONFIGURE_ARGS += --disable-ssp --disable-assert --enable-system-shared-lib LDFLAGS="$$$$LDFLAGS -lpthread"
+CONFIGURE_ARGS += --disable-assert --enable-system-shared-lib LDFLAGS="$$$$LDFLAGS -lpthread"
 
 define Package/shadowsocksr-libev/install
 	$(INSTALL_DIR) $(1)/usr/bin
