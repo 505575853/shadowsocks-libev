@@ -1411,7 +1411,7 @@ static const mbedtls_cipher_base_t aead_chacha20_poly1305_base_info = {
 };
 static const mbedtls_cipher_info_t aead_chacha20_poly1305_info = {
     MBEDTLS_CIPHER_CHACHA20_POLY1305,
-    MBEDTLS_MODE_GCM,
+    MBEDTLS_MODE_NONE,
     256,
     "CHACHA20-POLY1305",
     12,
