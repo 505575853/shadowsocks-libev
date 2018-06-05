@@ -67,9 +67,6 @@
 /* Define to 1 if you have the <langinfo.h> header file. */
 #undef HAVE_LANGINFO_H
 
-/* Define to 1 if you have the `ev' library (-lev). */
-#undef HAVE_LIBEV
-
 /* Define to 1 if you have the `mbedcrypto' library (-lmbedcrypto). */
 #undef HAVE_LIBMBEDCRYPTO
 
@@ -78,9 +75,6 @@
 
 /* Define to 1 if you have the `socket' library (-lsocket). */
 #undef HAVE_LIBSOCKET
-
-/* Define to 1 if you have the `udns' library (-ludns). */
-#undef HAVE_LIBUDNS
 
 /* Define to 1 if you have the <limits.h> header file. */
 #undef HAVE_LIMITS_H

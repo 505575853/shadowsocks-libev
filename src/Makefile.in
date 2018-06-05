@@ -91,32 +91,17 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@USE_SYSTEM_SHARED_LIB_FALSE@am__append_1 = -I$(top_srcdir)/libev \
-@USE_SYSTEM_SHARED_LIB_FALSE@	-I$(top_srcdir)/libudns \
-@USE_SYSTEM_SHARED_LIB_FALSE@	-I$(top_srcdir)/mbedtls/include
-@USE_SYSTEM_SHARED_LIB_TRUE@am__append_2 = -lev -lm -lmbedcrypto
-@USE_SYSTEM_SHARED_LIB_FALSE@am__append_3 = $(top_builddir)/libev/libev.la \
-@USE_SYSTEM_SHARED_LIB_FALSE@                  $(top_builddir)/mbedtls/libmbedcrypto.la \
-@USE_SYSTEM_SHARED_LIB_FALSE@                  $(top_builddir)/mbedtls/libmbedcrypto_simd.la \
-@USE_SYSTEM_SHARED_LIB_FALSE@                  $(top_builddir)/mbedtls/libmbedcrypto_avx.la
-
+@USE_SYSTEM_SHARED_LIB_FALSE@am__append_1 = -I$(top_srcdir)/mbedtls/include
+@USE_SYSTEM_SHARED_LIB_TRUE@am__append_2 = -lmbedcrypto
+@USE_SYSTEM_SHARED_LIB_FALSE@am__append_3 = 
 bin_PROGRAMS = ss-local$(EXEEXT) $(am__EXEEXT_1)
 @HAS_GOLANG_TRUE@am__append_4 = $(top_builddir)/goquiet/.libs/libgoquiet.a
 @HAS_GOLANG_FALSE@am__append_5 = libgoquiet.c sds.c
-#ss_tunnel_LDADD = $(SS_COMMON_LIBS)
-#ss_server_LDADD = $(SS_COMMON_LIBS)
-#ss_manager_LDADD = $(SS_COMMON_LIBS)
-@USE_SYSTEM_SHARED_LIB_TRUE@am__append_6 = -ludns
-#ss_tunnel_LDADD += -ludns
-#ss_server_LDADD += -ludns
-@USE_SYSTEM_SHARED_LIB_FALSE@am__append_7 = $(top_builddir)/libudns/libudns.la
 #ss_tunnel_CFLAGS = $(AM_CFLAGS) -DMODULE_TUNNEL
 #ss_server_CFLAGS = $(AM_CFLAGS) -DMODULE_REMOTE
 #ss_manager_CFLAGS = $(AM_CFLAGS) -DMODULE_MANAGER
-@BUILD_WINCOMPAT_TRUE@am__append_8 = win32.c
-@BUILD_REDIRECTOR_TRUE@am__append_9 = ss-redir
-@BUILD_REDIRECTOR_TRUE@@USE_SYSTEM_SHARED_LIB_TRUE@am__append_10 = -ludns
-@BUILD_REDIRECTOR_TRUE@@USE_SYSTEM_SHARED_LIB_FALSE@am__append_11 = $(top_builddir)/libudns/libudns.la
+@BUILD_WINCOMPAT_TRUE@am__append_6 = win32.c
+@BUILD_REDIRECTOR_TRUE@am__append_7 = ss-redir
 subdir = src
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ax_tls.m4 \
@@ -168,10 +153,10 @@ LTLIBRARIES = $(lib_LTLIBRARIES)
 am__DEPENDENCIES_1 =
 am__DEPENDENCIES_2 = $(top_builddir)/libipset/libipset.la \
 	$(top_builddir)/libcork/libcork.la \
-	$(top_builddir)/re2/libre2.la $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__append_3) $(am__append_4)
-am__DEPENDENCIES_3 = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1) \
-	$(am__append_7)
+	$(top_builddir)/libev/libev.la \
+	$(top_builddir)/libudns/libudns.la $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__append_4)
+am__DEPENDENCIES_3 = $(am__DEPENDENCIES_2)
 libshadowsocks_libev_la_DEPENDENCIES = $(am__DEPENDENCIES_3)
 am__libshadowsocks_libev_la_SOURCES_DIST = utils.c jconf.c json.c \
 	encrypt.c udprelay.c cache.c acl.c netutils.c local.c plugin.c \
@@ -222,8 +207,7 @@ am_ss_local_OBJECTS = ss_local-utils.$(OBJEXT) \
 	ss_local-plugin.$(OBJEXT) ss_local-options.$(OBJEXT) \
 	$(am__objects_6) $(am__objects_7)
 ss_local_OBJECTS = $(am_ss_local_OBJECTS)
-ss_local_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1) \
-	$(am__append_7)
+ss_local_DEPENDENCIES = $(am__DEPENDENCIES_2)
 am__ss_redir_SOURCES_DIST = utils.c jconf.c json.c encrypt.c \
 	netutils.c cache.c udprelay.c redir.c http.c tls.c \
 	libgoquiet.c sds.c
@@ -241,8 +225,7 @@ am__objects_9 = ss_redir-http.$(OBJEXT) ss_redir-tls.$(OBJEXT) \
 @BUILD_REDIRECTOR_TRUE@	ss_redir-redir.$(OBJEXT) \
 @BUILD_REDIRECTOR_TRUE@	$(am__objects_9)
 ss_redir_OBJECTS = $(am_ss_redir_OBJECTS)
-@BUILD_REDIRECTOR_TRUE@ss_redir_DEPENDENCIES = $(am__DEPENDENCIES_2) \
-@BUILD_REDIRECTOR_TRUE@	$(am__DEPENDENCIES_1) $(am__append_11)
+@BUILD_REDIRECTOR_TRUE@ss_redir_DEPENDENCIES = $(am__DEPENDENCIES_2)
 ss_redir_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(ss_redir_CFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
@@ -493,19 +476,20 @@ top_srcdir = @top_srcdir@
 VERSION_INFO = 2:0:0
 AM_CFLAGS = -O2 -Wall -Werror -Wno-deprecated-declarations \
 	-fno-strict-aliasing -std=gnu99 -D_GNU_SOURCE \
-	$(PTHREAD_CFLAGS) $(am__append_1) \
-	-I$(top_srcdir)/libipset/include \
+	$(PTHREAD_CFLAGS) $(am__append_1) -I$(top_srcdir)/libev \
+	-I$(top_srcdir)/libudns -I$(top_srcdir)/libipset/include \
 	-I$(top_srcdir)/libcork/include -I$(top_srcdir)/re2
 SS_COMMON_LIBS = $(top_builddir)/libipset/libipset.la \
 	$(top_builddir)/libcork/libcork.la \
-	$(top_builddir)/re2/libre2.la $(INET_NTOP_LIB) $(am__append_2) \
+	$(top_builddir)/libev/libev.la \
+	$(top_builddir)/libudns/libudns.la $(am__append_2) \
 	$(am__append_3) $(am__append_4)
 #bin_PROGRAMS += ss-tunnel
 #bin_PROGRAMS += ss-server ss-manager
 sni_src = http.c tls.c $(am__append_5)
 ss_local_SOURCES = utils.c jconf.c json.c encrypt.c udprelay.c cache.c \
 	acl.c netutils.c local.c plugin.c options.c $(sni_src) \
-	$(am__append_8)
+	$(am__append_6)
 
 # Dummy C++ source to cause C++ linking.
 nodist_EXTRA_ss_local_SOURCES = dummy.cxx
@@ -535,9 +519,10 @@ nodist_EXTRA_ss_local_SOURCES = dummy.cxx
 #                     jconf.c \
 #                     json.c \
 #                     manager.c
-ss_local_LDADD = $(SS_COMMON_LIBS) $(am__append_6) $(am__append_7)
-#ss_tunnel_LDADD += $(top_builddir)/libudns/libudns.la
-#ss_server_LDADD += $(top_builddir)/libudns/libudns.la
+ss_local_LDADD = $(SS_COMMON_LIBS)
+#ss_tunnel_LDADD = $(SS_COMMON_LIBS)
+#ss_server_LDADD = $(SS_COMMON_LIBS)
+#ss_manager_LDADD = $(SS_COMMON_LIBS)
 ss_local_CFLAGS = $(AM_CFLAGS) -DMODULE_LOCAL
 #ss_tunnel_SOURCES += win32.c
 @BUILD_REDIRECTOR_TRUE@bin_SCRIPTS = ss-nat
@@ -552,8 +537,7 @@ ss_local_CFLAGS = $(AM_CFLAGS) -DMODULE_LOCAL
 @BUILD_REDIRECTOR_TRUE@                   $(sni_src)
 
 @BUILD_REDIRECTOR_TRUE@ss_redir_CFLAGS = $(AM_CFLAGS) -DMODULE_REDIR
-@BUILD_REDIRECTOR_TRUE@ss_redir_LDADD = $(SS_COMMON_LIBS) \
-@BUILD_REDIRECTOR_TRUE@	$(am__append_10) $(am__append_11)
+@BUILD_REDIRECTOR_TRUE@ss_redir_LDADD = $(SS_COMMON_LIBS)
 lib_LTLIBRARIES = libshadowsocks-libev.la
 libshadowsocks_libev_la_SOURCES = $(ss_local_SOURCES)
 libshadowsocks_libev_la_CFLAGS = $(ss_local_CFLAGS) -DLIB_ONLY -DMODULE_LOCAL
@@ -1668,6 +1652,11 @@ uninstall-am: uninstall-binPROGRAMS uninstall-binSCRIPTS \
 
 .PRECIOUS: Makefile
 
+                 $(top_builddir)/re2/libre2.la \
+                 $(INET_NTOP_LIB)
+@USE_SYSTEM_SHARED_LIB_FALSE@                  $(top_builddir)/mbedtls/libmbedcrypto.la \
+@USE_SYSTEM_SHARED_LIB_FALSE@                  $(top_builddir)/mbedtls/libmbedcrypto_simd.la \
+@USE_SYSTEM_SHARED_LIB_FALSE@                  $(top_builddir)/mbedtls/libmbedcrypto_avx.la
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

@@ -19187,103 +19187,9 @@ done
 $as_echo "#define HAVE_IPv6 1" >>confdefs.h
 
 
-ac_config_files="$ac_config_files shadowsocks-libev.pc Makefile re2/Makefile libcork/Makefile libipset/Makefile goquiet/Makefile src/Makefile"
+ac_config_files="$ac_config_files shadowsocks-libev.pc Makefile re2/Makefile libcork/Makefile libipset/Makefile libudns/Makefile libev/Makefile goquiet/Makefile src/Makefile"
 
 if test -z "$USE_SYSTEM_SHARED_LIB_TRUE"; then :
-
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for dns_dnlen in -ludns" >&5
-$as_echo_n "checking for dns_dnlen in -ludns... " >&6; }
-if ${ac_cv_lib_udns_dns_dnlen+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-ludns  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char dns_dnlen ();
-int
-main ()
-{
-return dns_dnlen ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_udns_dns_dnlen=yes
-else
-  ac_cv_lib_udns_dns_dnlen=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_udns_dns_dnlen" >&5
-$as_echo "$ac_cv_lib_udns_dns_dnlen" >&6; }
-if test "x$ac_cv_lib_udns_dns_dnlen" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_LIBUDNS 1
-_ACEOF
-
-  LIBS="-ludns $LIBS"
-
-else
-  as_fn_error $? "Couldn't find libudns. Try installing libudns-dev or udns-devel." "$LINENO" 5
-fi
-
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for ev_loop_destroy in -lev" >&5
-$as_echo_n "checking for ev_loop_destroy in -lev... " >&6; }
-if ${ac_cv_lib_ev_ev_loop_destroy+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lev  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char ev_loop_destroy ();
-int
-main ()
-{
-return ev_loop_destroy ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_ev_ev_loop_destroy=yes
-else
-  ac_cv_lib_ev_ev_loop_destroy=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_ev_ev_loop_destroy" >&5
-$as_echo "$ac_cv_lib_ev_ev_loop_destroy" >&6; }
-if test "x$ac_cv_lib_ev_ev_loop_destroy" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_LIBEV 1
-_ACEOF
-
-  LIBS="-lev $LIBS"
-
-else
-  as_fn_error $? "Couldn't find libev. Try installing libev-dev[el]." "$LINENO" 5
-fi
 
     { $as_echo "$as_me:${as_lineno-$LINENO}: checking for mbedtls_cipher_setup in -lmbedcrypto" >&5
 $as_echo_n "checking for mbedtls_cipher_setup in -lmbedcrypto... " >&6; }
@@ -19334,7 +19240,7 @@ fi
 
 
 else
-  ac_config_files="$ac_config_files libudns/Makefile libev/Makefile mbedtls/Makefile"
+  ac_config_files="$ac_config_files mbedtls/Makefile"
 
 fi
 
@@ -20505,10 +20411,10 @@ do
     "re2/Makefile") CONFIG_FILES="$CONFIG_FILES re2/Makefile" ;;
     "libcork/Makefile") CONFIG_FILES="$CONFIG_FILES libcork/Makefile" ;;
     "libipset/Makefile") CONFIG_FILES="$CONFIG_FILES libipset/Makefile" ;;
-    "goquiet/Makefile") CONFIG_FILES="$CONFIG_FILES goquiet/Makefile" ;;
-    "src/Makefile") CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
     "libudns/Makefile") CONFIG_FILES="$CONFIG_FILES libudns/Makefile" ;;
     "libev/Makefile") CONFIG_FILES="$CONFIG_FILES libev/Makefile" ;;
+    "goquiet/Makefile") CONFIG_FILES="$CONFIG_FILES goquiet/Makefile" ;;
+    "src/Makefile") CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
     "mbedtls/Makefile") CONFIG_FILES="$CONFIG_FILES mbedtls/Makefile" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
