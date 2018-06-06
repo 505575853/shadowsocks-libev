@@ -442,7 +442,7 @@ server_recv_cb(EV_P_ ev_io *w, int revents)
                     ev_io_server_recv(EV_A_ server, remote);
                     ev_timer_start(EV_A_ & remote->send_ctx->watcher);
                 } else {
-#if defined(MSG_FASTOPEN) && !defined(TCP_FASTOPEN_CONNECT)
+#if defined(MSG_FASTOPEN)
                     int s = sendto(remote->fd, remote->buf->array, remote->buf->len, MSG_FASTOPEN,
                                    (struct sockaddr *)&(remote->direct_addr.addr), remote->direct_addr.addr_len);
 #elif defined(CONNECT_DATA_IDEMPOTENT)
