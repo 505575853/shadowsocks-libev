@@ -19,7 +19,22 @@ static void *sre_palloc_block(sre_pool_t *pool, size_t size);
 #endif
 static void *sre_palloc_large(sre_pool_t *pool, size_t size);
 #if !(SRE_USE_VALGRIND)
+# ifdef __MINGW32__
+#  include <stdlib.h>
+#  define sre_memalign(a,s) _aligned_malloc(s,a)
+#  define sre_memfree(p) _aligned_free(p)
+#  define sre_malloc(s) _aligned_malloc(s,2*sizeof(void *))
+# else
 static void * sre_memalign(size_t alignment, size_t size);
+# endif
+#endif
+
+#ifndef sre_memfree
+#define sre_memfree(p) free(p)
+#endif
+
+#ifndef sre_malloc
+#define sre_malloc(p) malloc(p)
 #endif
 
 
@@ -76,7 +91,7 @@ sre_destroy_pool(sre_pool_t *pool)
 
 #if (SRE_USE_VALGRIND)
     if (pool->large == NULL) {
-        free(pool);
+        sre_memfree(pool);
         return;
     }
 #endif
@@ -84,9 +99,9 @@ sre_destroy_pool(sre_pool_t *pool)
 #if (SRE_USE_VALGRIND)
     for (l = pool->large; l; l = n) {
         if (l->alloc) {
-            free(l->alloc);
+            sre_memfree(l->alloc);
             n = l->next;
-            free(l);
+            sre_memfree(l);
 
         } else {
             n = l->next;
@@ -95,14 +110,14 @@ sre_destroy_pool(sre_pool_t *pool)
 #else
     for (l = pool->large; l; l = l->next) {
         if (l->alloc) {
-            free(l->alloc);
+            sre_memfree(l->alloc);
         }
     }
 #endif
 
 #if !(SRE_USE_VALGRIND)
     for (p = pool, n = pool->d.next; /* void */; p = n, n = n->d.next) {
-        free(p);
+        sre_memfree(p);
 
         if (n == NULL) {
             break;
@@ -110,7 +125,7 @@ sre_destroy_pool(sre_pool_t *pool)
     }
 #else
     pool->large = NULL;
-    free(pool);
+    sre_memfree(pool);
 #endif
 }
 
@@ -127,14 +142,14 @@ sre_reset_pool(sre_pool_t *pool)
 
     for (l = pool->large; l; l = l->next) {
         if (l->alloc) {
-            free(l->alloc);
+            sre_memfree(l->alloc);
         }
     }
 
 #if (SRE_USE_VALGRIND)
     for (l = pool->large; l; l = next) {
         next = l->next;
-        free(l);
+        sre_memfree(l);
     }
 #endif
 
@@ -261,7 +276,7 @@ sre_palloc_large(sre_pool_t *pool, size_t size)
     sre_uint_t         n;
     sre_pool_large_t  *large;
 
-    p = malloc(size);
+    p = sre_malloc(size);
     if (p == NULL) {
         return NULL;
     }
@@ -285,7 +300,7 @@ sre_palloc_large(sre_pool_t *pool, size_t size)
     large = sre_palloc(pool, sizeof(sre_pool_large_t));
 #endif
     if (large == NULL) {
-        free(p);
+        sre_memfree(p);
         return NULL;
     }
 
@@ -309,12 +324,12 @@ sre_pfree(sre_pool_t *pool, void *p)
 
     for (l = pool->large; l; l = l->next) {
         if (p == l->alloc) {
-            free(l->alloc);
+            sre_memfree(l->alloc);
             l->alloc = NULL;
 
 #if (SRE_USE_VALGRIND)
             *next = l->next;
-            free(l);
+            sre_memfree(l);
 #endif
             return SRE_OK;
         }
@@ -371,7 +386,7 @@ sre_pool_cleanup_add(sre_pool_t *p, size_t size)
 }
 
 
-#if !(SRE_USE_VALGRIND)
+#if !(SRE_USE_VALGRIND) && !defined(__MINGW32__)
 static void *
 sre_memalign(size_t alignment, size_t size)
 {

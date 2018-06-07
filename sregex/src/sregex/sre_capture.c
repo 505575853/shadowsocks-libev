@@ -93,7 +93,13 @@ sre_capture_dump(sre_capture_t *cap)
     n = cap->ovecsize / sizeof(sre_int_t);
 
     for (i = 0; i < n; i += 2) {
-        fprintf(stderr, " (%lld, %lld)", (long long) cap->vector[i],
+        fprintf(stderr,
+#ifdef _WIN32
+                " (%I64d, %I64d)",
+#else
+                " (%lld, %lld)",
+#endif
+                (long long) cap->vector[i],
                 (long long) cap->vector[i + 1]);
     }
 }

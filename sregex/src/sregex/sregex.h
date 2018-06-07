@@ -25,11 +25,7 @@
 #           define SRE_API __declspec(dllexport)
 #       endif
 #   else
-#       ifdef __GNUC__
-#           define SRE_API __attribute__ ((dllimport))
-#       else
-#           define SRE_API __declspec(dllimport)
-#       endif
+#       define SRE_API
 #   endif
 #   define SRE_NOAPI
 #else
