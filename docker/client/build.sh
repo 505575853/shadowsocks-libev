@@ -57,20 +57,14 @@ build_proj() {
     LDFLAGS="-all-static"
     CFLAGS=""
     CC="clang"
-    CXX="clang++"
     if [[ "$host" == *-darwin* ]]; then
         LDFLAGS=""
         CFLAGS="-mmacosx-version-min=10.9"
     elif [[ "$host" == *-linux-musl* ]]; then
         CFLAGS="-I${BASE}/sysheader ${CFLAGS}"
         CC="gcc"
-        CXX="c++"
-    elif [[ "$host" == aarch64-w64-mingw32 ]]; then
-        LDFLAGS="${LDFLAGS} -lssp"
     elif [[ "$host" == *-mingw32 ]]; then
         LDFLAGS="${LDFLAGS} -lssp"
-        CC="gcc-posix"
-        CXX="g++-posix"
     fi
     mkdir -p "$SRC"
     cd "$SRC"
@@ -88,8 +82,8 @@ build_proj() {
     cd proj
     (>&2 echo "Building for ${host}...")
     ./configure --host=${host} --prefix=${prefix} \
-      CFLAGS="${CFLAGS}" CXXFLAGS="${CFLAGS}" \
-      CC=${host}-${CC} CXX=${host}-${CXX} >/dev/null 2>&1
+      CFLAGS="${CFLAGS}" \
+      CC=${host}-${CC} >/dev/null 2>&1
     make clean >/dev/null 2>&1
     make -j$cpu LDFLAGS="${LDFLAGS}"
     make install-strip >/dev/null 2>&1
