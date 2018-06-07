@@ -65,8 +65,10 @@ build_proj() {
     elif [[ "$host" == *-linux-musl* ]]; then
         CFLAGS="-I${BASE}/sysheader ${CFLAGS}"
         CC="gcc"
-    elif [[ "$host" == *-mingw32 ]]; then
+    elif [[ "$host" == aarch64-w64-mingw32 ]]; then
         LDFLAGS="${LDFLAGS} -lssp"
+    elif [[ "$host" == *-mingw32 ]]; then
+        CC="gcc"
     fi
     mkdir -p "$SRC"
     cd "$SRC"
