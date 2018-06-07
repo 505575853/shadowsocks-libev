@@ -30,6 +30,7 @@ DIST="$BASE/dist"
 # Supported hosts
 declare -a HOSTS=(
     x86_64-linux-musl
+    aarch64-linux-musl
     x86_64-apple-darwin15
     i686-w64-mingw32
     x86_64-w64-mingw32
@@ -38,6 +39,7 @@ declare -a HOSTS=(
 
 declare -a HOSTS_SUFFIX=(
     linux-x64
+    linux-arm64
     macos
     win32.exe
     win64.exe
