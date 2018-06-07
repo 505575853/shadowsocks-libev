@@ -19,11 +19,11 @@ static void *sre_palloc_block(sre_pool_t *pool, size_t size);
 #endif
 static void *sre_palloc_large(sre_pool_t *pool, size_t size);
 #if !(SRE_USE_VALGRIND)
+// https://github.com/nginx/nginx/blob/master/src/os/win32/ngx_alloc.h
 # ifdef __MINGW32__
-#  include <stdlib.h>
-#  define sre_memalign(a,s) _aligned_malloc(s,a)
-#  define sre_memfree(p) _aligned_free(p)
-#  define sre_malloc(s) _aligned_malloc(s,2*sizeof(void *))
+#  define sre_memalign(a,s) malloc(s)
+#  define sre_memfree(p) free(p)
+#  define sre_malloc(s) malloc(s)
 # else
 static void * sre_memalign(size_t alignment, size_t size);
 # endif
