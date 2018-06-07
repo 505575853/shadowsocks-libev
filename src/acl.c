@@ -407,7 +407,7 @@ rules_compile(rules_t *rules)
         &err_regex_id);
     if (regex == NULL) {
         LOGE("Failed to parse rules %s: id(%ld) offset(%ld)",
-             rules->name, err_offset, err_regex_id);
+             rules->name, (long)err_offset, (long)err_regex_id);
         return;
     }
     compiled = sre_regex_compile(sre_pool, regex);
