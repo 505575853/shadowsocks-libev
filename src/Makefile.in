@@ -158,7 +158,7 @@ am__DEPENDENCIES_2 = $(top_builddir)/libipset/libipset.la \
 	$(top_builddir)/libcork/libcork.la \
 	$(top_builddir)/libev/libev.la \
 	$(top_builddir)/libudns/libudns.la \
-	$(top_builddir)/re2/libre2.la $(am__DEPENDENCIES_1) \
+	$(top_builddir)/sregex/libsregex.la $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__append_3) $(am__append_4)
 am__DEPENDENCIES_3 = $(am__DEPENDENCIES_2)
 libshadowsocks_libev_la_DEPENDENCIES = $(am__DEPENDENCIES_3)
@@ -212,6 +212,9 @@ am_ss_local_OBJECTS = ss_local-utils.$(OBJEXT) \
 	$(am__objects_6) $(am__objects_7)
 ss_local_OBJECTS = $(am_ss_local_OBJECTS)
 ss_local_DEPENDENCIES = $(am__DEPENDENCIES_2)
+ss_local_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(ss_local_CFLAGS) \
+	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 am__ss_redir_SOURCES_DIST = utils.c jconf.c json.c encrypt.c \
 	netutils.c cache.c udprelay.c redir.c http.c tls.c \
 	libgoquiet.c sds.c
@@ -249,8 +252,7 @@ am__v_at_1 =
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/auto/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/dummy.Po \
-	./$(DEPDIR)/libshadowsocks_libev_la-acl.Plo \
+am__depfiles_remade = ./$(DEPDIR)/libshadowsocks_libev_la-acl.Plo \
 	./$(DEPDIR)/libshadowsocks_libev_la-cache.Plo \
 	./$(DEPDIR)/libshadowsocks_libev_la-encrypt.Plo \
 	./$(DEPDIR)/libshadowsocks_libev_la-http.Plo \
@@ -300,26 +302,8 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
-	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
-LTCXXCOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) \
-	$(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) \
-	$(AM_CXXFLAGS) $(CXXFLAGS)
-AM_V_CXX = $(am__v_CXX_@AM_V@)
-am__v_CXX_ = $(am__v_CXX_@AM_DEFAULT_V@)
-am__v_CXX_0 = @echo "  CXX     " $@;
-am__v_CXX_1 = 
-CXXLD = $(CXX)
-CXXLINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
-	$(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
-AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
-am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
-am__v_CXXLD_0 = @echo "  CXXLD   " $@;
-am__v_CXXLD_1 = 
 SOURCES = $(libshadowsocks_libev_la_SOURCES) $(ss_local_SOURCES) \
-	$(nodist_EXTRA_ss_local_SOURCES) $(ss_redir_SOURCES)
+	$(ss_redir_SOURCES)
 DIST_SOURCES = $(am__libshadowsocks_libev_la_SOURCES_DIST) \
 	$(am__ss_local_SOURCES_DIST) $(am__ss_redir_SOURCES_DIST)
 am__can_run_installinfo = \
@@ -365,10 +349,6 @@ CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
-CXX = @CXX@
-CXXCPP = @CXXCPP@
-CXXDEPMODE = @CXXDEPMODE@
-CXXFLAGS = @CXXFLAGS@
 CYGPATH_W = @CYGPATH_W@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
@@ -429,7 +409,6 @@ abs_top_builddir = @abs_top_builddir@
 abs_top_srcdir = @abs_top_srcdir@
 ac_ct_AR = @ac_ct_AR@
 ac_ct_CC = @ac_ct_CC@
-ac_ct_CXX = @ac_ct_CXX@
 ac_ct_DUMPBIN = @ac_ct_DUMPBIN@
 am__include = @am__include@
 am__leading_dot = @am__leading_dot@
@@ -482,22 +461,19 @@ AM_CFLAGS = -O2 -Wall -Werror -Wno-deprecated-declarations \
 	-fno-strict-aliasing -std=gnu99 -D_GNU_SOURCE \
 	$(PTHREAD_CFLAGS) $(am__append_1) -I$(top_srcdir)/libev \
 	-I$(top_srcdir)/libudns -I$(top_srcdir)/libipset/include \
-	-I$(top_srcdir)/libcork/include -I$(top_srcdir)/re2
+	-I$(top_srcdir)/libcork/include -I$(top_srcdir)/sregex/src
 SS_COMMON_LIBS = $(top_builddir)/libipset/libipset.la \
 	$(top_builddir)/libcork/libcork.la \
 	$(top_builddir)/libev/libev.la \
 	$(top_builddir)/libudns/libudns.la \
-	$(top_builddir)/re2/libre2.la $(INET_NTOP_LIB) $(am__append_2) \
-	$(am__append_3) $(am__append_4)
+	$(top_builddir)/sregex/libsregex.la $(INET_NTOP_LIB) \
+	$(am__append_2) $(am__append_3) $(am__append_4)
 #bin_PROGRAMS += ss-tunnel
 #bin_PROGRAMS += ss-server ss-manager
 sni_src = http.c tls.c $(am__append_5)
 ss_local_SOURCES = utils.c jconf.c json.c encrypt.c udprelay.c cache.c \
 	acl.c netutils.c local.c plugin.c options.c $(sni_src) \
 	$(am__append_6)
-
-# Dummy C++ source to cause C++ linking.
-nodist_EXTRA_ss_local_SOURCES = dummy.cxx
 
 #ss_tunnel_SOURCES = utils.c \
 #                    jconf.c \
@@ -552,7 +528,7 @@ include_HEADERS = shadowsocks.h
 all: all-am
 
 .SUFFIXES:
-.SUFFIXES: .c .cxx .lo .o .obj
+.SUFFIXES: .c .lo .o .obj
 $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
@@ -672,7 +648,7 @@ libshadowsocks-libev.la: $(libshadowsocks_libev_la_OBJECTS) $(libshadowsocks_lib
 
 ss-local$(EXEEXT): $(ss_local_OBJECTS) $(ss_local_DEPENDENCIES) $(EXTRA_ss_local_DEPENDENCIES) 
 	@rm -f ss-local$(EXEEXT)
-	$(AM_V_CXXLD)$(CXXLINK) $(ss_local_OBJECTS) $(ss_local_LDADD) $(LIBS)
+	$(AM_V_CCLD)$(ss_local_LINK) $(ss_local_OBJECTS) $(ss_local_LDADD) $(LIBS)
 
 ss-redir$(EXEEXT): $(ss_redir_OBJECTS) $(ss_redir_DEPENDENCIES) $(EXTRA_ss_redir_DEPENDENCIES) 
 	@rm -f ss-redir$(EXEEXT)
@@ -719,7 +695,6 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dummy.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libshadowsocks_libev_la-acl.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libshadowsocks_libev_la-cache.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libshadowsocks_libev_la-encrypt.Plo@am__quote@ # am--include-marker
@@ -1299,30 +1274,6 @@ ss_redir-sds.obj: sds.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ss_redir_CFLAGS) $(CFLAGS) -c -o ss_redir-sds.obj `if test -f 'sds.c'; then $(CYGPATH_W) 'sds.c'; else $(CYGPATH_W) '$(srcdir)/sds.c'; fi`
 
-.cxx.o:
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
-@am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
-@am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ $<
-
-.cxx.obj:
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`;\
-@am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ `$(CYGPATH_W) '$<'` &&\
-@am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
-
-.cxx.lo:
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.lo$$||'`;\
-@am__fastdepCXX_TRUE@	$(LTCXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
-@am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LTCXXCOMPILE) -c -o $@ $<
-
 mostlyclean-libtool:
 	-rm -f *.lo
 
@@ -1480,8 +1431,7 @@ clean-am: clean-binPROGRAMS clean-generic clean-libLTLIBRARIES \
 	clean-libtool mostlyclean-am
 
 distclean: distclean-am
-		-rm -f ./$(DEPDIR)/dummy.Po
-	-rm -f ./$(DEPDIR)/libshadowsocks_libev_la-acl.Plo
+		-rm -f ./$(DEPDIR)/libshadowsocks_libev_la-acl.Plo
 	-rm -f ./$(DEPDIR)/libshadowsocks_libev_la-cache.Plo
 	-rm -f ./$(DEPDIR)/libshadowsocks_libev_la-encrypt.Plo
 	-rm -f ./$(DEPDIR)/libshadowsocks_libev_la-http.Plo
@@ -1571,8 +1521,7 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-		-rm -f ./$(DEPDIR)/dummy.Po
-	-rm -f ./$(DEPDIR)/libshadowsocks_libev_la-acl.Plo
+		-rm -f ./$(DEPDIR)/libshadowsocks_libev_la-acl.Plo
 	-rm -f ./$(DEPDIR)/libshadowsocks_libev_la-cache.Plo
 	-rm -f ./$(DEPDIR)/libshadowsocks_libev_la-encrypt.Plo
 	-rm -f ./$(DEPDIR)/libshadowsocks_libev_la-http.Plo

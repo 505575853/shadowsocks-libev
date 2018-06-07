@@ -14,7 +14,6 @@
 
 @SET_MAKE@
 
-
 VPATH = @srcdir@
 am__is_gnu_make = { \
   if test -z '$(MAKELEVEL)'; then \
@@ -89,7 +88,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-subdir = libev
+subdir = sregex
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ax_tls.m4 \
 	$(top_srcdir)/m4/inet_ntop.m4 $(top_srcdir)/m4/libtool.m4 \
@@ -99,23 +98,30 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/ax_tls.m4 \
 	$(top_srcdir)/libev/libev.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
-DIST_COMMON = $(srcdir)/Makefile.am $(noinst_HEADERS) \
-	$(am__DIST_COMMON)
+DIST_COMMON = $(srcdir)/Makefile.am $(am__DIST_COMMON)
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 LTLIBRARIES = $(noinst_LTLIBRARIES)
-libev_la_LIBADD =
-am_libev_la_OBJECTS = ev.lo event.lo ev_wepoll.lo
-libev_la_OBJECTS = $(am_libev_la_OBJECTS)
+libsregex_la_LIBADD =
+am__dirstamp = $(am__leading_dot)dirstamp
+am_libsregex_la_OBJECTS = src/sregex/libsregex_la-sre_palloc.lo \
+	src/sregex/libsregex_la-sre_regex.lo \
+	src/sregex/libsregex_la-sre_yyparser.lo \
+	src/sregex/libsregex_la-sre_regex_compiler.lo \
+	src/sregex/libsregex_la-sre_vm_bytecode.lo \
+	src/sregex/libsregex_la-sre_vm_thompson.lo \
+	src/sregex/libsregex_la-sre_vm_pike.lo \
+	src/sregex/libsregex_la-sre_capture.lo
+libsregex_la_OBJECTS = $(am_libsregex_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
-libev_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
-	$(libev_la_LDFLAGS) $(LDFLAGS) -o $@
+libsregex_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(libsregex_la_CFLAGS) \
+	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -131,8 +137,15 @@ am__v_at_1 =
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/auto/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/ev.Plo ./$(DEPDIR)/ev_wepoll.Plo \
-	./$(DEPDIR)/event.Plo
+am__depfiles_remade =  \
+	src/sregex/$(DEPDIR)/libsregex_la-sre_capture.Plo \
+	src/sregex/$(DEPDIR)/libsregex_la-sre_palloc.Plo \
+	src/sregex/$(DEPDIR)/libsregex_la-sre_regex.Plo \
+	src/sregex/$(DEPDIR)/libsregex_la-sre_regex_compiler.Plo \
+	src/sregex/$(DEPDIR)/libsregex_la-sre_vm_bytecode.Plo \
+	src/sregex/$(DEPDIR)/libsregex_la-sre_vm_pike.Plo \
+	src/sregex/$(DEPDIR)/libsregex_la-sre_vm_thompson.Plo \
+	src/sregex/$(DEPDIR)/libsregex_la-sre_yyparser.Plo
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -152,14 +165,13 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(libev_la_SOURCES)
-DIST_SOURCES = $(libev_la_SOURCES)
+SOURCES = $(libsregex_la_SOURCES)
+DIST_SOURCES = $(libsregex_la_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
-HEADERS = $(noinst_HEADERS)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 # Read a list of newline-separated strings from the standard input,
 # and print each of them once, without duplicates.  Input order is
@@ -179,8 +191,7 @@ am__define_uniq_tagged_files = \
   done | $(am__uniquify_input)`
 ETAGS = etags
 CTAGS = ctags
-am__DIST_COMMON = $(srcdir)/Makefile.in $(top_srcdir)/auto/depcomp \
-	README
+am__DIST_COMMON = $(srcdir)/Makefile.in $(top_srcdir)/auto/depcomp
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
 AMTAR = @AMTAR@
@@ -305,18 +316,19 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-AUTOMAKE_OPTIONS = foreign
-VERSION_INFO = 4:0:0
-EXTRA_DIST = LICENSE Changes libev.m4 autogen.sh \
-	     ev_vars.h ev_wrap.h \
-	     ev_epoll.c ev_select.c ev_poll.c ev_kqueue.c ev_port.c ev_win32.c \
-	     ev.3 ev.pod Symbols.ev Symbols.event
+noinst_LTLIBRARIES = libsregex.la
+libsregex_la_SOURCES = \
+   src/sregex/sre_palloc.c \
+   src/sregex/sre_regex.c \
+   src/sregex/sre_yyparser.c \
+   src/sregex/sre_regex_compiler.c \
+   src/sregex/sre_vm_bytecode.c \
+   src/sregex/sre_vm_thompson.c \
+   src/sregex/sre_vm_pike.c \
+   src/sregex/sre_capture.c
 
-noinst_MANS = ev.3
-noinst_HEADERS = ev.h ev++.h event.h
-noinst_LTLIBRARIES = libev.la
-libev_la_SOURCES = ev.c event.c ev_wepoll.c
-libev_la_LDFLAGS = -version-info $(VERSION_INFO)
+libsregex_la_CPPFLAGS = -I$(top_srcdir)/sregex/src
+libsregex_la_CFLAGS = -O3 -std=gnu99 -Wall -Werror
 all: all-am
 
 .SUFFIXES:
@@ -330,9 +342,9 @@ $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__confi
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign libev/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign sregex/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --foreign libev/Makefile
+	  $(AUTOMAKE) --foreign sregex/Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
 	  *config.status*) \
@@ -361,19 +373,51 @@ clean-noinstLTLIBRARIES:
 	  echo rm -f $${locs}; \
 	  rm -f $${locs}; \
 	}
+src/sregex/$(am__dirstamp):
+	@$(MKDIR_P) src/sregex
+	@: > src/sregex/$(am__dirstamp)
+src/sregex/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) src/sregex/$(DEPDIR)
+	@: > src/sregex/$(DEPDIR)/$(am__dirstamp)
+src/sregex/libsregex_la-sre_palloc.lo: src/sregex/$(am__dirstamp) \
+	src/sregex/$(DEPDIR)/$(am__dirstamp)
+src/sregex/libsregex_la-sre_regex.lo: src/sregex/$(am__dirstamp) \
+	src/sregex/$(DEPDIR)/$(am__dirstamp)
+src/sregex/libsregex_la-sre_yyparser.lo: src/sregex/$(am__dirstamp) \
+	src/sregex/$(DEPDIR)/$(am__dirstamp)
+src/sregex/libsregex_la-sre_regex_compiler.lo:  \
+	src/sregex/$(am__dirstamp) \
+	src/sregex/$(DEPDIR)/$(am__dirstamp)
+src/sregex/libsregex_la-sre_vm_bytecode.lo:  \
+	src/sregex/$(am__dirstamp) \
+	src/sregex/$(DEPDIR)/$(am__dirstamp)
+src/sregex/libsregex_la-sre_vm_thompson.lo:  \
+	src/sregex/$(am__dirstamp) \
+	src/sregex/$(DEPDIR)/$(am__dirstamp)
+src/sregex/libsregex_la-sre_vm_pike.lo: src/sregex/$(am__dirstamp) \
+	src/sregex/$(DEPDIR)/$(am__dirstamp)
+src/sregex/libsregex_la-sre_capture.lo: src/sregex/$(am__dirstamp) \
+	src/sregex/$(DEPDIR)/$(am__dirstamp)
 
-libev.la: $(libev_la_OBJECTS) $(libev_la_DEPENDENCIES) $(EXTRA_libev_la_DEPENDENCIES) 
-	$(AM_V_CCLD)$(libev_la_LINK)  $(libev_la_OBJECTS) $(libev_la_LIBADD) $(LIBS)
+libsregex.la: $(libsregex_la_OBJECTS) $(libsregex_la_DEPENDENCIES) $(EXTRA_libsregex_la_DEPENDENCIES) 
+	$(AM_V_CCLD)$(libsregex_la_LINK)  $(libsregex_la_OBJECTS) $(libsregex_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
+	-rm -f src/sregex/*.$(OBJEXT)
+	-rm -f src/sregex/*.lo
 
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ev.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ev_wepoll.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/event.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/sregex/$(DEPDIR)/libsregex_la-sre_capture.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/sregex/$(DEPDIR)/libsregex_la-sre_palloc.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/sregex/$(DEPDIR)/libsregex_la-sre_regex.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/sregex/$(DEPDIR)/libsregex_la-sre_regex_compiler.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/sregex/$(DEPDIR)/libsregex_la-sre_vm_bytecode.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/sregex/$(DEPDIR)/libsregex_la-sre_vm_pike.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/sregex/$(DEPDIR)/libsregex_la-sre_vm_thompson.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/sregex/$(DEPDIR)/libsregex_la-sre_yyparser.Plo@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
 	@$(MKDIR_P) $(@D)
@@ -405,11 +449,68 @@ am--depfiles: $(am__depfiles_remade)
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LTCOMPILE) -c -o $@ $<
 
+src/sregex/libsregex_la-sre_palloc.lo: src/sregex/sre_palloc.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libsregex_la_CPPFLAGS) $(CPPFLAGS) $(libsregex_la_CFLAGS) $(CFLAGS) -MT src/sregex/libsregex_la-sre_palloc.lo -MD -MP -MF src/sregex/$(DEPDIR)/libsregex_la-sre_palloc.Tpo -c -o src/sregex/libsregex_la-sre_palloc.lo `test -f 'src/sregex/sre_palloc.c' || echo '$(srcdir)/'`src/sregex/sre_palloc.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/sregex/$(DEPDIR)/libsregex_la-sre_palloc.Tpo src/sregex/$(DEPDIR)/libsregex_la-sre_palloc.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/sregex/sre_palloc.c' object='src/sregex/libsregex_la-sre_palloc.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libsregex_la_CPPFLAGS) $(CPPFLAGS) $(libsregex_la_CFLAGS) $(CFLAGS) -c -o src/sregex/libsregex_la-sre_palloc.lo `test -f 'src/sregex/sre_palloc.c' || echo '$(srcdir)/'`src/sregex/sre_palloc.c
+
+src/sregex/libsregex_la-sre_regex.lo: src/sregex/sre_regex.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libsregex_la_CPPFLAGS) $(CPPFLAGS) $(libsregex_la_CFLAGS) $(CFLAGS) -MT src/sregex/libsregex_la-sre_regex.lo -MD -MP -MF src/sregex/$(DEPDIR)/libsregex_la-sre_regex.Tpo -c -o src/sregex/libsregex_la-sre_regex.lo `test -f 'src/sregex/sre_regex.c' || echo '$(srcdir)/'`src/sregex/sre_regex.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/sregex/$(DEPDIR)/libsregex_la-sre_regex.Tpo src/sregex/$(DEPDIR)/libsregex_la-sre_regex.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/sregex/sre_regex.c' object='src/sregex/libsregex_la-sre_regex.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libsregex_la_CPPFLAGS) $(CPPFLAGS) $(libsregex_la_CFLAGS) $(CFLAGS) -c -o src/sregex/libsregex_la-sre_regex.lo `test -f 'src/sregex/sre_regex.c' || echo '$(srcdir)/'`src/sregex/sre_regex.c
+
+src/sregex/libsregex_la-sre_yyparser.lo: src/sregex/sre_yyparser.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libsregex_la_CPPFLAGS) $(CPPFLAGS) $(libsregex_la_CFLAGS) $(CFLAGS) -MT src/sregex/libsregex_la-sre_yyparser.lo -MD -MP -MF src/sregex/$(DEPDIR)/libsregex_la-sre_yyparser.Tpo -c -o src/sregex/libsregex_la-sre_yyparser.lo `test -f 'src/sregex/sre_yyparser.c' || echo '$(srcdir)/'`src/sregex/sre_yyparser.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/sregex/$(DEPDIR)/libsregex_la-sre_yyparser.Tpo src/sregex/$(DEPDIR)/libsregex_la-sre_yyparser.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/sregex/sre_yyparser.c' object='src/sregex/libsregex_la-sre_yyparser.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libsregex_la_CPPFLAGS) $(CPPFLAGS) $(libsregex_la_CFLAGS) $(CFLAGS) -c -o src/sregex/libsregex_la-sre_yyparser.lo `test -f 'src/sregex/sre_yyparser.c' || echo '$(srcdir)/'`src/sregex/sre_yyparser.c
+
+src/sregex/libsregex_la-sre_regex_compiler.lo: src/sregex/sre_regex_compiler.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libsregex_la_CPPFLAGS) $(CPPFLAGS) $(libsregex_la_CFLAGS) $(CFLAGS) -MT src/sregex/libsregex_la-sre_regex_compiler.lo -MD -MP -MF src/sregex/$(DEPDIR)/libsregex_la-sre_regex_compiler.Tpo -c -o src/sregex/libsregex_la-sre_regex_compiler.lo `test -f 'src/sregex/sre_regex_compiler.c' || echo '$(srcdir)/'`src/sregex/sre_regex_compiler.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/sregex/$(DEPDIR)/libsregex_la-sre_regex_compiler.Tpo src/sregex/$(DEPDIR)/libsregex_la-sre_regex_compiler.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/sregex/sre_regex_compiler.c' object='src/sregex/libsregex_la-sre_regex_compiler.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libsregex_la_CPPFLAGS) $(CPPFLAGS) $(libsregex_la_CFLAGS) $(CFLAGS) -c -o src/sregex/libsregex_la-sre_regex_compiler.lo `test -f 'src/sregex/sre_regex_compiler.c' || echo '$(srcdir)/'`src/sregex/sre_regex_compiler.c
+
+src/sregex/libsregex_la-sre_vm_bytecode.lo: src/sregex/sre_vm_bytecode.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libsregex_la_CPPFLAGS) $(CPPFLAGS) $(libsregex_la_CFLAGS) $(CFLAGS) -MT src/sregex/libsregex_la-sre_vm_bytecode.lo -MD -MP -MF src/sregex/$(DEPDIR)/libsregex_la-sre_vm_bytecode.Tpo -c -o src/sregex/libsregex_la-sre_vm_bytecode.lo `test -f 'src/sregex/sre_vm_bytecode.c' || echo '$(srcdir)/'`src/sregex/sre_vm_bytecode.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/sregex/$(DEPDIR)/libsregex_la-sre_vm_bytecode.Tpo src/sregex/$(DEPDIR)/libsregex_la-sre_vm_bytecode.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/sregex/sre_vm_bytecode.c' object='src/sregex/libsregex_la-sre_vm_bytecode.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libsregex_la_CPPFLAGS) $(CPPFLAGS) $(libsregex_la_CFLAGS) $(CFLAGS) -c -o src/sregex/libsregex_la-sre_vm_bytecode.lo `test -f 'src/sregex/sre_vm_bytecode.c' || echo '$(srcdir)/'`src/sregex/sre_vm_bytecode.c
+
+src/sregex/libsregex_la-sre_vm_thompson.lo: src/sregex/sre_vm_thompson.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libsregex_la_CPPFLAGS) $(CPPFLAGS) $(libsregex_la_CFLAGS) $(CFLAGS) -MT src/sregex/libsregex_la-sre_vm_thompson.lo -MD -MP -MF src/sregex/$(DEPDIR)/libsregex_la-sre_vm_thompson.Tpo -c -o src/sregex/libsregex_la-sre_vm_thompson.lo `test -f 'src/sregex/sre_vm_thompson.c' || echo '$(srcdir)/'`src/sregex/sre_vm_thompson.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/sregex/$(DEPDIR)/libsregex_la-sre_vm_thompson.Tpo src/sregex/$(DEPDIR)/libsregex_la-sre_vm_thompson.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/sregex/sre_vm_thompson.c' object='src/sregex/libsregex_la-sre_vm_thompson.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libsregex_la_CPPFLAGS) $(CPPFLAGS) $(libsregex_la_CFLAGS) $(CFLAGS) -c -o src/sregex/libsregex_la-sre_vm_thompson.lo `test -f 'src/sregex/sre_vm_thompson.c' || echo '$(srcdir)/'`src/sregex/sre_vm_thompson.c
+
+src/sregex/libsregex_la-sre_vm_pike.lo: src/sregex/sre_vm_pike.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libsregex_la_CPPFLAGS) $(CPPFLAGS) $(libsregex_la_CFLAGS) $(CFLAGS) -MT src/sregex/libsregex_la-sre_vm_pike.lo -MD -MP -MF src/sregex/$(DEPDIR)/libsregex_la-sre_vm_pike.Tpo -c -o src/sregex/libsregex_la-sre_vm_pike.lo `test -f 'src/sregex/sre_vm_pike.c' || echo '$(srcdir)/'`src/sregex/sre_vm_pike.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/sregex/$(DEPDIR)/libsregex_la-sre_vm_pike.Tpo src/sregex/$(DEPDIR)/libsregex_la-sre_vm_pike.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/sregex/sre_vm_pike.c' object='src/sregex/libsregex_la-sre_vm_pike.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libsregex_la_CPPFLAGS) $(CPPFLAGS) $(libsregex_la_CFLAGS) $(CFLAGS) -c -o src/sregex/libsregex_la-sre_vm_pike.lo `test -f 'src/sregex/sre_vm_pike.c' || echo '$(srcdir)/'`src/sregex/sre_vm_pike.c
+
+src/sregex/libsregex_la-sre_capture.lo: src/sregex/sre_capture.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libsregex_la_CPPFLAGS) $(CPPFLAGS) $(libsregex_la_CFLAGS) $(CFLAGS) -MT src/sregex/libsregex_la-sre_capture.lo -MD -MP -MF src/sregex/$(DEPDIR)/libsregex_la-sre_capture.Tpo -c -o src/sregex/libsregex_la-sre_capture.lo `test -f 'src/sregex/sre_capture.c' || echo '$(srcdir)/'`src/sregex/sre_capture.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/sregex/$(DEPDIR)/libsregex_la-sre_capture.Tpo src/sregex/$(DEPDIR)/libsregex_la-sre_capture.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/sregex/sre_capture.c' object='src/sregex/libsregex_la-sre_capture.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libsregex_la_CPPFLAGS) $(CPPFLAGS) $(libsregex_la_CFLAGS) $(CFLAGS) -c -o src/sregex/libsregex_la-sre_capture.lo `test -f 'src/sregex/sre_capture.c' || echo '$(srcdir)/'`src/sregex/sre_capture.c
+
 mostlyclean-libtool:
 	-rm -f *.lo
 
 clean-libtool:
 	-rm -rf .libs _libs
+	-rm -rf src/sregex/.libs src/sregex/_libs
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
@@ -498,7 +599,7 @@ distdir-am: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(LTLIBRARIES) $(HEADERS)
+all-am: Makefile $(LTLIBRARIES)
 installdirs:
 install: install-am
 install-exec: install-exec-am
@@ -526,6 +627,8 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
+	-rm -f src/sregex/$(DEPDIR)/$(am__dirstamp)
+	-rm -f src/sregex/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -536,9 +639,14 @@ clean-am: clean-generic clean-libtool clean-noinstLTLIBRARIES \
 	mostlyclean-am
 
 distclean: distclean-am
-		-rm -f ./$(DEPDIR)/ev.Plo
-	-rm -f ./$(DEPDIR)/ev_wepoll.Plo
-	-rm -f ./$(DEPDIR)/event.Plo
+		-rm -f src/sregex/$(DEPDIR)/libsregex_la-sre_capture.Plo
+	-rm -f src/sregex/$(DEPDIR)/libsregex_la-sre_palloc.Plo
+	-rm -f src/sregex/$(DEPDIR)/libsregex_la-sre_regex.Plo
+	-rm -f src/sregex/$(DEPDIR)/libsregex_la-sre_regex_compiler.Plo
+	-rm -f src/sregex/$(DEPDIR)/libsregex_la-sre_vm_bytecode.Plo
+	-rm -f src/sregex/$(DEPDIR)/libsregex_la-sre_vm_pike.Plo
+	-rm -f src/sregex/$(DEPDIR)/libsregex_la-sre_vm_thompson.Plo
+	-rm -f src/sregex/$(DEPDIR)/libsregex_la-sre_yyparser.Plo
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -584,9 +692,14 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-		-rm -f ./$(DEPDIR)/ev.Plo
-	-rm -f ./$(DEPDIR)/ev_wepoll.Plo
-	-rm -f ./$(DEPDIR)/event.Plo
+		-rm -f src/sregex/$(DEPDIR)/libsregex_la-sre_capture.Plo
+	-rm -f src/sregex/$(DEPDIR)/libsregex_la-sre_palloc.Plo
+	-rm -f src/sregex/$(DEPDIR)/libsregex_la-sre_regex.Plo
+	-rm -f src/sregex/$(DEPDIR)/libsregex_la-sre_regex_compiler.Plo
+	-rm -f src/sregex/$(DEPDIR)/libsregex_la-sre_vm_bytecode.Plo
+	-rm -f src/sregex/$(DEPDIR)/libsregex_la-sre_vm_pike.Plo
+	-rm -f src/sregex/$(DEPDIR)/libsregex_la-sre_vm_thompson.Plo
+	-rm -f src/sregex/$(DEPDIR)/libsregex_la-sre_yyparser.Plo
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
@@ -623,9 +736,6 @@ uninstall-am:
 
 .PRECIOUS: Makefile
 
-
-ev.3: ev.pod
-	pod2man -n LIBEV -r "libev-$(VERSION)" -c "libev - high performance full featured event loop" -s3 <$< >$@
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
