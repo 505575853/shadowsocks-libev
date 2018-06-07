@@ -41,8 +41,6 @@ AC_PROG_LN_S
 AC_PROG_LIBTOOL
 AC_PROG_MAKE_SET
 AC_LANG_SOURCE
-AC_PROG_CXX
-AC_PROG_CXX_C_O
 
 dnl Checks for golang
 AC_ARG_ENABLE(golang,
@@ -336,7 +334,7 @@ AC_DEFINE([HAVE_IPv6], [1], [Enable IPv6 support in libudns])
 
 AC_CONFIG_FILES([ shadowsocks-libev.pc
                  Makefile
-                 re2/Makefile
+                 sregex/Makefile
                  libcork/Makefile
                  libipset/Makefile
                  libudns/Makefile

@@ -9,7 +9,7 @@ libipset/Makefile
 doc/Makefile
 mbedtls/Makefile
 goquiet/Makefile
-re2/Makefile
+sregex/Makefile
 autom4te.cache/
 /config.h
 config.log

@@ -1,10 +1,10 @@
 if USE_SYSTEM_SHARED_LIB
-SUBDIRS = re2 libcork libipset libudns libev src
+SUBDIRS = sregex libcork libipset libudns libev src
 else
 if HAS_GOLANG
-SUBDIRS = re2 libcork libipset libudns libev mbedtls goquiet src
+SUBDIRS = sregex libcork libipset libudns libev mbedtls goquiet src
 else
-SUBDIRS = re2 libcork libipset libudns libev mbedtls src
+SUBDIRS = sregex libcork libipset libudns libev mbedtls src
 endif
 endif
 

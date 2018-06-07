@@ -22,7 +22,7 @@
 
 #include <ipset/ipset.h>
 #include <ctype.h>
-#include <cre2.h>
+#include <sregex/sregex.h>
 
 #include "utils.h"
 #include "cache.h"
@@ -39,9 +39,15 @@ static struct ip_set white_list_ipv6;
 static struct ip_set black_list_ipv4;
 static struct ip_set black_list_ipv6;
 
-static cre2_options_t* re2_options = NULL;
-static cre2_set *black_list_rules = NULL;
-static cre2_set *white_list_rules = NULL;
+typedef struct _rules_t {
+    sre_vm_thompson_ctx_t* vm;
+    struct cork_string_array array;
+    const char *name;
+} rules_t;
+
+static sre_pool_t* sre_pool = NULL;
+static rules_t black_list_rules;
+static rules_t white_list_rules;
 
 static int acl_mode = BLACK_LIST;
 
@@ -49,7 +55,7 @@ static struct cache *block_list;
 
 static struct ip_set outbound_block_list_ipv4;
 static struct ip_set outbound_block_list_ipv6;
-static cre2_set *outbound_block_list_rules = NULL;
+static rules_t outbound_block_list_rules;
 
 #ifndef __linux__
 # ifdef ACL_USE_FIREWALL
@@ -373,20 +379,54 @@ trimwhitespace(char *str)
 }
 
 static void
-init_rules(cre2_set **set, int added, const char* rule_name)
+rules_compile(rules_t *rules)
 {
-    if (set == NULL || *set == NULL) {
+    size_t rules_size = 0;
+    sre_uint_t max_ncaps;
+    sre_int_t err_offset = 0;
+    sre_int_t err_regex_id = 0;
+    sre_regex_t *regex = NULL;
+    sre_program_t* compiled = NULL;
+
+    if (rules == NULL || sre_pool == NULL) {
         return;
     }
-    if (added) {
-        if (cre2_set_compile(*set) == 0) {
-            LOGE("Failed to compile rules: %s", rule_name);
-        } else {
-            return;
-        }
+
+    rules_size = cork_array_size(&rules->array);
+    if (rules_size == 0) {
+        return;
     }
-    cre2_set_delete(*set);
-    *set = NULL;
+
+    regex = sre_regex_parse_multi(
+        sre_pool,
+        (sre_char **)cork_array_elements(&rules->array),
+        (sre_int_t)rules_size,
+        &max_ncaps,
+        NULL,
+        &err_offset,
+        &err_regex_id);
+    if (regex == NULL) {
+        LOGE("Failed to parse rules %s: id(%ld) offset(%ld)",
+             rules->name, err_offset, err_regex_id);
+        return;
+    }
+    compiled = sre_regex_compile(sre_pool, regex);
+    if (compiled == NULL) {
+        LOGE("Failed to compile rules: %s", rules->name);
+        return;
+    }
+    rules->vm = sre_vm_thompson_create_ctx(sre_pool, compiled);
+    if (rules->vm == NULL) {
+        LOGE("Failed to set regex context: %s", rules->name);
+    }
+}
+
+static void
+rules_init(rules_t *rules, const char *name)
+{
+    rules->vm = NULL;
+    cork_string_array_init(&rules->array);
+    rules->name = name;
 }
 
 int
@@ -402,25 +442,18 @@ init_acl(const char *path)
     ipset_init(&outbound_block_list_ipv4);
     ipset_init(&outbound_block_list_ipv6);
 
-    re2_options = cre2_opt_new();
-    if (re2_options == NULL) {
-        LOGE("Failed to allocate re2 option.");
+    sre_pool = sre_create_pool(1024);
+    if (sre_pool == NULL) {
+        LOGE("Failed to allocate regex pool.");
         return -1;
     }
-    // Increase max memory to 16MB
-    cre2_opt_set_max_mem(re2_options, 16LL << 20);
-    black_list_rules = cre2_set_new(re2_options, CRE2_UNANCHORED);
-    white_list_rules = cre2_set_new(re2_options, CRE2_UNANCHORED);
-    outbound_block_list_rules = cre2_set_new(re2_options, CRE2_UNANCHORED);
-
-    int black_rule_added = 0;
-    int white_rule_added = 0;
-    int outbound_rule_added = 0;
-    int *added = &black_rule_added;
+    rules_init(&black_list_rules, "proxy_list");
+    rules_init(&white_list_rules, "bypass_list");
+    rules_init(&outbound_block_list_rules, "outbound_list");
 
     struct ip_set *list_ipv4  = &black_list_ipv4;
     struct ip_set *list_ipv6  = &black_list_ipv6;
-    cre2_set *rules = black_list_rules;
+    rules_t *rules = &black_list_rules;
 
     FILE *f = fopen(path, "r");
     if (f == NULL) {
@@ -450,22 +483,19 @@ init_acl(const char *path)
             if (strcmp(line, "[outbound_block_list]") == 0) {
                 list_ipv4 = &outbound_block_list_ipv4;
                 list_ipv6 = &outbound_block_list_ipv6;
-                rules     = outbound_block_list_rules;
-                added = &outbound_rule_added;
+                rules     = &outbound_block_list_rules;
                 continue;
             } else if (strcmp(line, "[white_list]") == 0
                        || strcmp(line, "[proxy_list]") == 0) {
                 list_ipv4 = &black_list_ipv4;
                 list_ipv6 = &black_list_ipv6;
-                rules     = black_list_rules;
-                added = &black_rule_added;
+                rules     = &black_list_rules;
                 continue;
             } else if (strcmp(line, "[black_list]") == 0
                        || strcmp(line, "[bypass_list]") == 0) {
                 list_ipv4 = &white_list_ipv4;
                 list_ipv6 = &white_list_ipv6;
-                rules     = white_list_rules;
-                added = &white_rule_added;
+                rules     = &white_list_rules;
                 continue;
             } else if (strcmp(line, "[reject_all]") == 0
                        || strcmp(line, "[bypass_all]") == 0) {
@@ -500,19 +530,13 @@ init_acl(const char *path)
                     }
                 }
             } else {
-                if (rules != NULL) {
-                    if (cre2_set_add_simple(rules, line) != -1) {
-                        *added = 1;
-                    } else {
-                        LOGE("Regex compilation of \"%s\" failed:", line);
-                    }
-                }
+                cork_string_array_append(&rules->array, line);
             }
         }
 
-    init_rules(&black_list_rules, black_rule_added, "proxy_list");
-    init_rules(&white_list_rules, white_rule_added, "bypass_list");
-    init_rules(&outbound_block_list_rules, outbound_rule_added, "outbound_list");
+    rules_compile(&black_list_rules);
+    rules_compile(&white_list_rules);
+    rules_compile(&outbound_block_list_rules);
 
     fclose(f);
 
@@ -520,12 +544,9 @@ init_acl(const char *path)
 }
 
 static void
-free_rules(cre2_set **rules)
+free_rules(rules_t *rules)
 {
-    if (rules && *rules) {
-        cre2_set_delete(*rules);
-        *rules = NULL;
-    }
+    cork_array_done(&rules->array);
 }
 
 void
@@ -543,9 +564,9 @@ free_acl(void)
     ipset_done(&outbound_block_list_ipv6);
     free_rules(&outbound_block_list_rules);
 
-    if (re2_options) {
-        cre2_opt_delete(re2_options);
-        re2_options = NULL;
+    if (sre_pool) {
+        sre_destroy_pool(sre_pool);
+        sre_pool = NULL;
     }
 }
 
@@ -560,10 +581,10 @@ get_acl_mode(void)
  * Return 1,  if match.
  */
 static int
-lookup_rule(cre2_set *set, const char *name, size_t name_len)
+lookup_rule(rules_t *rules, const char *name, size_t name_len)
 {
-    if (set != NULL && name != NULL && name_len > 0) {
-        return cre2_set_match_simple(set, name, name_len);
+    if (rules->vm != NULL && name != NULL && name_len > 0) {
+        return (SRE_OK == sre_vm_thompson_exec(rules->vm, (sre_char *)name, name_len, 1));
     }
     return 0;
 }
@@ -582,9 +603,9 @@ acl_match_host(const char *host)
 
     if (err) {
         int host_len = strlen(host);
-        if (lookup_rule(black_list_rules, host, host_len))
+        if (lookup_rule(&black_list_rules, host, host_len))
             ret = 1;
-        else if (lookup_rule(white_list_rules, host, host_len))
+        else if (lookup_rule(&white_list_rules, host, host_len))
             ret = -1;
         return ret;
     }
@@ -653,7 +674,7 @@ outbound_block_match_host(const char *host)
 
     if (err) {
         int host_len = strlen(host);
-        if (lookup_rule(outbound_block_list_rules, host, host_len))
+        if (lookup_rule(&outbound_block_list_rules, host, host_len))
             ret = 1;
         return ret;
     }

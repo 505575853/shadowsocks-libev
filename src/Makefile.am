@@ -9,13 +9,13 @@ AM_CFLAGS += -I$(top_srcdir)/libev
 AM_CFLAGS += -I$(top_srcdir)/libudns
 AM_CFLAGS += -I$(top_srcdir)/libipset/include
 AM_CFLAGS += -I$(top_srcdir)/libcork/include
-AM_CFLAGS += -I$(top_srcdir)/re2
+AM_CFLAGS += -I$(top_srcdir)/sregex/src
 
 SS_COMMON_LIBS = $(top_builddir)/libipset/libipset.la \
                  $(top_builddir)/libcork/libcork.la \
                  $(top_builddir)/libev/libev.la \
                  $(top_builddir)/libudns/libudns.la \
-                 $(top_builddir)/re2/libre2.la \
+                 $(top_builddir)/sregex/libsregex.la \
                  $(INET_NTOP_LIB)
 if USE_SYSTEM_SHARED_LIB
 SS_COMMON_LIBS += -lmbedcrypto
@@ -52,9 +52,6 @@ ss_local_SOURCES = utils.c \
                    plugin.c \
                    options.c \
                    $(sni_src)
-
-# Dummy C++ source to cause C++ linking.
-nodist_EXTRA_ss_local_SOURCES = dummy.cxx
 
 #ss_tunnel_SOURCES = utils.c \
 #                    jconf.c \
