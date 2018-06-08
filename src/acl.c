@@ -23,6 +23,7 @@
 #include <ipset/ipset.h>
 #include <ctype.h>
 #include <sregex/sregex.h>
+#include <sregex/sre_vm_thompson.h>
 
 #include "utils.h"
 #include "cache.h"
@@ -429,6 +430,21 @@ rules_init(rules_t *rules, const char *name)
     rules->name = name;
 }
 
+static int
+rules_reset_vm(rules_t *rules)
+{
+    sre_vm_thompson_ctx_t* ctx;
+    if (rules == NULL || rules->vm == NULL) {
+        return 0;
+    }
+    ctx = rules->vm;
+    ctx->current_threads->count = 0;
+    ctx->next_threads->count = 0;
+    ctx->tag = ctx->program->tag + 1;
+    ctx->first_buf = 1;
+    return 1;
+}
+
 int
 init_acl(const char *path)
 {
@@ -583,7 +599,7 @@ get_acl_mode(void)
 static int
 lookup_rule(rules_t *rules, const char *name, size_t name_len)
 {
-    if (rules->vm != NULL && name != NULL && name_len > 0) {
+    if (rules_reset_vm(rules) && name != NULL && name_len > 0) {
         return (SRE_OK == sre_vm_thompson_exec(rules->vm, (sre_char *)name, name_len, 1));
     }
     return 0;
