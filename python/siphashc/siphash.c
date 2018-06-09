@@ -141,12 +141,12 @@ static int ss_fast_hash_with_key(char *auth, char *msg, int msg_len, uint8_t *au
     memcpy(key, auth_key,
            key_len < FAST_HASH_KEY_SIZE ? key_len : FAST_HASH_KEY_SIZE);
     if (key_len != FAST_HASH_KEY_SIZE) {
-        hash.num = siphash(auth_key, key_len, key);
+        hash.num = _le64toh(siphash(auth_key, key_len, key));
         memcpy(key, hash.bytes, FAST_HASH_LEN);
         memcpy(key + FAST_HASH_LEN, hash.bytes, FAST_HASH_LEN);
     }
 
-    hash.num = siphash((uint8_t *)msg, msg_len, key);
+    hash.num = _le64toh(siphash((uint8_t *)msg, msg_len, key));
     memcpy(auth, hash.bytes, FAST_HASH_LEN);
 
     return 0;
