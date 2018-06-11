@@ -17,6 +17,7 @@ server.exe
 ss-server
 /*.dll
 *.pyd
+!windows/*.pyd
 *.o
 *.lib
 windows/python27.zip

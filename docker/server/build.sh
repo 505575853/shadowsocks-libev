@@ -70,7 +70,7 @@ dk_package() {
     cp "$SRC/proj/goquiet/gq-server" .
     popd
     cp -r "$SRC/proj/python/windows" server
-    rm -f server/pylib.zip
+    rm -f server/pylib.zip server/winselect.pyd server/win_inet_pton.py
     mv server/ss-server.exe server/ssr-server.exe
     mv server win32-server
     echo "ShadowsocksR Python Server Release" > $BASE/pack/checksum

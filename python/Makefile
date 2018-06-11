@@ -18,6 +18,7 @@ winselect/wepoll.lib:
 
 pack:
 	cp windows/pylib.zip windows/python27.zip
+	cd windows; zip -ur python27.zip winselect.pyd win_inet_pton.py
 	find yogurt -iname '*.pyc' -delete
 	zip -ur windows/python27.zip yogurt server.py
 
