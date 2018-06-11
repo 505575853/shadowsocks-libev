@@ -29,7 +29,7 @@ import random
 import platform
 import threading
 
-from yogurt import encrypt, obfs, eventloop, shell, common, lru_cache, version
+from yogurt import encrypt, obfs, eventloop, shell, common, lru_cache, version, socks
 from yogurt.common import pre_parse_header, parse_header
 
 # we clear at most TIMEOUTS_CLEAN_SIZE timeouts each time
@@ -141,6 +141,13 @@ class TCPRelayHandler(object):
         self._add_ref = 0
         if not self._create_encryptor(config):
             return
+
+        # Forward remote connection to socks proxy
+        self._socks_proxy = config['socks_proxy']
+        if self._socks_proxy:
+            self._create_socket = self._create_proxy_socket
+        else:
+            self._create_socket = self._create_direct_socket
 
         peername = local_sock.getpeername()[:2]
         pn_ip, pn_port = 'unknown', 0
@@ -704,6 +711,15 @@ class TCPRelayHandler(object):
                 except Exception as e:
                     logging.warn("bind %s fail" % (bind_addr,))
 
+    def _create_proxy_socket(self, af, stype, proto):
+        s = socks.socksocket(af, stype, proto)
+        addr, port = self._socks_proxy
+        s.set_proxy(socks.SOCKS5, addr, port)
+        return s
+
+    def _create_direct_socket(self, af, stype, proto):
+        return socket.socket(af, stype, proto)
+
     def _create_remote_socket(self, ip, port):
         if self._remote_udp:
             addrs_v6 = socket.getaddrinfo("::", 0, 0, socket.SOCK_DGRAM, socket.SOL_UDP)
@@ -727,14 +743,14 @@ class TCPRelayHandler(object):
                         raise Exception('Port %d is in forbidden list, when connect to %s:%d via port %d by UID %d' %
                             (sa[1], self._remote_address[0], self._remote_address[1], self._server._listen_port, self._user_id))
                     raise Exception('Port %d is in forbidden list, reject' % sa[1])
-        remote_sock = socket.socket(af, socktype, proto)
+        remote_sock = self._create_socket(af, socktype, proto)
         self._remote_sock = remote_sock
         self._remote_sock_fd = remote_sock.fileno()
         self._fd_to_handlers[self._remote_sock_fd] = self
 
         if self._remote_udp:
             af, socktype, proto, canonname, sa = addrs_v6[0]
-            remote_sock_v6 = socket.socket(af, socktype, proto)
+            remote_sock_v6 = self._create_socket(af, socktype, proto)
             self._remote_sock_v6 = remote_sock_v6
             self._remotev6_sock_fd = remote_sock_v6.fileno()
             self._fd_to_handlers[self._remotev6_sock_fd] = self

@@ -71,6 +71,10 @@ def main():
     if not config.get('dns_ipv6', False):
         asyncdns.IPV6_CONNECTION_SUPPORT = False
 
+    sp = config.get('socks_proxy', None)
+    if sp:
+        logging.info('Forward to SOCKS proxy %s:%d', sp[0], sp[1])
+
     if config.get('manager_address', 0):
         logging.info('entering manager mode')
         manager.run(config)

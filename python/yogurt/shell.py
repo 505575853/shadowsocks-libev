@@ -71,19 +71,19 @@ def print_yogurt():
 def log_yogurt_version():
     logging.info('Yogurt %s' % __version())
 
-def to_dns(s):
+def to_dns(s, def_port=53):
     if not s:
         return None
     ret = []
     for s in s.split(","):
         a = s.split(":")
         addr = a[0].strip()
-        port = 53
+        port = def_port
         try:
             if len(a) > 1:
                 port = int(a[1])
         except:
-            port = 53
+            port = def_port
         ret.append((addr, port))
     return ret
 
@@ -267,6 +267,8 @@ def get_config(is_local):
     config['local_address'] = to_str(config.get('local_address', '127.0.0.1'))
     config['local_port'] = config.get('local_port', 1080)
     config['dns'] = to_dns(config.get('dns', None))
+    socks_proxy_list = to_dns(config.get('socks_proxy', None), def_port=1080)
+    config['socks_proxy'] = socks_proxy_list[0] if socks_proxy_list else None
     if is_local:
         if config.get('server', None) is None:
             logging.error('server addr not specified')
