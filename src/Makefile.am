@@ -4,8 +4,8 @@ AM_CFLAGS = -O2 -Wall -Werror -Wno-deprecated-declarations -fno-strict-aliasing 
 AM_CFLAGS += $(PTHREAD_CFLAGS)
 if !USE_SYSTEM_SHARED_LIB
 AM_CFLAGS += -I$(top_srcdir)/mbedtls/include
-endif
 AM_CFLAGS += -I$(top_srcdir)/libev
+endif
 AM_CFLAGS += -I$(top_srcdir)/libudns
 AM_CFLAGS += -I$(top_srcdir)/libipset/include
 AM_CFLAGS += -I$(top_srcdir)/libcork/include
@@ -13,14 +13,14 @@ AM_CFLAGS += -I$(top_srcdir)/sregex/src
 
 SS_COMMON_LIBS = $(top_builddir)/libipset/libipset.la \
                  $(top_builddir)/libcork/libcork.la \
-                 $(top_builddir)/libev/libev.la \
                  $(top_builddir)/libudns/libudns.la \
                  $(top_builddir)/sregex/libsregex.la \
                  $(INET_NTOP_LIB)
 if USE_SYSTEM_SHARED_LIB
-SS_COMMON_LIBS += -lmbedcrypto
+SS_COMMON_LIBS += -lmbedcrypto -lev
 else
-SS_COMMON_LIBS += $(top_builddir)/mbedtls/libmbedcrypto.la \
+SS_COMMON_LIBS += $(top_builddir)/libev/libev.la \
+                  $(top_builddir)/mbedtls/libmbedcrypto.la \
                   $(top_builddir)/mbedtls/libmbedcrypto_simd.la \
                   $(top_builddir)/mbedtls/libmbedcrypto_avx.la
 endif

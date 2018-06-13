@@ -338,12 +338,12 @@ AC_CONFIG_FILES([ shadowsocks-libev.pc
                  libcork/Makefile
                  libipset/Makefile
                  libudns/Makefile
-                 libev/Makefile
                  goquiet/Makefile
                  src/Makefile])
 AM_COND_IF([USE_SYSTEM_SHARED_LIB],[
+    AC_CHECK_LIB([ev], [ev_loop_destroy], ,[AC_MSG_ERROR([Couldn't find libev. Try installing libev-dev@<:@el@:>@.])])
     AC_CHECK_LIB([mbedcrypto], [mbedtls_cipher_setup], ,[AC_MSG_ERROR([Couldn't find mbedtls. Try installing libmbedtls-dev@<:@el@:>@.])])
   ],
-  [AC_CONFIG_FILES([mbedtls/Makefile])])
+  [AC_CONFIG_FILES([libev/Makefile mbedtls/Makefile])])
 
 AC_OUTPUT
