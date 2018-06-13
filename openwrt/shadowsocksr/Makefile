@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=shadowsocksr-libev
 PKG_VERSION:=2.5.6
-PKG_RELEASE:=061f712a9d07ca20e1daa7dacc2089ccc701198c
+PKG_RELEASE:=cdd00790a42f87e952441410375017bfe1c84d98
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_RELEASE).tar.gz
@@ -35,14 +35,14 @@ define Package/shadowsocksr-libev
 	CATEGORY:=Network
 	TITLE:=Lightweight Secured Socks5 Proxy
 	URL:=https://github.com/shadowsocksr/shadowsocksr-libev
-	DEPENDS:=+libmbedtls +libpthread
+	DEPENDS:=+libmbedtls +libev
 endef
 
 define Package/shadowsocksr-libev/description
 shadowsocksr-libev is a lightweight secured socks5 proxy for embedded devices and low end boxes.
 endef
 
-CONFIGURE_ARGS += --disable-assert --enable-system-shared-lib LDFLAGS="$$$$LDFLAGS -lpthread"
+CONFIGURE_ARGS += --disable-assert --enable-system-shared-lib
 
 define Package/shadowsocksr-libev/install
 	$(INSTALL_DIR) $(1)/usr/bin
