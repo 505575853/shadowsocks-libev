@@ -91,9 +91,12 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@USE_SYSTEM_SHARED_LIB_FALSE@am__append_1 = -I$(top_srcdir)/mbedtls/include
-@USE_SYSTEM_SHARED_LIB_TRUE@am__append_2 = -lmbedcrypto
-@USE_SYSTEM_SHARED_LIB_FALSE@am__append_3 = $(top_builddir)/mbedtls/libmbedcrypto.la \
+@USE_SYSTEM_SHARED_LIB_FALSE@am__append_1 =  \
+@USE_SYSTEM_SHARED_LIB_FALSE@	-I$(top_srcdir)/mbedtls/include \
+@USE_SYSTEM_SHARED_LIB_FALSE@	-I$(top_srcdir)/libev
+@USE_SYSTEM_SHARED_LIB_TRUE@am__append_2 = -lmbedcrypto -lev
+@USE_SYSTEM_SHARED_LIB_FALSE@am__append_3 = $(top_builddir)/libev/libev.la \
+@USE_SYSTEM_SHARED_LIB_FALSE@                  $(top_builddir)/mbedtls/libmbedcrypto.la \
 @USE_SYSTEM_SHARED_LIB_FALSE@                  $(top_builddir)/mbedtls/libmbedcrypto_simd.la \
 @USE_SYSTEM_SHARED_LIB_FALSE@                  $(top_builddir)/mbedtls/libmbedcrypto_avx.la
 
@@ -156,7 +159,6 @@ LTLIBRARIES = $(lib_LTLIBRARIES)
 am__DEPENDENCIES_1 =
 am__DEPENDENCIES_2 = $(top_builddir)/libipset/libipset.la \
 	$(top_builddir)/libcork/libcork.la \
-	$(top_builddir)/libev/libev.la \
 	$(top_builddir)/libudns/libudns.la \
 	$(top_builddir)/sregex/libsregex.la $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__append_3) $(am__append_4)
@@ -459,12 +461,11 @@ top_srcdir = @top_srcdir@
 VERSION_INFO = 2:0:0
 AM_CFLAGS = -O2 -Wall -Werror -Wno-deprecated-declarations \
 	-fno-strict-aliasing -std=gnu99 -D_GNU_SOURCE \
-	$(PTHREAD_CFLAGS) $(am__append_1) -I$(top_srcdir)/libev \
-	-I$(top_srcdir)/libudns -I$(top_srcdir)/libipset/include \
+	$(PTHREAD_CFLAGS) $(am__append_1) -I$(top_srcdir)/libudns \
+	-I$(top_srcdir)/libipset/include \
 	-I$(top_srcdir)/libcork/include -I$(top_srcdir)/sregex/src
 SS_COMMON_LIBS = $(top_builddir)/libipset/libipset.la \
 	$(top_builddir)/libcork/libcork.la \
-	$(top_builddir)/libev/libev.la \
 	$(top_builddir)/libudns/libudns.la \
 	$(top_builddir)/sregex/libsregex.la $(INET_NTOP_LIB) \
 	$(am__append_2) $(am__append_3) $(am__append_4)

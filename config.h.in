@@ -64,6 +64,9 @@
 /* Define to 1 if you have the <langinfo.h> header file. */
 #undef HAVE_LANGINFO_H
 
+/* Define to 1 if you have the `ev' library (-lev). */
+#undef HAVE_LIBEV
+
 /* Define to 1 if you have the `mbedcrypto' library (-lmbedcrypto). */
 #undef HAVE_LIBMBEDCRYPTO
 
